@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  
+  --color-error: hsl(var(--error));
+  --color-success: hsl(var(--success));
+  --color-warning: hsl(var(--warning));
+  
+  --color-status-pending: hsl(var(--status-pending));
+  --color-status-processing: hsl(var(--status-processing));
+  --color-status-delivered: hsl(var(--status-delivered));
+  --color-status-cancelled: hsl(var(--status-cancelled));
+  --color-status-purple: hsl(var(--status-purple));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@layer base {
+  :root {
+    /* Dark Navy/Black background */
+    --background: 226 47% 5%; 
+    --foreground: 210 40% 98%;
+
+    /* Cards and Inputs background */
+    --card: 226 30% 11%;
+    --card-foreground: 210 40% 98%;
+    
+    --input: 226 30% 8%;
+
+    /* Accent Light Blue */
+    --primary: 216 100% 80%;
+    --primary-foreground: 226 47% 5%;
+
+    /* Muted text and backgrounds */
+    --muted: 226 20% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    /* Borders */
+    --border: 226 20% 20%;
+
+    /* Semantic Status Colors (Red, Green, Yellow) */
+    --error: 0 84% 60%;
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    
+    /* Dashboard Specific Colors */
+    --status-pending: 38 92% 50%; /* Orange */
+    --status-processing: 216 100% 65%; /* Blue */
+    --status-delivered: 142 71% 45%; /* Green */
+    --status-cancelled: 0 84% 60%; /* Red */
+    --status-purple: 270 70% 65%; /* Purple */
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  
+  /* Fix Chrome autofill turning inputs white */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px hsl(var(--input)) inset !important;
+    -webkit-text-fill-color: hsl(var(--foreground)) !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Custom Glow Animations */
+  @keyframes sun-glow {
+    0%, 100% {
+      box-shadow: 0 0 10px 2px rgba(234, 179, 8, 0.2), 0 0 20px 5px rgba(234, 179, 8, 0.1);
+      transform: scale(1);
+    }
+    50% {
+      box-shadow: 0 0 25px 8px rgba(234, 179, 8, 0.6), 0 0 50px 15px rgba(234, 179, 8, 0.3);
+      transform: scale(1.03);
+    }
+  }
+
+  .animate-sun-glow {
+    animation: sun-glow 2s ease-in-out infinite;
+  }
+
+  /* Custom Date Picker Styling */
+  .date-input-custom::-webkit-calendar-picker-indicator {
+    position: absolute;
+    right: 0;
+    width: 40px;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+}

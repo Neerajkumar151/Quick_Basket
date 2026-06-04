@@ -1,0 +1,253 @@
+{
+  "layout": {
+    "brand": "QuickBasket",
+    "portal": "Partner Portal",
+    "help": "Help",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "copyright": "© 2024 QuickBasket Inc. All rights reserved.",
+    "searchPlaceholder": "Search orders, products...",
+    "adminName": "Alexander Chen",
+    "adminRole": "Administrator"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to manage your digital storefront",
+      "fields": {
+        "email": { "label": "Business Email", "placeholder": "name@business.com" },
+        "password": { "label": "Password", "placeholder": "Enter your password" }
+      },
+      "submit": "Sign In",
+      "submitting": "Signing in...",
+      "noAccount": "Don't have a store?",
+      "createAccount": "Set one up now"
+    },
+    "marketing": {
+      "title": "Manage your store from anywhere",
+      "description": "Access real-time analytics, manage inventory, and grow your digital storefront securely with our enterprise portal."
+    }
+  },
+  "onboarding": {
+    "title": "Store Onboarding",
+    "subtitle": "Complete these steps to set up your digital storefront and start selling today.",
+    "security": {
+      "title": "Enterprise Security",
+      "description": "Your data is encrypted and secure."
+    },
+    "form": {
+      "title": "Let's get started",
+      "subtitle": "Tell us about yourself and your store name.",
+      "fields": {
+        "storeName": { "label": "Store Name", "placeholder": "e.g. Fresh Mart Central" },
+        "ownerName": { "label": "Owner Name", "placeholder": "Full legal name" },
+        "email": { "label": "Business Email", "placeholder": "name@business.com" },
+        "phone": { "label": "Phone Number", "placeholder": "00000 00000" },
+        "password": { "label": "Password", "placeholder": "Create a strong password" }
+      },
+      "submit": "Save & Continue",
+      "submitting": "Saving...",
+      "hasAccount": "Already have a store?",
+      "signIn": "Sign in"
+    },
+    "location": {
+      "title": "Location Details",
+      "subtitle": "Provide the physical address for your store. This will be used for logistics routing and customer pickups.",
+      "fields": {
+        "streetAddress": { "label": "Street Address", "placeholder": "e.g. 123 Logistics Blvd, Suite 400" },
+        "landmark": { "label": "Landmark (Optional)", "placeholder": "e.g. Near Apollo Hospital" },
+        "city": { "label": "City", "placeholder": "City name" },
+        "state": { "label": "State", "placeholder": "Select State" },
+        "postalCode": { "label": "PIN Code", "placeholder": "000000" },
+        "country": { "label": "Country", "value": "India" }
+      },
+      "map": {
+        "pin": "Use Current Location",
+        "status": "Location accurately mapped",
+        "fetching": "Fetching address..."
+      },
+      "buttons": {
+        "previous": "Previous",
+        "continue": "Save & Continue"
+      }
+    },
+    "identity": {
+      "title": "Business Identity",
+      "subtitle": "Provide your legal business information for verification.",
+      "fields": {
+        "businessType": {
+          "label": "Business Type",
+          "placeholder": "Select Business Type",
+          "options": {
+            "individual": "Individual",
+            "proprietorship": "Proprietorship",
+            "partnership": "Partnership",
+            "pvtLtd": "Pvt Ltd"
+          }
+        },
+        "gstin": {
+          "label": "GST Number",
+          "placeholder": "Enter GSTIN",
+          "description": "15-digit Goods and Services Tax Identification Number."
+        },
+        "pan": {
+          "label": "PAN Number",
+          "placeholder": "ENTER PAN"
+        },
+        "registrationDate": {
+          "label": "Business Registration Date",
+          "placeholder": "dd/mm/yyyy"
+        },
+        "proof": {
+          "label": "Registration Proof Document",
+          "upload": "Upload a file",
+          "drag": " or drag and drop",
+          "formats": "PDF, PNG, JPG up to 10MB"
+        }
+      },
+      "buttons": {
+        "previous": "Previous",
+        "submit": "Save for Verification"
+      }
+    },
+    "pending": {
+      "title": "Application Submitted",
+      "description": "Your store details have been successfully submitted for review. Our administration team is currently verifying your business documents. This process usually takes 24-48 hours.",
+      "statusLabel": "Status",
+      "statusValue": "Pending Admin Approval"
+    },
+    "steps": [
+      {
+        "title": "Basic Information",
+        "description": "Personal & store contact"
+      },
+      {
+        "title": "Location Details",
+        "description": "Physical store address"
+      },
+      {
+        "title": "Business Identity",
+        "description": "Legal & tax identification"
+      }
+    ]
+  },
+  "sidebar": {
+    "groups": {
+      "overview": "OVERVIEW",
+      "catalog": "CATALOG",
+      "inventory": "INVENTORY",
+      "sales": "SALES",
+      "analytics": "ANALYTICS",
+      "storeManagement": "STORE MANAGEMENT"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "products": "Products",
+      "categories": "Categories",
+      "tags": "Tags",
+      "banners": "Banners",
+      "inventory": "Inventory",
+      "lowStock": "Low Stock",
+      "history": "History",
+      "orders": "Orders",
+      "customers": "Customers",
+      "payments": "Payments",
+      "reports": "Reports",
+      "storeProfile": "Store Profile",
+      "storeSettings": "Store Settings"
+    },
+    "footer": {
+      "help": "Help & Support",
+      "logout": "Logout"
+    }
+  },
+  "dashboard": {
+    "storeInfo": {
+      "name": "FreshMart Grocery",
+      "hours": "9:00 AM – 9:00 PM",
+      "lastUpdatedValue": "Today, 10:45 AM"
+    },
+    "header": {
+      "title": "Dashboard Overview",
+      "subtitle": "Track your store performance and manage logistics in real-time.",
+      "verified": "Verified Store",
+      "openNow": "Open Now",
+      "lastUpdated": "Last updated:",
+      "buttons": {
+        "createBanner": "Create Banner",
+        "addProduct": "Add Product"
+      }
+    },
+    "kpis": {
+      "primary": {
+        "revenue": "TOTAL REVENUE",
+        "orders": "TOTAL ORDERS",
+        "products": "TOTAL PRODUCTS",
+        "lowStock": "LOW STOCK ITEMS"
+      },
+      "orderStatus": {
+        "pending": "Pending Orders",
+        "processing": "Processing Orders",
+        "delivered": "Delivered Orders",
+        "cancelled": "Cancelled Orders"
+      }
+    },
+    "quickActions": {
+      "addProduct": {
+        "title": "Add Product",
+        "description": "Create a new product listing"
+      },
+      "manageInventory": {
+        "title": "Manage Inventory",
+        "description": "Update stock levels & prices"
+      },
+      "pendingOrders": {
+        "title": "Pending Orders",
+        "description": "Review and accept orders"
+      },
+      "createBanner": {
+        "title": "Create Banner",
+        "description": "Setup promotional banners"
+      }
+    },
+    "analytics": {
+      "tabs": {
+        "revenue": "Revenue",
+        "orders": "Orders"
+      },
+      "filters": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly"
+      },
+      "orderStatusTitle": "Order Status",
+      "total": "Total",
+      "statuses": {
+        "pending": "Pending",
+        "processing": "Processing",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      }
+    },
+    "operational": {
+      "recentOrders": {
+        "title": "Recent Orders",
+        "viewAll": "View All Orders",
+        "columns": {
+          "orderId": "Order ID",
+          "customer": "Customer",
+          "time": "Time",
+          "status": "Status",
+          "total": "Total",
+          "action": "Action"
+        }
+      },
+      "lowStock": {
+        "title": "Low Stock",
+        "viewInventory": "View Inventory",
+        "unitsRemaining": "Units Remaining",
+        "restockItems": "Restock Items"
+      }
+    }
+  }
+}
