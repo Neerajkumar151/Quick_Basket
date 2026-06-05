@@ -1,0 +1,251 @@
+import { useState, useEffect, useMemo, useRef } from "react";
+import { Plus, ImageIcon, Edit2 } from "lucide-react";
+import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
+
+import { PageHeader } from "../../components/ui/PageHeader";
+import { FilterBar } from "../../components/ui/FilterBar";
+import { SearchInput } from "../../components/ui/SearchInput";
+import { DataTable, ColumnDef } from "../../components/ui/DataTable";
+import { EntityDrawer } from "../../components/ui/EntityDrawer";
+import { Pagination } from "../../components/ui/Pagination";
+
+import {
+  CategoryForm,
+  CategoryFormValues,
+} from "../../components/categories/CategoryForm";
+import {
+  categoryService,
+  Category,
+} from "../../services/categoryService";
+import en from "../../locales/en.json";
+
+export const CategoriesPage = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Drawer
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const fetchCategories = async (showLoader = true) => {
+    try {
+      if (showLoader) setIsLoading(true);
+      const data = await categoryService.getCategories();
+      setCategories(data);
+    } catch (error) {
+      toast.error("Failed to fetch categories");
+    } finally {
+      if (showLoader) setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const handleOpenDrawer = (category?: Category) => {
+    setEditingCategory(category || null);
+    setIsDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+    setEditingCategory(null);
+  };
+
+  const handleSubmitForm = async (
+    data: CategoryFormValues,
+    imageFile: File | null,
+  ) => {
+    setIsSubmitting(true);
+    try {
+      let imageUrl = editingCategory?.image;
+      if (imageFile) {
+        imageUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(imageFile);
+        });
+      }
+
+      if (editingCategory) {
+        await categoryService.updateCategory(editingCategory.id, {
+          ...data,
+          image: imageUrl,
+        });
+        toast.success(en.categories.messages.successUpdate);
+      } else {
+        await categoryService.createCategory({ ...data, image: imageUrl });
+        toast.success(en.categories.messages.successCreate);
+      }
+
+      await fetchCategories(false);
+      handleCloseDrawer();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to save category");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const triggerFormSubmit = () => {
+    if (formRef.current) {
+      formRef.current.dispatchEvent(
+        new Event("submit", { cancelable: true, bubbles: true }),
+      );
+    }
+  };
+
+  // Filter & Pagination Logic
+  const filteredCategories = useMemo(() => {
+    return categories.filter((c) => {
+      const matchesSearch = c.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      return matchesSearch;
+    });
+  }, [categories, searchQuery]);
+
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+  const paginatedCategories = filteredCategories.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
+  const columns: ColumnDef<Category>[] = [
+    {
+      header: en.categories.table.image,
+      cell: (cat) => (
+        <div className="w-10 h-10 rounded-lg bg-input overflow-hidden flex items-center justify-center border border-border shadow-sm">
+          {cat.image ? (
+            <img
+              src={cat.image}
+              alt={cat.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <ImageIcon size={20} className="text-muted-foreground" />
+          )}
+        </div>
+      ),
+    },
+    {
+      header: en.categories.table.name,
+      accessorKey: "name",
+      cell: (cat) => (
+        <span className="font-bold text-foreground">{cat.name}</span>
+      ),
+    },
+    {
+      header: en.categories.table.description,
+      cell: (cat) => (
+        <span className="text-muted-foreground max-w-[200px] truncate block">
+          {cat.description || "-"}
+        </span>
+      ),
+    },
+    {
+      header: en.categories.table.products,
+      cell: (cat) => (
+        <Link
+          to={`/dashboard/products?category=${encodeURIComponent(cat.name)}`}
+          className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors"
+          title={en.categories.messages.viewProducts}
+        >
+          {cat.productsCount}
+        </Link>
+      ),
+    },
+    {
+      header: en.categories.table.createdOn,
+      accessorKey: "createdAt",
+      className: "text-muted-foreground",
+    },
+    {
+      header: en.categories.table.actions,
+      className: "text-right",
+      cell: (cat) => (
+        <div className="flex justify-end">
+          <button
+            onClick={() => handleOpenDrawer(cat)}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
+          >
+            <Edit2 size={16} />
+            Edit
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="flex flex-col gap-6 animate-in fade-in duration-500 pb-12">
+      <PageHeader
+        title={en.categories.header.title}
+        description={en.categories.header.subtitle}
+        actionLabel={en.categories.header.addCategory}
+        actionIcon={<Plus size={18} />}
+        onAction={() => handleOpenDrawer()}
+      />
+
+      <FilterBar>
+        <div className="w-full sm:w-72">
+          <SearchInput
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            placeholder={en.categories.filters.searchPlaceholder}
+          />
+        </div>
+      </FilterBar>
+
+      <div className="flex flex-col">
+        <DataTable
+          data={paginatedCategories}
+          columns={columns}
+          isLoading={isLoading}
+          emptyTitle={en.categories.messages.emptyTitle}
+          emptyDescription={en.categories.messages.emptySubtitle}
+        />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      </div>
+
+      <EntityDrawer
+        isOpen={isDrawerOpen}
+        onClose={handleCloseDrawer}
+        title={
+          editingCategory
+            ? en.categories.form.editTitle
+            : en.categories.form.addTitle
+        }
+        onSubmit={triggerFormSubmit}
+        onCancel={handleCloseDrawer}
+        isSubmitting={isSubmitting}
+        submitLabel={
+          editingCategory
+            ? en.categories.form.update
+            : en.categories.form.create
+        }
+      >
+        <CategoryForm
+          formRef={formRef}
+          initialData={editingCategory}
+          onSubmit={handleSubmitForm}
+        />
+      </EntityDrawer>
+    </div>
+  );
+};

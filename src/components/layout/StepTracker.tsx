@@ -41,7 +41,7 @@ export const StepTracker: React.FC = () => {
               <button
                 onClick={() => navigate(step.path)}
                 className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all duration-300 shadow-sm border cursor-pointer hover:ring-2 hover:ring-primary/50",
+                  "w-10 h-10 rounded-xl flex items-center justify-center font-bold text-description transition-all duration-300 shadow-sm border cursor-pointer hover:ring-2 hover:ring-primary/50",
                   isActive
                     ? "bg-primary text-primary-foreground border-primary"
                     : isCompleted
@@ -60,7 +60,7 @@ export const StepTracker: React.FC = () => {
             >
               <span
                 className={cn(
-                  "text-base font-semibold leading-none transition-colors group-hover:text-primary/80",
+                  "text-body font-semibold leading-none transition-colors group-hover:text-primary/80",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
@@ -68,7 +68,7 @@ export const StepTracker: React.FC = () => {
               </span>
               <span
                 className={cn(
-                  "text-xs transition-colors mt-1.5",
+                  "text-caption transition-colors mt-1.5",
                   isActive || isCompleted ? "text-muted-foreground" : "text-muted-foreground/50"
                 )}
               >

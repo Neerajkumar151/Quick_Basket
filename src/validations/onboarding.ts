@@ -37,14 +37,14 @@ export const businessIdentitySchema = z.object({
   registrationDate: z.string().min(1, "Registration date is required"),
   registrationProof: z
     .any()
-    .refine((files) => files?.length === 1, "Registration proof document is required")
+    .optional()
     .refine(
-      (files) => files?.[0]?.size <= 10 * 1024 * 1024,
+      (files) => !files || files.length === 0 || files?.[0]?.size <= 10 * 1024 * 1024,
       "Max file size is 10MB"
     )
     .refine(
       (files) =>
-        ["application/pdf", "image/png", "image/jpeg"].includes(files?.[0]?.type),
+        !files || files.length === 0 || ["application/pdf", "image/png", "image/jpeg"].includes(files?.[0]?.type),
       "Only PDF, PNG, and JPG formats are supported"
     ),
 });

@@ -5,43 +5,16 @@ import {
   AreaChart, Area
 } from "recharts";
 import en from "../../locales/en.json";
+import mockData from "../../constants/mock.json";
 
-const REVENUE_DATA = [
-  { name: 'Jan', value: 3200 },
-  { name: 'Feb', value: 4100 },
-  { name: 'Mar', value: 4800 },
-  { name: 'Apr', value: 3900 },
-  { name: 'May', value: 6500 },
-  { name: 'Jun', value: 6200 },
-  { name: 'Jul', value: 7100 },
-  { name: 'Aug', value: 5800 },
-  { name: 'Sep', value: 8900 },
-  { name: 'Oct', value: 7200 },
-  { name: 'Nov', value: 9800 },
-  { name: 'Dec', value: 8500 },
-];
-
-const ORDERS_DATA = [
-  { name: 'Jan', value: 120 },
-  { name: 'Feb', value: 140 },
-  { name: 'Mar', value: 180 },
-  { name: 'Apr', value: 150 },
-  { name: 'May', value: 250 },
-  { name: 'Jun', value: 220 },
-  { name: 'Jul', value: 290 },
-  { name: 'Aug', value: 210 },
-  { name: 'Sep', value: 340 },
-  { name: 'Oct', value: 280 },
-  { name: 'Nov', value: 420 },
-  { name: 'Dec', value: 380 },
-];
-
-const ORDER_STATUS_DATA = [
-  { name: en.dashboard.analytics.statuses.pending, value: 142, color: 'hsl(var(--status-pending))' },
-  { name: en.dashboard.analytics.statuses.processing, value: 289, color: 'hsl(var(--status-processing))' },
-  { name: en.dashboard.analytics.statuses.delivered, value: 1402, color: 'hsl(var(--status-delivered))' },
-  { name: en.dashboard.analytics.statuses.cancelled, value: 34, color: 'hsl(var(--status-cancelled))' },
-];
+const REVENUE_DATA = mockData.revenueData;
+const ORDERS_DATA = mockData.ordersData;
+const ORDER_STATUS_DATA = mockData.orderStatusData.map(item => {
+  const keys = item.name.split('.');
+  let translatedName = en as any;
+  keys.forEach(k => { translatedName = translatedName[k] });
+  return { ...item, name: translatedName as string };
+});
 
 const renderActiveShape = (props: any) => {
   const RADIAN = Math.PI / 180;
@@ -86,7 +59,8 @@ const renderActiveShape = (props: any) => {
 };
 
 export const AnalyticsSection: React.FC = () => {
-  const [dateFilter, setDateFilter] = useState<'Daily' | 'Weekly' | 'Monthly'>('Monthly');
+  const [revenueFilter, setRevenueFilter] = useState<'Daily' | 'Weekly' | 'Monthly'>('Monthly');
+  const [ordersFilter, setOrdersFilter] = useState<'Daily' | 'Weekly' | 'Monthly'>('Monthly');
   const [activePieIndex, setActivePieIndex] = useState<number | undefined>(undefined);
 
   const totalOrders = ORDER_STATUS_DATA.reduce((acc, curr) => acc + curr.value, 0);
@@ -99,16 +73,16 @@ export const AnalyticsSection: React.FC = () => {
         {/* Revenue Chart - Area Chart */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm flex flex-col h-[420px]">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-card-foreground">{en.dashboard.analytics.tabs.revenue}</h2>
+            <h2 className="text-h3 font-bold text-card-foreground">{en.dashboard.analytics.tabs.revenue}</h2>
             <div className="flex bg-background border border-border rounded-md overflow-hidden shrink-0">
               {['Daily', 'Weekly', 'Monthly'].map(filter => (
                 <button 
                   key={filter}
-                  onClick={() => setDateFilter(filter as any)}
-                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                    dateFilter === filter 
-                      ? 'bg-status-processing/20 text-status-processing' 
-                      : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
+                  onClick={() => setRevenueFilter(filter as any)}
+                  className={`px-3 py-1.5 text-caption font-medium transition-colors ${
+                    revenueFilter === filter 
+                      ? 'bg-primary/20 text-primary' 
+                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                   }`}
                 >
                   {filter === 'Daily' ? en.dashboard.analytics.filters.daily : filter === 'Weekly' ? en.dashboard.analytics.filters.weekly : en.dashboard.analytics.filters.monthly}
@@ -121,8 +95,8 @@ export const AnalyticsSection: React.FC = () => {
               <AreaChart data={REVENUE_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--status-processing))" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="hsl(var(--status-processing))" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <XAxis 
@@ -136,18 +110,18 @@ export const AnalyticsSection: React.FC = () => {
                   axisLine={false} 
                   tickLine={false} 
                   tick={{ fill: '#64748b', fontSize: 12 }}
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) => `₹${value}`}
                 />
                 <RechartsTooltip 
                   cursor={{ stroke: 'rgba(255, 255, 255, 0.1)', strokeWidth: 1, strokeDasharray: '4 4' }}
                   contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(8px)', border: '1px solid #1e293b', borderRadius: '8px' }}
                   itemStyle={{ color: '#fff', fontWeight: 'bold' }}
-                  formatter={(value: number) => [`$${value.toLocaleString()}`, en.dashboard.analytics.tabs.revenue]}
+                  formatter={(value: any) => [`₹${value.toLocaleString()}`, en.dashboard.analytics.tabs.revenue]}
                 />
                 <Area 
                   type="monotone" 
                   dataKey="value" 
-                  stroke="hsl(var(--status-processing))" 
+                  stroke="hsl(var(--primary))" 
                   strokeWidth={3} 
                   fillOpacity={1} 
                   fill="url(#colorRevenue)" 
@@ -161,14 +135,14 @@ export const AnalyticsSection: React.FC = () => {
         {/* Orders Chart - Bar Chart */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm flex flex-col h-[420px]">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-card-foreground">{en.dashboard.analytics.tabs.orders}</h2>
+            <h2 className="text-h3 font-bold text-card-foreground">{en.dashboard.analytics.tabs.orders}</h2>
             <div className="flex bg-background border border-border rounded-md overflow-hidden shrink-0">
               {['Daily', 'Weekly', 'Monthly'].map(filter => (
                 <button 
                   key={filter}
-                  onClick={() => setDateFilter(filter as any)}
-                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                    dateFilter === filter 
+                  onClick={() => setOrdersFilter(filter as any)}
+                  className={`px-3 py-1.5 text-caption font-medium transition-colors ${
+                    ordersFilter === filter 
                       ? 'bg-status-purple/20 text-status-purple' 
                       : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
                   }`}
@@ -197,7 +171,7 @@ export const AnalyticsSection: React.FC = () => {
                   cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
                   contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(8px)', border: '1px solid #1e293b', borderRadius: '8px' }}
                   itemStyle={{ color: '#fff', fontWeight: 'bold' }}
-                  formatter={(value: number) => [value.toLocaleString(), en.dashboard.analytics.tabs.orders]}
+                  formatter={(value: any) => [value.toLocaleString(), en.dashboard.analytics.tabs.orders]}
                 />
                 <Bar 
                   dataKey="value" 
@@ -219,7 +193,7 @@ export const AnalyticsSection: React.FC = () => {
         
         {/* Legends / Breakdown */}
         <div className="flex flex-col flex-1 justify-center">
-          <h2 className="text-xl font-bold text-card-foreground mb-6">{en.dashboard.analytics.orderStatusTitle}</h2>
+          <h2 className="text-h3 font-bold text-card-foreground mb-6">{en.dashboard.analytics.orderStatusTitle}</h2>
           <div className="flex flex-col gap-4">
             {ORDER_STATUS_DATA.map((status, idx) => {
               const percentage = (status.value / totalOrders) * 100;
@@ -231,14 +205,14 @@ export const AnalyticsSection: React.FC = () => {
                   onMouseEnter={() => setActivePieIndex(idx)}
                   onMouseLeave={() => setActivePieIndex(undefined)}
                 >
-                  <div className="flex justify-between items-center text-sm">
+                  <div className="flex justify-between items-center text-description">
                     <span className="text-muted-foreground font-medium flex items-center gap-2">
                       <span className="w-3 h-3 rounded-full" style={{ backgroundColor: status.color }} />
                       {status.name}
                     </span>
                     <div className="flex items-center gap-3">
                       <span className="text-foreground font-bold">{status.value}</span>
-                      <span className="text-xs text-muted-foreground w-10 text-right">{percentage.toFixed(1)}%</span>
+                      <span className="text-caption text-muted-foreground w-10 text-right">{percentage.toFixed(1)}%</span>
                     </div>
                   </div>
                   <div className="w-full h-2 bg-background rounded-full overflow-hidden">
@@ -258,7 +232,8 @@ export const AnalyticsSection: React.FC = () => {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                activeIndex={activePieIndex}
+                // @ts-ignore Recharts types mismatch for activeIndex
+                activeIndex={activePieIndex as any}
                 activeShape={renderActiveShape}
                 data={ORDER_STATUS_DATA}
                 cx="50%"
@@ -280,8 +255,8 @@ export const AnalyticsSection: React.FC = () => {
           
           {/* Center Text for Donut */}
           <div className="absolute top-[50%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-3xl font-bold text-foreground tracking-tight">{totalOrders.toLocaleString()}</span>
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mt-1">{en.dashboard.analytics.total}</span>
+            <span className="text-h1 font-bold text-foreground tracking-tight">{totalOrders.toLocaleString()}</span>
+            <span className="text-caption uppercase tracking-widest text-muted-foreground mt-1">{en.dashboard.analytics.total}</span>
           </div>
         </div>
 

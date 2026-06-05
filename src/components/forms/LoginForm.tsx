@@ -38,10 +38,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   return (
     <div className="flex flex-col w-full max-w-sm mx-auto">
       <div className="flex flex-col mb-8 text-center sm:text-left">
-        <h2 className="text-3xl font-bold text-card-foreground mb-2 tracking-tight">
+        <h2 className="text-h1 font-bold text-card-foreground mb-2 tracking-tight">
           {en.auth.login.title}
         </h2>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-description">
           {en.auth.login.subtitle}
         </p>
       </div>
@@ -81,7 +81,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md mt-2 py-6 text-base"
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md mt-2 py-6 text-body"
         >
           {isSubmitting ? en.auth.login.submitting : en.auth.login.submit}
           {!isSubmitting && <ArrowRight size={18} className="ml-2" />}

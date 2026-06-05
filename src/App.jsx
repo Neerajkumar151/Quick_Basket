@@ -6,6 +6,8 @@ import { PendingVerificationPage } from "./pages/onboarding/PendingVerificationP
 import { LoginPage } from "./pages/auth/LoginPage";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { OverviewPage } from "./pages/dashboard/OverviewPage";
+import { CategoriesPage } from "./pages/dashboard/CategoriesPage";
+import { TagsPage } from "./pages/dashboard/TagsPage";
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -30,6 +32,8 @@ function App() {
         
         {/* Dashboard Pages */}
         <Route path="/dashboard" element={<DashboardLayout><OverviewPage /></DashboardLayout>} />
+        <Route path="/dashboard/categories" element={<DashboardLayout><CategoriesPage /></DashboardLayout>} />
+        <Route path="/dashboard/tags" element={<DashboardLayout><TagsPage /></DashboardLayout>} />
         
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

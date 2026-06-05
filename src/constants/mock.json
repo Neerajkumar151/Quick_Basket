@@ -1,0 +1,121 @@
+{
+  "categories": [
+    {
+      "id": "cat-1",
+      "name": "Vegetables",
+      "description": "Fresh organic vegetables",
+      "image": "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=500&q=80",
+      "productsCount": 45,
+      "createdAt": "12 May"
+    },
+    {
+      "id": "cat-2",
+      "name": "Fruits",
+      "description": "Seasonal fresh fruits",
+      "image": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=500&q=80",
+      "productsCount": 32,
+      "createdAt": "15 May"
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag-1",
+      "name": "Trending",
+      "productsCount": 24,
+      "createdAt": "12 May"
+    },
+    {
+      "id": "tag-2",
+      "name": "Fresh",
+      "productsCount": 11,
+      "createdAt": "15 May"
+    }
+  ],
+  "revenueData": [
+    { "name": "Jan", "value": 3200 },
+    { "name": "Feb", "value": 4100 },
+    { "name": "Mar", "value": 4800 },
+    { "name": "Apr", "value": 3900 },
+    { "name": "May", "value": 6500 },
+    { "name": "Jun", "value": 6200 },
+    { "name": "Jul", "value": 7100 },
+    { "name": "Aug", "value": 5800 },
+    { "name": "Sep", "value": 8900 },
+    { "name": "Oct", "value": 7200 },
+    { "name": "Nov", "value": 9800 },
+    { "name": "Dec", "value": 8500 }
+  ],
+  "ordersData": [
+    { "name": "Jan", "value": 120 },
+    { "name": "Feb", "value": 140 },
+    { "name": "Mar", "value": 180 },
+    { "name": "Apr", "value": 150 },
+    { "name": "May", "value": 250 },
+    { "name": "Jun", "value": 220 },
+    { "name": "Jul", "value": 290 },
+    { "name": "Aug", "value": 210 },
+    { "name": "Sep", "value": 340 },
+    { "name": "Oct", "value": 280 },
+    { "name": "Nov", "value": 420 },
+    { "name": "Dec", "value": 380 }
+  ],
+  "orderStatusData": [
+    { "name": "dashboard.analytics.statuses.pending", "value": 142, "color": "hsl(var(--status-pending))" },
+    { "name": "dashboard.analytics.statuses.delivered", "value": 628, "color": "hsl(var(--status-delivered))" },
+    { "name": "dashboard.analytics.statuses.cancelled", "value": 34, "color": "hsl(var(--status-cancelled))" }
+  ],
+  "recentOrders": [
+    { "id": "#QB-8902", "customer": "Sarah Williams", "time": "10:24 AM", "status": "Delivered", "amount": "₹128.40" },
+    { "id": "#QB-8899", "customer": "Robert Down", "time": "08:30 AM", "status": "Cancelled", "amount": "₹12.50" },
+    { "id": "#QB-8898", "customer": "Jessica Alba", "time": "Yesterday", "status": "Pending", "amount": "₹89.90" }
+  ],
+  "primaryKpis": [
+    {
+      "title": "dashboard.kpis.primary.revenue",
+      "value": "₹128,430.50",
+      "icon": "Wallet",
+      "colorClass": "text-status-delivered",
+      "bgClass": "bg-status-delivered/10"
+    },
+    {
+      "title": "dashboard.kpis.primary.orders",
+      "value": "4,829",
+      "icon": "ShoppingBag",
+      "colorClass": "text-primary",
+      "bgClass": "bg-primary/10"
+    },
+    {
+      "title": "dashboard.kpis.primary.products",
+      "value": "1,240",
+      "icon": "Package",
+      "colorClass": "text-status-purple",
+      "bgClass": "bg-status-purple/10"
+    }
+  ],
+  "orderStatusKpis": [
+    {
+      "title": "dashboard.kpis.orderStatus.pending",
+      "value": "24",
+      "icon": "Clock",
+      "colorClass": "text-status-pending",
+      "bgClass": "bg-status-pending/10",
+      "borderClass": "hover:border-status-pending/50"
+    },
+    {
+      "title": "dashboard.kpis.orderStatus.delivered",
+      "value": "401",
+      "icon": "CheckCircle2",
+      "colorClass": "text-status-delivered",
+      "bgClass": "bg-status-delivered/10",
+      "borderClass": "hover:border-status-delivered/50"
+    },
+    {
+      "title": "dashboard.kpis.orderStatus.cancelled",
+      "value": "19",
+      "icon": "XCircle",
+      "colorClass": "text-status-cancelled",
+      "bgClass": "bg-status-cancelled/10",
+      "borderClass": "hover:border-status-cancelled/50"
+    }
+  ]
+}

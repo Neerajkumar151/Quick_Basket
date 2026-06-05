@@ -1,13 +1,23 @@
 import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, ArrowLeft, Upload, File as FileIcon, X, Calendar } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowLeft,
+  Upload,
+  File as FileIcon,
+  X,
+  Calendar,
+} from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
 import { Button, cn } from "../ui/Button";
-import { businessIdentitySchema, type BusinessIdentityFormValues } from "../../validations/onboarding";
+import {
+  businessIdentitySchema,
+  type BusinessIdentityFormValues,
+} from "../../validations/onboarding";
 import en from "../../locales/en.json";
 
 interface BusinessIdentityFormProps {
@@ -15,7 +25,10 @@ interface BusinessIdentityFormProps {
   onPrevious: () => void;
 }
 
-export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({ onSubmit, onPrevious }) => {
+export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
+  onSubmit,
+  onPrevious,
+}) => {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -43,7 +56,9 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({ onSu
 
   const validateAndSetFile = (file: File) => {
     if (!["application/pdf", "image/png", "image/jpeg"].includes(file.type)) {
-      setError("registrationProof", { message: "Only PDF, PNG, and JPG formats are supported" });
+      setError("registrationProof", {
+        message: "Only PDF, PNG, and JPG formats are supported",
+      });
       toast.error("Invalid file format. Please upload PDF, PNG, or JPG.");
       return;
     }
@@ -55,14 +70,14 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({ onSu
     clearErrors("registrationProof");
     setSelectedFile(file);
     setValue("registrationProof", [file]);
-    
+
     // Create preview if it's an image
     if (file.type.startsWith("image/")) {
       setPreviewUrl(URL.createObjectURL(file));
     } else {
       setPreviewUrl(null);
     }
-    
+
     toast.success("Document attached successfully.");
   };
 
@@ -102,23 +117,42 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({ onSu
   return (
     <div className="flex flex-col gap-6 w-full h-full max-w-4xl mx-auto">
       <div className="bg-card border border-border rounded-2xl p-8 lg:p-10 shadow-sm">
-        
-        <h2 className="text-2xl font-bold text-card-foreground mb-2">{en.onboarding.identity.title}</h2>
-        <p className="text-muted-foreground text-sm mb-8">{en.onboarding.identity.subtitle}</p>
+        <h2 className="text-h2 font-bold text-card-foreground mb-2">
+          {en.onboarding.identity.title}
+        </h2>
+        <p className="text-muted-foreground text-description mb-8">
+          {en.onboarding.identity.subtitle}
+        </p>
 
-        <form id="identity-form" onSubmit={handleSubmit(handleFinalSubmit)} className="flex flex-col gap-6">
-          
+        <form
+          id="identity-form"
+          onSubmit={handleSubmit(handleFinalSubmit)}
+          className="flex flex-col gap-6"
+        >
           <Select
             label={en.onboarding.identity.fields.businessType.label}
             error={errors.businessType?.message}
             required
             {...register("businessType")}
           >
-            <option value="">{en.onboarding.identity.fields.businessType.placeholder}</option>
-            <option value="individual">{en.onboarding.identity.fields.businessType.options.individual}</option>
-            <option value="proprietorship">{en.onboarding.identity.fields.businessType.options.proprietorship}</option>
-            <option value="partnership">{en.onboarding.identity.fields.businessType.options.partnership}</option>
-            <option value="pvtLtd">{en.onboarding.identity.fields.businessType.options.pvtLtd}</option>
+            <option value="">
+              {en.onboarding.identity.fields.businessType.placeholder}
+            </option>
+            <option value="individual">
+              {en.onboarding.identity.fields.businessType.options.individual}
+            </option>
+            <option value="proprietorship">
+              {
+                en.onboarding.identity.fields.businessType.options
+                  .proprietorship
+              }
+            </option>
+            <option value="partnership">
+              {en.onboarding.identity.fields.businessType.options.partnership}
+            </option>
+            <option value="pvtLtd">
+              {en.onboarding.identity.fields.businessType.options.pvtLtd}
+            </option>
           </Select>
 
           <div className="flex flex-col">
@@ -130,7 +164,7 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({ onSu
               {...register("gstin")}
             />
             {!errors.gstin?.message && (
-              <p className="text-xs text-muted-foreground mt-1.5 ml-1">
+              <p className="text-caption text-muted-foreground mt-1.5 ml-1">
                 {en.onboarding.identity.fields.gstin.description}
               </p>
             )}
@@ -149,9 +183,16 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({ onSu
           <Input
             label={en.onboarding.identity.fields.registrationDate.label}
             type="date"
-            placeholder={en.onboarding.identity.fields.registrationDate.placeholder}
+            placeholder={
+              en.onboarding.identity.fields.registrationDate.placeholder
+            }
             error={errors.registrationDate?.message}
-            suffixElement={<Calendar size={16} className="text-muted-foreground pointer-events-none" />}
+            suffixElement={
+              <Calendar
+                size={16}
+                className="text-muted-foreground pointer-events-none"
+              />
+            }
             className="date-input-custom"
             required
             {...register("registrationDate")}
@@ -159,17 +200,19 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({ onSu
 
           {/* File Upload Zone */}
           <div className="flex flex-col gap-1.5 w-full mt-2">
-            <label className="text-sm font-medium text-foreground">
+            <label className="text-description font-medium text-foreground">
               {en.onboarding.identity.fields.proof.label}
-              <span className="text-error ml-1">*</span>
+              {/* <span className="text-muted-foreground text-caption ml-1 font-normal">(Optional)</span> */}
             </label>
-            
+
             <div
               className={cn(
                 "relative flex flex-col items-center justify-center w-full min-h-[140px] rounded-lg border-2 border-dashed transition-colors",
-                dragActive ? "border-primary bg-primary/5" : "border-border bg-input/50",
+                dragActive
+                  ? "border-primary bg-primary/5"
+                  : "border-border bg-input/50",
                 errors.registrationProof ? "border-error bg-error/5" : "",
-                "hover:bg-input"
+                "hover:bg-input",
               )}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
@@ -182,15 +225,17 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({ onSu
                 accept=".pdf,image/png,image/jpeg"
                 onChange={handleChange}
               />
-              
+
               {!selectedFile ? (
                 <div className="flex flex-col items-center justify-center text-center p-6 pointer-events-none">
                   <Upload className="w-8 h-8 text-primary mb-3" />
-                  <p className="text-sm text-foreground">
-                    <span className="font-semibold text-primary">{en.onboarding.identity.fields.proof.upload}</span>
+                  <p className="text-description text-foreground">
+                    <span className="font-semibold text-primary">
+                      {en.onboarding.identity.fields.proof.upload}
+                    </span>
                     {en.onboarding.identity.fields.proof.drag}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-caption text-muted-foreground mt-1">
                     {en.onboarding.identity.fields.proof.formats}
                   </p>
                 </div>
@@ -198,18 +243,24 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({ onSu
                 <div className="flex flex-col items-center gap-4 p-4 z-20 pointer-events-auto w-full h-full justify-center">
                   {previewUrl ? (
                     <div className="relative w-full h-32 flex justify-center items-center overflow-hidden rounded-md border border-border bg-black/50">
-                      <img src={previewUrl} alt="Preview" className="max-h-full max-w-full object-contain drop-shadow-lg" />
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        className="max-h-full max-w-full object-contain drop-shadow-lg"
+                      />
                     </div>
                   ) : (
                     <div className="p-4 bg-primary/10 rounded-full mb-2">
                       <FileIcon className="w-8 h-8 text-primary" />
                     </div>
                   )}
-                  
+
                   <div className="flex items-center gap-3 w-full bg-background border border-border p-3 rounded-lg shadow-sm">
                     <div className="flex flex-col overflow-hidden flex-1">
-                      <span className="text-sm font-medium text-foreground truncate">{selectedFile.name}</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-description font-medium text-foreground truncate">
+                        {selectedFile.name}
+                      </span>
+                      <span className="text-caption text-muted-foreground">
                         {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
                       </span>
                     </div>
@@ -225,23 +276,36 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({ onSu
               )}
             </div>
             {errors.registrationProof && (
-              <p className="text-xs text-error mt-1">{errors.registrationProof.message as string}</p>
+              <p className="text-caption text-error mt-1">
+                {errors.registrationProof.message as string}
+              </p>
             )}
           </div>
         </form>
 
         {/* Footer Actions */}
         <div className="flex items-center justify-between pt-8 mt-8 border-t border-border">
-          <Button type="button" variant="ghost" onClick={onPrevious} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onPrevious}
+            disabled={isSubmitting}
+          >
             <ArrowLeft size={16} className="mr-2" />
             {en.onboarding.identity.buttons.previous}
           </Button>
-          <Button type="submit" form="identity-form" disabled={isSubmitting} className="min-w-[140px] bg-primary text-primary-foreground hover:bg-primary/90">
-            {isSubmitting ? en.onboarding.form.submitting : en.onboarding.identity.buttons.submit}
+          <Button
+            type="submit"
+            form="identity-form"
+            disabled={isSubmitting}
+            className="min-w-[140px] bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            {isSubmitting
+              ? en.onboarding.form.submitting
+              : en.onboarding.identity.buttons.submit}
             {!isSubmitting && <ArrowRight size={16} className="ml-2" />}
           </Button>
         </div>
-
       </div>
     </div>
   );

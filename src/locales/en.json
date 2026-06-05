@@ -147,7 +147,6 @@
       "tags": "Tags",
       "banners": "Banners",
       "inventory": "Inventory",
-      "lowStock": "Low Stock",
       "history": "History",
       "orders": "Orders",
       "customers": "Customers",
@@ -159,6 +158,19 @@
     "footer": {
       "help": "Help & Support",
       "logout": "Logout"
+    }
+  },
+  "common": {
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "actions": "Actions",
+    "phonePrefix": "+91",
+    "upload": {
+      "title": "Upload Image",
+      "allowed": "Allowed",
+      "max": "Max"
     }
   },
   "dashboard": {
@@ -182,12 +194,10 @@
       "primary": {
         "revenue": "TOTAL REVENUE",
         "orders": "TOTAL ORDERS",
-        "products": "TOTAL PRODUCTS",
-        "lowStock": "LOW STOCK ITEMS"
+        "products": "TOTAL PRODUCTS"
       },
       "orderStatus": {
         "pending": "Pending Orders",
-        "processing": "Processing Orders",
         "delivered": "Delivered Orders",
         "cancelled": "Cancelled Orders"
       }
@@ -224,7 +234,6 @@
       "total": "Total",
       "statuses": {
         "pending": "Pending",
-        "processing": "Processing",
         "delivered": "Delivered",
         "cancelled": "Cancelled"
       }
@@ -241,13 +250,104 @@
           "total": "Total",
           "action": "Action"
         }
-      },
-      "lowStock": {
-        "title": "Low Stock",
-        "viewInventory": "View Inventory",
-        "unitsRemaining": "Units Remaining",
-        "restockItems": "Restock Items"
       }
+    }
+  },
+  "categories": {
+    "header": {
+      "title": "Categories",
+      "subtitle": "Manage product categories for your store",
+      "addCategory": "Add Category"
+    },
+    "filters": {
+      "searchPlaceholder": "Search Category Name",
+      "statusAll": "All",
+      "statusActive": "Active",
+      "statusInactive": "Inactive"
+    },
+    "table": {
+      "image": "Image",
+      "name": "Category Name",
+      "description": "Description",
+      "products": "Products",
+      "status": "Status",
+      "createdOn": "Created On",
+      "actions": "Actions"
+    },
+    "form": {
+      "addTitle": "Add Category",
+      "editTitle": "Edit Category",
+      "image": "Category Image",
+      "uploadImage": "Upload Category Image",
+      "allowedFormats": "Allowed: JPG, PNG, WEBP (Max 5MB)",
+      "name": "Category Name *",
+      "namePlaceholder": "e.g. Dairy Products",
+      "description": "Category Description",
+      "descriptionPlaceholder": "e.g. Milk, Butter, Cheese",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "cancel": "Cancel",
+      "create": "Create Category",
+      "update": "Update Category"
+    },
+    "messages": {
+      "deleteConfirm": "Are you sure you want to delete this category?",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "viewProducts": "View Products Associated With Category",
+      "emptyTitle": "No Categories Found",
+      "emptySubtitle": "Create your first category to start organizing products.",
+      "successCreate": "Category created successfully",
+      "successUpdate": "Category updated successfully",
+      "successDelete": "Category deleted successfully",
+      "successStatus": "Category status updated successfully",
+      "errorNameRequired": "Category name is required",
+      "errorDuplicate": "Category already exists",
+      "errorImageFormat": "Only JPG, PNG and WEBP files are allowed",
+      "errorImageSize": "Maximum file size is 5 MB"
+    }
+  },
+  "tags": {
+    "header": {
+      "title": "Tag Management",
+      "subtitle": "Create and manage product tags used for filtering and product discovery",
+      "addTag": "Add Tag"
+    },
+    "filters": {
+      "searchPlaceholder": "Search tags...",
+      "statusAll": "All",
+      "statusActive": "Active",
+      "statusInactive": "Inactive"
+    },
+    "table": {
+      "name": "Tag Name",
+      "products": "Products",
+      "status": "Status",
+      "createdOn": "Created On",
+      "actions": "Actions"
+    },
+    "form": {
+      "addTitle": "Add Tag",
+      "editTitle": "Edit Tag",
+      "name": "Tag Name *",
+      "namePlaceholder": "e.g. Trending, Fresh",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "cancel": "Cancel",
+      "create": "Create Tag",
+      "update": "Update Tag"
+    },
+    "messages": {
+      "viewProducts": "View Products Associated With Tag",
+      "emptyTitle": "No Tags Found",
+      "emptySubtitle": "Create your first tag to organize and promote products.",
+      "successCreate": "Tag created successfully",
+      "successUpdate": "Tag updated successfully",
+      "successStatus": "Tag status updated successfully",
+      "errorNameRequired": "Tag name is required",
+      "errorDuplicate": "Tag already exists"
     }
   }
 }

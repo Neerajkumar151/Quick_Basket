@@ -31,7 +31,7 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({ onNext }) => {
 
   return (
     <div className="bg-card border border-border rounded-2xl p-8 lg:p-10 shadow-sm">
-      <h2 className="text-2xl font-bold text-card-foreground mb-2">{en.onboarding.form.title}</h2>
+      <h2 className="text-h2 font-bold text-card-foreground mb-2">{en.onboarding.form.title}</h2>
       <p className="text-muted-foreground mb-8">{en.onboarding.form.subtitle}</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
@@ -68,7 +68,7 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({ onNext }) => {
             label={en.onboarding.form.fields.phone.label}
             type="tel"
             placeholder={en.onboarding.form.fields.phone.placeholder}
-            prefixElement={<span className="text-sm text-foreground font-medium pr-1 border-r border-border mr-1">+91</span>}
+            prefixElement={<span className="text-description text-foreground font-medium pr-1 border-r border-border mr-1">{en.common.phonePrefix}</span>}
             error={errors.phone?.message}
             required
             spellCheck={false}
@@ -96,7 +96,7 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({ onNext }) => {
         </div>
 
         <div className="pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-description text-muted-foreground">
             {en.onboarding.form.hasAccount} <Link to="/login" className="text-primary hover:underline font-medium">{en.onboarding.form.signIn}</Link>
           </div>
           <Button type="submit" disabled={isSubmitting} className="min-w-[140px] w-full sm:w-auto">

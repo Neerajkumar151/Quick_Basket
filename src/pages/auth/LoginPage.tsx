@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { LoginForm } from "../../components/forms/LoginForm";
 import { Header } from "../../components/layout/Header";
@@ -25,10 +24,10 @@ export const LoginPage = () => {
 
         {/* Hero Content */}
         <div className="relative z-20 flex flex-col justify-center h-full p-12 lg:p-16 max-w-2xl mx-auto">
-          <h1 className="text-4xl xl:text-5xl font-extrabold text-foreground leading-tight tracking-tight mb-6">
+          <h1 className="text-h1 xl:text-h1 font-extrabold text-white leading-tight tracking-tight mb-6">
             {en.auth.marketing.title}
           </h1>
-          <p className="text-lg text-muted-foreground leading-relaxed max-w-lg mb-12">
+          <p className="text-h3 text-slate-300 leading-relaxed max-w-lg mb-12">
             {en.auth.marketing.description}
           </p>
 

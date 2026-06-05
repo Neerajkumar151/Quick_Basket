@@ -51,7 +51,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
     register,
@@ -80,7 +80,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({
           data.address.city || data.address.town || data.address.village;
 
         // Try to find where the city starts in the display name
-        const cityIndex = parts.findIndex((p) => p.trim() === city);
+        const cityIndex = parts.findIndex((p: string) => p.trim() === city);
 
         if (cityIndex > 0) {
           // Join everything before the city
@@ -186,17 +186,17 @@ export const LocationForm: React.FC<LocationFormProps> = ({
             <div className="absolute inset-0 bg-card/60 backdrop-blur-[1px] z-20 flex items-center justify-center rounded-l-2xl">
               <div className="flex flex-col items-center gap-3 bg-background border border-border p-4 rounded-xl shadow-lg">
                 <MapIcon className="animate-bounce text-primary" size={24} />
-                <span className="text-sm font-medium">
+                <span className="text-description font-medium">
                   {en.onboarding.location.map.fetching}
                 </span>
               </div>
             </div>
           )}
 
-          <h2 className="text-2xl font-bold text-card-foreground mb-2">
+          <h2 className="text-h2 font-bold text-card-foreground mb-2">
             {en.onboarding.location.title}
           </h2>
-          <p className="text-muted-foreground text-sm mb-8">
+          <p className="text-muted-foreground text-description mb-8">
             {en.onboarding.location.subtitle}
           </p>
 
@@ -316,7 +316,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({
               type="button"
               onClick={handleGetLocation}
               disabled={isLocating}
-              className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-md text-sm font-medium text-foreground shadow-md hover:bg-muted transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-md text-description font-medium text-foreground shadow-md hover:bg-muted transition-colors disabled:opacity-50"
             >
               <Navigation size={16} className="text-primary" />
               {isLocating ? "Locating..." : en.onboarding.location.map.pin}
@@ -325,7 +325,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({
 
           {/* Status overlay */}
           {position && !isFetching && (
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-full text-xs font-medium text-foreground shadow-md transition-opacity">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-full text-caption font-medium text-foreground shadow-md transition-opacity">
               <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
               {en.onboarding.location.map.status}
             </div>
