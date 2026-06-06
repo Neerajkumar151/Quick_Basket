@@ -22,7 +22,7 @@ const IconMap: Record<string, any> = {
 };
 
 const resolveKpiData = (kpiArray: any[]) => {
-  return kpiArray.map((kpi) => {
+  return kpiArray.map((kpi: any) => {
     const keys = kpi.title.split(".");
     let translatedTitle = en as any;
     keys.forEach((k: string) => {

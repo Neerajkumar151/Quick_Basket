@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import { Plus, ImageIcon, Edit2 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -12,14 +12,14 @@ import { StatusBadge } from "../../components/ui/StatusBadge";
 
 import { BannerForm } from "../../components/banners/BannerForm";
 import { BannerFormValues } from "../../validations/banner";
-import { bannerService, Banner } from "../../services/bannerService";
+import { bannerService } from "../../services/bannerService";
+import { Banner } from "../../types/banner";
+import { useBanners } from "../../hooks/useBanners";
+import { queryClient } from "../../providers/QueryProvider";
+import { BANNERS_QUERY_KEY } from "../../hooks/useBanners";
 import en from "../../locales/en.json";
 
 export const BannersPage = () => {
-  const [banners, setBanners] = useState<Banner[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -28,26 +28,9 @@ export const BannersPage = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
 
-
-  const fetchData = async (showLoader = true) => {
-    try {
-      if (showLoader) setIsLoading(true);
-      const [b] = await Promise.all([
-        bannerService.getBanners()
-      ]);
-      setBanners(b);
-    } catch (error) {
-      toast.error(en.banners.messages.errorFetch);
-    } finally {
-      if (showLoader) setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  // Data via TanStack Query (cached)
+  const { data: banners = [], isLoading } = useBanners();
 
   const handleOpenDrawer = (banner?: Banner) => {
     setEditingBanner(banner || null);
@@ -61,7 +44,7 @@ export const BannersPage = () => {
 
   const handleSubmitForm = async (
     data: BannerFormValues,
-    imageFile: File | null,
+    imageFile: File | null
   ) => {
     setIsSubmitting(true);
     try {
@@ -77,43 +60,38 @@ export const BannersPage = () => {
       if (editingBanner) {
         await bannerService.updateBanner(editingBanner.id, {
           ...data,
-          redirectName: data.redirectName || '',
+          redirectName: data.redirectName || "",
           image: imageUrl,
         });
         toast.success(en.banners.messages.successUpdate);
       } else {
-        await bannerService.createBanner({ 
-          ...data, 
-          redirectName: data.redirectName || '',
-          image: imageUrl 
+        await bannerService.createBanner({
+          ...data,
+          redirectName: data.redirectName || "",
+          image: imageUrl,
         });
         toast.success(en.banners.messages.successCreate);
       }
 
-      await fetchData(false);
+      await queryClient.invalidateQueries({ queryKey: BANNERS_QUERY_KEY });
       handleCloseDrawer();
-    } catch (error: any) {
-      toast.error(error.message || en.banners.messages.errorSave);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : en.banners.messages.errorSave;
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const triggerFormSubmit = () => {
-    if (formRef.current) {
-      formRef.current.dispatchEvent(
-        new Event("submit", { cancelable: true, bubbles: true }),
-      );
-    }
-  };
-
-
   const toggleStatus = async (banner: Banner) => {
     try {
       await bannerService.toggleStatus(banner.id);
       toast.success(en.banners.messages.successStatus);
-      await fetchData(false);
-    } catch (error) {
+      await queryClient.invalidateQueries({ queryKey: BANNERS_QUERY_KEY });
+    } catch {
       toast.error(en.banners.messages.errorStatus);
     }
   };
@@ -124,13 +102,11 @@ export const BannersPage = () => {
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (b) => b.title.toLowerCase().includes(q)
-      );
+      result = result.filter((b: any) => b.title.toLowerCase().includes(q));
     }
-    
+
     // Sort by display order
-    result.sort((a, b) => a.displayOrder - b.displayOrder);
+    result.sort((a: any, b: any) => a.displayOrder - b.displayOrder);
 
     return result;
   }, [banners, searchQuery]);
@@ -138,13 +114,13 @@ export const BannersPage = () => {
   const totalPages = Math.ceil(processedBanners.length / itemsPerPage);
   const paginatedBanners = processedBanners.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   const columns: ColumnDef<Banner>[] = [
     {
       header: en.banners.table.image,
-      cell: (banner) => (
+      cell: (banner: any) => (
         <div className="w-16 h-10 rounded-lg bg-input overflow-hidden flex items-center justify-center border border-border shadow-sm shrink-0">
           {banner.image ? (
             <img
@@ -160,20 +136,24 @@ export const BannersPage = () => {
     },
     {
       header: en.banners.table.title,
-      cell: (banner) => (
+      cell: (banner: any) => (
         <div className="flex flex-col">
           <span className="font-bold text-foreground">{banner.title}</span>
           {banner.description && (
-            <span className="text-caption text-muted-foreground truncate max-w-[200px]">{banner.description}</span>
+            <span className="text-caption text-muted-foreground truncate max-w-[200px]">
+              {banner.description}
+            </span>
           )}
         </div>
       ),
     },
     {
       header: en.banners.table.target,
-      cell: (banner) => (
+      cell: (banner: any) => (
         <div className="flex flex-col gap-1 items-start">
-          <span className="text-caption font-medium uppercase tracking-wider text-muted-foreground">{banner.redirectType}</span>
+          <span className="text-caption font-medium uppercase tracking-wider text-muted-foreground">
+            {banner.redirectType}
+          </span>
           <span className="text-description">{banner.redirectName}</span>
         </div>
       ),
@@ -181,13 +161,15 @@ export const BannersPage = () => {
     {
       header: en.banners.table.order,
       accessorKey: "displayOrder",
-      cell: (banner) => (
-        <span className="text-description font-medium bg-input px-2 py-1 rounded border border-border">{banner.displayOrder}</span>
-      )
+      cell: (banner: any) => (
+        <span className="text-description font-medium bg-input px-2 py-1 rounded border border-border">
+          {banner.displayOrder}
+        </span>
+      ),
     },
     {
       header: en.banners.table.status,
-      cell: (banner) => (
+      cell: (banner: any) => (
         <button
           onClick={() => toggleStatus(banner)}
           className="hover:opacity-80 transition-opacity"
@@ -198,7 +180,7 @@ export const BannersPage = () => {
     },
     {
       header: en.banners.table.actions,
-      cell: (banner) => (
+      cell: (banner: any) => (
         <div className="flex justify-end">
           <button
             onClick={() => handleOpenDrawer(banner)}
@@ -250,6 +232,7 @@ export const BannersPage = () => {
         />
       </div>
 
+      {/* EntityDrawer has no onSubmit — BannerForm manages its own submit button */}
       <EntityDrawer
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
@@ -258,23 +241,17 @@ export const BannersPage = () => {
             ? en.banners.form.editTitle
             : en.banners.form.addTitle
         }
-        onSubmit={triggerFormSubmit}
-        onCancel={handleCloseDrawer}
-        isSubmitting={isSubmitting}
-        submitLabel={
-          editingBanner
-            ? en.banners.form.update
-            : en.banners.form.create
-        }
       >
         <BannerForm
-          formRef={formRef}
           initialData={editingBanner}
           onSubmit={handleSubmitForm}
+          isSubmitting={isSubmitting}
+          submitLabel={
+            editingBanner ? en.banners.form.update : en.banners.form.create
+          }
+          onCancel={handleCloseDrawer}
         />
       </EntityDrawer>
-
-
     </div>
   );
 };

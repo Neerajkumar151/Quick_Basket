@@ -28,7 +28,7 @@ export const OperationalInsights: React.FC = () => {
     },
     {
       header: en.dashboard.operational.recentOrders.columns.status,
-      cell: (order) => <StatusBadge status={order.status} />
+      cell: (order: any) => <StatusBadge status={order.status} />
     },
     {
       header: en.dashboard.operational.recentOrders.columns.total,

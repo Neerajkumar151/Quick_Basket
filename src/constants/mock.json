@@ -232,6 +232,44 @@
       "status": "Active"
     }
   ],
+  "subCategories": [
+    {
+      "id": "subcat-1",
+      "name": "Milk",
+      "categoryId": "cat-3",
+      "description": "Fresh milk varieties",
+      "status": "Active",
+      "productsCount": 12,
+      "createdAt": "17 May"
+    },
+    {
+      "id": "subcat-2",
+      "name": "Cheese",
+      "categoryId": "cat-3",
+      "description": "Block and slice cheese",
+      "status": "Active",
+      "productsCount": 8,
+      "createdAt": "17 May"
+    },
+    {
+      "id": "subcat-3",
+      "name": "Bananas",
+      "categoryId": "cat-2",
+      "description": "Organic bananas",
+      "status": "Active",
+      "productsCount": 4,
+      "createdAt": "16 May"
+    },
+    {
+      "id": "subcat-4",
+      "name": "Apples",
+      "categoryId": "cat-2",
+      "description": "Red and green apples",
+      "status": "Active",
+      "productsCount": 6,
+      "createdAt": "16 May"
+    }
+  ],
   "revenueData": [
     {
       "name": "Jan",
@@ -420,5 +458,47 @@
       "bgClass": "bg-status-cancelled/10",
       "borderClass": "hover:border-status-cancelled/50"
     }
-  ]
+  ],
+  "products": [
+    {
+      "id": "prod_1",
+      "name": "Fresh Organic Bananas",
+      "description": "A bunch of 6 fresh organic bananas.",
+      "sellingPrice": 2.5,
+      "mrp": 3.0,
+      "stockQuantity": 150,
+      "categoryId": "cat-1",
+      "tagIds": ["tag-1"],
+      "images": ["https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&q=80&w=400"],
+      "status": "Active"
+    }
+  ],
+  "storeProfile": {
+    "id": "store-1",
+    "storeName": "QuickBasket Mart",
+    "ownerName": "Alexander Chen",
+    "description": "Your one-stop shop for fresh groceries and daily essentials.",
+    "phoneNumber": "+1 234 567 8900",
+    "email": "contact@quickbasket.com",
+    "address": "123 Market Street, San Francisco, CA 94105",
+    "logoUrl": "",
+    "bannerUrl": "",
+    "verificationStatus": "verified",
+    "lastUpdated": "2024-05-15T10:00:00.000Z"
+  },
+  "storeOperations": {
+    "storeStatus": true,
+    "deliveryEnabled": true,
+    "minimumOrderAmount": 20,
+    "estimatedDeliveryTime": 30,
+    "businessHours": [
+      { "day": "Monday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
+      { "day": "Tuesday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
+      { "day": "Wednesday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
+      { "day": "Thursday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
+      { "day": "Friday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
+      { "day": "Saturday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
+      { "day": "Sunday", "enabled": false, "openingTime": "09:00", "closingTime": "21:00" }
+    ]
+  }
 }

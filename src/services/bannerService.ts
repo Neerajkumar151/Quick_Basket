@@ -1,25 +1,9 @@
-import { formatShortDate } from '../utils/date';
+import { formatShortDate } from "../utils/date";
+import { Banner, BannerInput, RedirectType, BannerStatus } from "../types/banner";
 
-export type RedirectType = 'Product' | 'Category';
-export type BannerStatus = 'Active' | 'Inactive';
+export type { Banner, BannerInput, RedirectType, BannerStatus };
 
-export interface Banner {
-  id: string;
-  title: string;
-  description?: string;
-  image?: string;
-  redirectType: RedirectType;
-  redirectId: string;
-  redirectName: string;
-  displayOrder: number;
-  status: BannerStatus;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type BannerInput = Omit<Banner, 'id' | 'createdAt' | 'updatedAt'>;
-
-const STORAGE_KEY = 'quickbasket_banners';
+const STORAGE_KEY = "quickbasket_banners";
 
 const defaultBanners: Banner[] = [
   {
@@ -33,7 +17,7 @@ const defaultBanners: Banner[] = [
     displayOrder: 1,
     status: "Active",
     createdAt: "12 May",
-    updatedAt: "12 May"
+    updatedAt: "12 May",
   },
   {
     id: "banner-2",
@@ -46,11 +30,11 @@ const defaultBanners: Banner[] = [
     displayOrder: 2,
     status: "Active",
     createdAt: "15 May",
-    updatedAt: "15 May"
-  }
+    updatedAt: "15 May",
+  },
 ];
 
-const delay = (ms = 500) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getStoredBanners = (): Banner[] => {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -76,7 +60,7 @@ export const bannerService = {
       ...data,
       id: `banner-${Date.now()}`,
       createdAt: formatShortDate(new Date()),
-      updatedAt: formatShortDate(new Date())
+      updatedAt: formatShortDate(new Date()),
     };
 
     banners.push(newBanner);
@@ -87,14 +71,14 @@ export const bannerService = {
   updateBanner: async (id: string, data: Partial<BannerInput>): Promise<Banner> => {
     await delay();
     const banners = getStoredBanners();
-    
-    const index = banners.findIndex(b => b.id === id);
+
+    const index = banners.findIndex((b) => b.id === id);
     if (index === -1) throw new Error("Banner not found");
 
-    banners[index] = { 
-      ...banners[index], 
+    banners[index] = {
+      ...banners[index],
       ...data,
-      updatedAt: formatShortDate(new Date())
+      updatedAt: formatShortDate(new Date()),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(banners));
     return banners[index];
@@ -103,18 +87,18 @@ export const bannerService = {
   deleteBanner: async (id: string): Promise<void> => {
     await delay();
     const banners = getStoredBanners();
-    const filtered = banners.filter(b => b.id !== id);
+    const filtered = banners.filter((b) => b.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
   },
 
   toggleStatus: async (id: string): Promise<Banner> => {
     await delay();
     const banners = getStoredBanners();
-    const index = banners.findIndex(b => b.id === id);
+    const index = banners.findIndex((b) => b.id === id);
     if (index === -1) throw new Error("Banner not found");
 
-    banners[index].status = banners[index].status === 'Active' ? 'Inactive' : 'Active';
+    banners[index].status = banners[index].status === "Active" ? "Inactive" : "Active";
     localStorage.setItem(STORAGE_KEY, JSON.stringify(banners));
     return banners[index];
-  }
+  },
 };

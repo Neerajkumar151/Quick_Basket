@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import { Plus, ImageIcon, Edit2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
@@ -15,17 +15,15 @@ import {
   CategoryForm,
   CategoryFormValues,
 } from "../../components/categories/CategoryForm";
-import {
-  categoryService,
-  Category,
-} from "../../services/categoryService";
+import { categoryService } from "../../services/categoryService";
+import { Category } from "../../types/category";
+import { useCategories } from "../../hooks/useCategories";
+import { queryClient } from "../../providers/QueryProvider";
+import { CATEGORIES_QUERY_KEY } from "../../hooks/useCategories";
+import { useSubCategories } from "../../hooks/useSubCategories";
 import en from "../../locales/en.json";
 
 export const CategoriesPage = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -34,22 +32,10 @@ export const CategoriesPage = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
-  const fetchCategories = async (showLoader = true) => {
-    try {
-      if (showLoader) setIsLoading(true);
-      const data = await categoryService.getCategories();
-      setCategories(data);
-    } catch (error) {
-      toast.error("Failed to fetch categories");
-    } finally {
-      if (showLoader) setIsLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  // Data via TanStack Query (cached)
+  const { data: categories = [], isLoading } = useCategories();
+  const { data: subCategories = [] } = useSubCategories();
 
   const handleOpenDrawer = (category?: Category) => {
     setEditingCategory(category || null);
@@ -63,7 +49,7 @@ export const CategoriesPage = () => {
 
   const handleSubmitForm = async (
     data: CategoryFormValues,
-    imageFile: File | null,
+    imageFile: File | null
   ) => {
     setIsSubmitting(true);
     try {
@@ -79,66 +65,61 @@ export const CategoriesPage = () => {
       if (editingCategory) {
         await categoryService.updateCategory(editingCategory.id, {
           ...data,
-          status: data.status || 'Active',
+          status: data.status || "Active",
           image: imageUrl,
         });
         toast.success(en.categories.messages.successUpdate);
       } else {
-        await categoryService.createCategory({ 
-          ...data, 
-          status: data.status || 'Active',
-          image: imageUrl 
+        await categoryService.createCategory({
+          ...data,
+          status: data.status || "Active",
+          image: imageUrl,
         });
         toast.success(en.categories.messages.successCreate);
       }
 
-      await fetchCategories(false);
+      await queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
       handleCloseDrawer();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to save category");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : en.categories.messages.errorSave;
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const triggerFormSubmit = () => {
-    if (formRef.current) {
-      formRef.current.dispatchEvent(
-        new Event("submit", { cancelable: true, bubbles: true }),
-      );
     }
   };
 
   const toggleStatus = async (cat: Category) => {
     try {
       await categoryService.toggleStatus(cat.id);
-      toast.success(en.categories.messages.successStatus || "Status updated successfully");
-      await fetchCategories(false);
+      toast.success(
+        en.categories.messages.successStatus || "Status updated successfully"
+      );
+      await queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update status");
+      toast.error(
+        error instanceof Error ? error.message : en.categories.messages.errorStatus
+      );
     }
   };
 
   // Filter & Pagination Logic
   const filteredCategories = useMemo(() => {
-    return categories.filter((c) => {
-      const matchesSearch = c.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      return matchesSearch;
-    });
+    return categories.filter((c: any) =>
+      c.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   }, [categories, searchQuery]);
 
   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
   const paginatedCategories = filteredCategories.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   const columns: ColumnDef<Category>[] = [
     {
       header: en.categories.table.image,
-      cell: (cat) => (
+      cell: (cat: any) => (
         <div className="w-10 h-10 rounded-lg bg-input overflow-hidden flex items-center justify-center border border-border shadow-sm">
           {cat.image ? (
             <img
@@ -155,21 +136,36 @@ export const CategoriesPage = () => {
     {
       header: en.categories.table.name,
       accessorKey: "name",
-      cell: (cat) => (
+      cell: (cat: any) => (
         <span className="font-bold text-foreground">{cat.name}</span>
       ),
     },
     {
       header: en.categories.table.description,
-      cell: (cat) => (
+      cell: (cat: any) => (
         <span className="text-muted-foreground max-w-[200px] truncate block">
           {cat.description || "-"}
         </span>
       ),
     },
     {
+      header: en.subCategories.header.title || "Sub-Categories",
+      cell: (cat: any) => {
+        const count = subCategories.filter((sc: any) => sc.categoryId === cat.id).length;
+        return (
+          <Link
+            to={`/dashboard/sub-categories?category=${encodeURIComponent(cat.id)}`}
+            className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors"
+            title={en.subCategories.header.title}
+          >
+            {count}
+          </Link>
+        );
+      },
+    },
+    {
       header: en.categories.table.products,
-      cell: (cat) => (
+      cell: (cat: any) => (
         <Link
           to={`/dashboard/products?category=${encodeURIComponent(cat.name)}`}
           className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors"
@@ -186,16 +182,19 @@ export const CategoriesPage = () => {
     },
     {
       header: en.categories.table.status || "Status",
-      cell: (cat) => (
-        <button onClick={() => toggleStatus(cat)} className="hover:opacity-80 transition-opacity">
-          <StatusBadge status={cat.status || 'Active'} />
+      cell: (cat: any) => (
+        <button
+          onClick={() => toggleStatus(cat)}
+          className="hover:opacity-80 transition-opacity"
+        >
+          <StatusBadge status={cat.status || "Active"} />
         </button>
-      )
+      ),
     },
     {
       header: en.categories.table.actions || "Actions",
       className: "text-right",
-      cell: (cat) => (
+      cell: (cat: any) => (
         <div className="flex justify-end">
           <button
             onClick={() => handleOpenDrawer(cat)}
@@ -247,6 +246,7 @@ export const CategoriesPage = () => {
         />
       </div>
 
+      {/* EntityDrawer has no onSubmit — CategoryForm manages its own submit button */}
       <EntityDrawer
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
@@ -255,19 +255,17 @@ export const CategoriesPage = () => {
             ? en.categories.form.editTitle
             : en.categories.form.addTitle
         }
-        onSubmit={triggerFormSubmit}
-        onCancel={handleCloseDrawer}
-        isSubmitting={isSubmitting}
-        submitLabel={
-          editingCategory
-            ? en.categories.form.update
-            : en.categories.form.create
-        }
       >
         <CategoryForm
-          formRef={formRef}
           initialData={editingCategory}
           onSubmit={handleSubmitForm}
+          isSubmitting={isSubmitting}
+          submitLabel={
+            editingCategory
+              ? en.categories.form.update
+              : en.categories.form.create
+          }
+          onCancel={handleCloseDrawer}
         />
       </EntityDrawer>
     </div>

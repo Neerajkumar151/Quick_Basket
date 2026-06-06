@@ -1,42 +1,60 @@
-import React, { useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { bannerSchema, BannerFormValues } from '../../validations/banner';
-import { Input } from '../ui/Input';
-import { TextArea } from '../ui/TextArea';
-import { Select } from '../ui/Select';
-import { ImageUploader } from '../ui/ImageUploader';
-import en from '../../locales/en.json';
-import { Banner } from '../../services/bannerService';
-import { productService, Product } from '../../services/productService';
-import { Category, categoryService } from '../../services/categoryService';
-import { SearchableSelect } from '../ui/SearchableSelect';
+import React, { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { bannerSchema, BannerFormValues } from "../../validations/banner";
+import { Input } from "../ui/Input";
+import { TextArea } from "../ui/TextArea";
+import { Select } from "../ui/Select";
+import { ImageUploader } from "../ui/ImageUploader";
+import { Button } from "../ui/Button";
+import { SearchableSelect } from "../ui/SearchableSelect";
+import { Banner } from "../../types/banner";
+import { useProducts } from "../../hooks/useProducts";
+import { useCategories } from "../../hooks/useCategories";
+import en from "../../locales/en.json";
 
 interface BannerFormProps {
   initialData?: Banner | null;
   onSubmit: (data: BannerFormValues, imageFile: File | null) => Promise<void>;
-  formRef?: React.MutableRefObject<HTMLFormElement | null>;
+  isSubmitting?: boolean;
+  submitLabel?: string;
+  onCancel?: () => void;
 }
 
-export const BannerForm: React.FC<BannerFormProps> = ({ initialData, onSubmit, formRef }) => {
+export const BannerForm: React.FC<BannerFormProps> = ({
+  initialData,
+  onSubmit,
+  isSubmitting = false,
+  submitLabel = en.banners.form.create,
+  onCancel,
+}) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoadingMetadata, setIsLoadingMetadata] = useState(true);
 
-  const { register, handleSubmit, watch, control, formState: { errors }, reset, setValue } = useForm<BannerFormValues>({
+  const { data: products = [], isLoading: isLoadingProducts } = useProducts();
+  const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
+  const isLoadingMetadata = isLoadingProducts || isLoadingCategories;
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    control,
+    formState: { errors },
+    reset,
+    setValue,
+  } = useForm<BannerFormValues>({
     resolver: zodResolver(bannerSchema) as any,
-    defaultValues: initialData || {
-      title: '',
-      description: '',
-      redirectType: 'Product',
-      redirectId: '',
+    defaultValues: initialData ?? {
+      title: "",
+      description: "",
+      redirectType: "Product",
+      redirectId: "",
       displayOrder: 1,
-      status: 'Inactive'
-    }
+      status: "Inactive",
+    },
   });
 
-  const redirectType = watch('redirectType');
+  const redirectType = watch("redirectType");
 
   useEffect(() => {
     if (initialData) {
@@ -44,62 +62,43 @@ export const BannerForm: React.FC<BannerFormProps> = ({ initialData, onSubmit, f
       setSelectedFile(null);
     } else {
       reset({
-        title: '',
-        description: '',
-        redirectType: 'Product',
-        redirectId: '',
+        title: "",
+        description: "",
+        redirectType: "Product",
+        redirectId: "",
         displayOrder: 1,
-        status: 'Inactive'
+        status: "Inactive",
       });
       setSelectedFile(null);
     }
   }, [initialData, reset]);
 
-  useEffect(() => {
-    const fetchMetadata = async () => {
-      try {
-        const [prods, cats] = await Promise.all([
-          productService.getProducts(),
-          categoryService.getCategories()
-        ]);
-        setProducts(prods);
-        setCategories(cats);
-      } catch (error) {
-        console.error("Failed to load products/categories", error);
-      } finally {
-        setIsLoadingMetadata(false);
-      }
-    };
-    fetchMetadata();
-  }, []);
-
   // When redirectType changes, clear redirectId to prevent invalid associations
   useEffect(() => {
     if (!initialData || initialData.redirectType !== redirectType) {
-      setValue('redirectId', '');
+      setValue("redirectId", "");
     }
   }, [redirectType, setValue, initialData]);
 
   const handleFormSubmit = async (data: BannerFormValues) => {
-    let redirectName = 'Unknown';
-    if (data.redirectType === 'Product') {
-      const p = products.find(prod => prod.id === data.redirectId);
+    let redirectName = en.common.unknown;
+    if (data.redirectType === "Product") {
+      const p = products.find((prod: any) => prod.id === data.redirectId);
       if (p) redirectName = p.name;
     } else {
-      const c = categories.find(cat => cat.id === data.redirectId);
+      const c = categories.find((cat: any) => cat.id === data.redirectId);
       if (c) redirectName = c.name;
     }
-    
+
     await onSubmit({ ...data, redirectName }, selectedFile);
   };
 
   return (
     <form
-      ref={formRef as any}
-      onSubmit={handleSubmit(handleFormSubmit)}
+      onSubmit={handleSubmit((data) => handleFormSubmit(data as BannerFormValues))}
       className="flex flex-col gap-6 pt-2 pb-6 px-6"
     >
-      <ImageUploader 
+      <ImageUploader
         label={en.banners.form.image}
         previewUrl={initialData?.image}
         onFileSelect={setSelectedFile}
@@ -129,26 +128,24 @@ export const BannerForm: React.FC<BannerFormProps> = ({ initialData, onSubmit, f
           <option value="Category">{en.banners.form.targetTypeCategory}</option>
         </Select>
 
-        {redirectType === 'Product' ? (
+        {redirectType === "Product" ? (
           <Controller
             control={control}
             name="redirectId"
-            render={({ field }) => {
-              return (
-                <SearchableSelect
-                  label={en.banners.form.selectProduct}
-                  required
-                  options={products.map(p => ({ value: p.id, label: p.name }))}
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder={en.banners.form.selectProduct}
-                  searchPlaceholder={en.banners.form.searchProducts}
-                  emptyMessage={en.banners.form.noProducts}
-                  disabled={isLoadingMetadata}
-                  error={errors.redirectId?.message}
-                />
-              );
-            }}
+            render={({ field }) => (
+              <SearchableSelect
+                label={en.banners.form.selectProduct}
+                required
+                options={products.map((p: any) => ({ value: p.id, label: p.name }))}
+                value={field.value}
+                onChange={field.onChange}
+                placeholder={en.banners.form.selectProduct}
+                searchPlaceholder={en.banners.form.searchProducts}
+                emptyMessage={en.banners.form.noProducts}
+                disabled={isLoadingMetadata}
+                error={errors.redirectId?.message}
+              />
+            )}
           />
         ) : (
           <Select
@@ -157,10 +154,12 @@ export const BannerForm: React.FC<BannerFormProps> = ({ initialData, onSubmit, f
             {...register("redirectId")}
             disabled={isLoadingMetadata}
           >
-            <option value="">
-              {en.banners.form.selectCategory}
-            </option>
-            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="">{en.banners.form.selectCategory}</option>
+            {categories.map((c: any) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
           </Select>
         )}
       </div>
@@ -181,6 +180,18 @@ export const BannerForm: React.FC<BannerFormProps> = ({ initialData, onSubmit, f
           <option value="Active">{en.banners.form.active}</option>
           <option value="Inactive">{en.banners.form.inactive}</option>
         </Select>
+      </div>
+
+      {/* Form Actions */}
+      <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
+        {onCancel && (
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+            {en.common.cancel}
+          </Button>
+        )}
+        <Button type="submit" variant="primary" disabled={isSubmitting}>
+          {isSubmitting ? "..." : submitLabel}
+        </Button>
       </div>
     </form>
   );

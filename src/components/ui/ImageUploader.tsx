@@ -11,6 +11,10 @@ interface ImageUploaderProps {
   previewUrl?: string | null;
   onFileSelect: (file: File | null) => void;
   error?: string;
+  previewClassName?: string;
+  emptyClassName?: string;
+  className?: string;
+  compact?: boolean;
 }
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
@@ -19,7 +23,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   acceptedFormats = ["image/jpeg", "image/jpg", "image/png", "image/webp"],
   previewUrl: initialPreviewUrl,
   onFileSelect,
-  error
+  error,
+  previewClassName = "w-32 h-32",
+  emptyClassName = "w-full h-32",
+  className = "w-full",
+  compact = false
 }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialPreviewUrl || null);
 
@@ -54,11 +62,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-2 w-full">
+    <div className={`flex flex-col gap-2 ${className}`}>
       {label && <label className="text-description font-medium text-foreground">{label}</label>}
       {previewUrl ? (
-        <div className="relative w-32 h-32 rounded-lg border border-border overflow-hidden group bg-input flex items-center justify-center">
-          <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
+        <div className={`relative rounded-lg border border-border overflow-hidden group bg-input flex items-center justify-center ${previewClassName}`}>
+          <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <button
               type="button"
@@ -70,11 +78,15 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           </div>
         </div>
       ) : (
-        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer bg-input/50 hover:bg-input transition-colors">
-          <div className="flex flex-col items-center justify-center pt-5 pb-6 text-muted-foreground hover:text-foreground transition-colors text-center">
-            <UploadCloud className="w-8 h-8 text-muted-foreground/50 mb-2 group-hover:text-primary transition-colors" />
-            <p className="text-description font-semibold">{en.common.upload.title}</p>
-            <p className="text-caption mt-1 text-muted-foreground/70">{en.common.upload.allowed}: {acceptedFormats.map(f => f.split('/')[1].toUpperCase()).join(', ')} ({en.common.upload.max} {maxSizeMB}MB)</p>
+        <label className={`flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg cursor-pointer bg-input/50 hover:bg-input transition-colors ${emptyClassName}`}>
+          <div className={`flex flex-col items-center justify-center text-muted-foreground hover:text-foreground transition-colors text-center ${compact ? "p-2" : "pt-5 pb-6"}`}>
+            <UploadCloud className={`text-muted-foreground/50 group-hover:text-primary transition-colors ${compact ? "w-6 h-6" : "w-8 h-8 mb-2"}`} />
+            {!compact && (
+              <>
+                <p className="text-description font-semibold">{en.common.upload.title}</p>
+                <p className="text-caption mt-1 text-muted-foreground/70">{en.common.upload.allowed}: {acceptedFormats.map(f => f.split('/')[1].toUpperCase()).join(', ')} ({en.common.upload.max} {maxSizeMB}MB)</p>
+              </>
+            )}
           </div>
           <input type="file" className="hidden" accept={acceptedFormats.join(',')} onChange={handleFileChange} />
         </label>

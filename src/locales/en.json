@@ -7,7 +7,7 @@
     "copyright": "© 2024 QuickBasket Inc. All rights reserved.",
     "searchPlaceholder": "Search orders, products...",
     "adminName": "Alexander Chen",
-    "adminRole": "Administrator"
+    "adminRole": "Store Admin"
   },
   "auth": {
     "login": {
@@ -182,6 +182,7 @@
       "dashboard": "Dashboard",
       "products": "Products",
       "categories": "Categories",
+      "subCategories": "Sub-Categories",
       "tags": "Tags",
       "banners": "Banners",
       "inventory": "Inventory",
@@ -205,10 +206,16 @@
     "delete": "Delete",
     "actions": "Actions",
     "phonePrefix": "+91",
+    "unknown": "Unknown",
     "upload": {
       "title": "Upload Image",
       "allowed": "Allowed",
       "max": "Max"
+    },
+    "errorBoundary": {
+      "title": "Something went wrong",
+      "description": "An unexpected error occurred. You can try refreshing the page or click the button below to recover.",
+      "retry": "Try again"
     }
   },
   "dashboard": {
@@ -343,7 +350,64 @@
       "errorNameRequired": "Category name is required",
       "errorDuplicate": "Category already exists",
       "errorImageFormat": "Only JPG, PNG and WEBP files are allowed",
-      "errorImageSize": "Maximum file size is 5 MB"
+      "errorImageSize": "Maximum file size is 5 MB",
+      "errorSave": "Failed to save category",
+      "errorStatus": "Failed to update status"
+    }
+  },
+  "subCategories": {
+    "header": {
+      "title": "Sub-Categories",
+      "subtitle": "Manage sub-categories for your main product categories",
+      "addSubCategory": "Add Sub-Category"
+    },
+    "filters": {
+      "searchPlaceholder": "Search Sub-Category Name",
+      "statusAll": "All",
+      "statusActive": "Active",
+      "statusInactive": "Inactive"
+    },
+    "table": {
+      "image": "Image",
+      "name": "Sub-Category Name",
+      "parent": "Parent Category",
+      "description": "Description",
+      "products": "Products",
+      "status": "Status",
+      "createdOn": "Created On",
+      "actions": "Actions"
+    },
+    "form": {
+      "addTitle": "Add Sub-Category",
+      "editTitle": "Edit Sub-Category",
+      "parentCategory": "Parent Category *",
+      "parentCategoryPlaceholder": "Select a category",
+      "name": "Sub-Category Name *",
+      "namePlaceholder": "e.g. Milk, Cheese",
+      "description": "Description",
+      "descriptionPlaceholder": "e.g. Fresh daily milk varieties",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "create": "Create Sub-Category",
+      "update": "Update Sub-Category"
+    },
+    "messages": {
+      "deleteConfirm": "Are you sure you want to delete this sub-category?",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "viewProducts": "View Products Associated With Sub-Category",
+      "emptyTitle": "No Sub-Categories Found",
+      "emptySubtitle": "Create your first sub-category to further organize products.",
+      "successCreate": "Sub-Category created successfully",
+      "successUpdate": "Sub-Category updated successfully",
+      "successDelete": "Sub-Category deleted successfully",
+      "successStatus": "Sub-Category status updated successfully",
+      "errorNameRequired": "Sub-Category name is required",
+      "errorParentRequired": "Parent Category is required",
+      "errorDuplicate": "Sub-Category already exists",
+      "errorSave": "Failed to save sub-category",
+      "errorStatus": "Failed to update status"
     }
   },
   "tags": {
@@ -385,7 +449,9 @@
       "successUpdate": "Tag updated successfully",
       "successStatus": "Tag status updated successfully",
       "errorNameRequired": "Tag name is required",
-      "errorDuplicate": "Tag already exists"
+      "errorDuplicate": "Tag already exists",
+      "errorSave": "Failed to save tag",
+      "errorStatus": "Failed to update status"
     }
   },
   "products": {
@@ -397,6 +463,7 @@
     "filters": {
       "searchPlaceholder": "Search products...",
       "categoryAll": "All Categories",
+      "subCategoryAll": "All Sub-Categories",
       "statusAll": "All Status",
       "sort": "Sort by",
       "sortOptions": {
@@ -439,6 +506,8 @@
       "initialStock": "Initial Stock Quantity",
       "category": "Category *",
       "categoryPlaceholder": "Select a category",
+      "subCategory": "Sub-Category *",
+      "subCategoryPlaceholder": "Select a sub-category",
       "tags": "Tags",
       "status": "Status",
       "images": "Product Images *",
@@ -468,7 +537,8 @@
       "errorFetch": "Failed to fetch data",
       "errorSave": "Failed to save product",
       "errorDelete": "Failed to delete product",
-      "errorStatus": "Failed to update status"
+      "errorStatus": "Failed to update status",
+      "unknownCategory": "Unknown"
     },
     "validation": {
       "nameRequired": "Product name is required",
@@ -597,6 +667,188 @@
       "emptySubtitle": "Orders placed by customers will appear here.",
       "errorFetch": "Failed to fetch orders",
       "refreshed": "Orders refreshed"
+    }
+  },
+  "storeProfile": {
+    "header": {
+      "title": "Store Profile",
+      "subtitle": "Manage your store's public identity and operational settings"
+    },
+    "tabs": {
+      "profileInfo": "Profile Information",
+      "storeOperations": "Store Operations"
+    },
+    "overview": {
+      "title": "Store Overview",
+      "storeName": "Store Name",
+      "verificationStatus": "Verification Status",
+      "storeStatus": "Store Status",
+      "lastUpdated": "Last Updated",
+      "editProfile": "Edit Profile"
+    },
+    "banner": {
+      "title": "Store Banner",
+      "description": "This banner is displayed at the top of your store page.",
+      "empty": "No Banner Uploaded"
+    },
+    "description": {
+      "title": "Store Description",
+      "empty": "No description provided."
+    },
+    "contact": {
+      "title": "Contact Information",
+      "ownerName": "Store Owner",
+      "ownerNameReadOnly": "This is your legally registered business name and cannot be changed here.",
+      "phone": "Phone Number",
+      "email": "Email Address",
+      "emailReadOnly": "This email is used for admin login and cannot be changed."
+    },
+    "address": {
+      "title": "Address Information",
+      "fullAddress": "Complete Store Address"
+    },
+    "operations": {
+      "status": {
+        "title": "Store Status",
+        "description": "Toggle whether your store is currently accepting orders",
+        "open": "Open",
+        "closed": "Closed",
+        "currentStatus": "Current Store Status",
+        "statusDescription": "When closed, your store will remain visible but customers will not be able to place new orders."
+      },
+      "businessHours": {
+        "title": "Business Hours",
+        "description": "Configure your daily operating hours",
+        "table": {
+          "day": "Day",
+          "enabled": "Enabled",
+          "open": "Open",
+          "close": "Close"
+        }
+      },
+      "delivery": {
+        "title": "Delivery Settings",
+        "description": "Configure delivery availability and minimums",
+        "enableDelivery": "Enable Delivery",
+        "minimumOrder": "Minimum Order Amount (₹)",
+        "estimatedTime": "Estimated Delivery Time (mins)"
+      }
+    },
+    "form": {
+      "editTitle": "Edit Store Profile",
+      "storeName": "Store Name *",
+      "description": "Store Description",
+      "phoneNumber": "Phone Number *",
+      "email": "Email Address *",
+      "address": "Store Address *",
+      "logo": "Store Logo",
+      "banner": "Store Banner",
+      "cancel": "Cancel",
+      "save": "Save Changes"
+    },
+    "badges": {
+      "verified": "Verified",
+      "pending": "Pending",
+      "rejected": "Rejected"
+    },
+    "messages": {
+      "successUpdateProfile": "Store profile updated successfully",
+      "successUpdateOperations": "Store operations updated successfully",
+      "errorSave": "Failed to save changes",
+      "validationName": "Store Name is required",
+      "validationPhone": "Phone Number is required",
+      "validationEmail": "Valid Email Address is required",
+      "validationAddress": "Store Address is required",
+      "validationWorkingDays": "At least one working day must be enabled.",
+      "validationDeliveryTime": "Estimated delivery time must be greater than 0.",
+      "validationMinOrder": "Minimum order amount cannot be negative.",
+      "errorLoading": "Error loading store profile data."
+    }
+  },
+  "help": {
+    "header": {
+      "title": "Help & Support",
+      "subtitle": "Find answers to your questions or get in touch with our support team."
+    },
+    "search": {
+      "placeholder": "Search help articles..."
+    },
+    "contact": {
+      "title": "Contact Support",
+      "email": {
+        "title": "Support Email",
+        "value": "support@quickbasket.com"
+      },
+      "phone": {
+        "title": "Support Phone",
+        "value": "+91 80000 00000"
+      },
+      "hours": {
+        "title": "Support Hours",
+        "value": "Mon–Sat, 9 AM – 6 PM"
+      }
+    },
+    "reportIssue": {
+      "button": "Report an Issue",
+      "title": "Report an Issue",
+      "descriptionText": "Having trouble? Describe the issue you are facing and our support team will reach out via your registered store email.",
+      "subject": "Subject *",
+      "type": "Issue Type *",
+      "description": "Description *",
+      "placeholders": {
+        "subject": "Brief summary of the issue",
+        "description": "Please provide as much detail as possible..."
+      },
+      "submit": "Submit Issue",
+      "submitting": "Submitting...",
+      "success": "Issue reported successfully. Our team will contact you shortly.",
+      "cancel": "Cancel",
+      "types": {
+        "select": "Select an issue type",
+        "technical": "Technical Issue",
+        "order": "Order Related",
+        "payment": "Payment / Payout",
+        "other": "Other"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "emptyState": {
+        "title": "No matching articles found",
+        "subtitle": "Try searching with different keywords."
+      },
+      "gettingStarted": "Getting Started",
+      "products": "Managing Products",
+      "orders": "Managing Orders",
+      "operations": "Store Operations",
+      "payments": "Payments & Payouts",
+      "questions": {
+        "q1": {
+          "category": "products",
+          "q": "How do I update inventory?",
+          "a": "Navigate to the Products page, find the item you want to update, and click Edit. You can then adjust the stock quantity. Don't forget to save your changes!"
+        },
+        "q2": {
+          "category": "operations",
+          "q": "How do I create banners?",
+          "a": "Go to the Banners page from the sidebar menu. Click 'Add Banner', upload your promotional image, set its display order, and choose where it should redirect customers."
+        },
+        "q3": {
+          "category": "payments",
+          "q": "How are payouts calculated?",
+          "a": "Payouts are calculated automatically based on your total delivered orders minus the platform commission and any applicable taxes. Payouts are processed every Tuesday for the previous week."
+        },
+        "q4": {
+          "category": "operations",
+          "q": "How do I close my store temporarily?",
+          "a": "Go to the Store Profile page, switch to the Store Operations tab, and toggle the 'Store Status' to Closed. This will immediately stop new orders from coming in while keeping your store visible."
+        },
+        "q5": {
+          "category": "products",
+          "q": "Why is my product not visible?",
+          "a": "A product might not be visible if its status is set to 'Inactive', if its stock has dropped to zero (depending on your settings), or if the assigned category is inactive."
+        }
+      }
     }
   }
 }

@@ -38,14 +38,14 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
   const toggleOption = (optionValue: string) => {
     const newValue = value.includes(optionValue)
-      ? value.filter((v) => v !== optionValue)
+      ? value.filter((v: any) => v !== optionValue)
       : [...value, optionValue];
     onChange(newValue);
   };
 
   const selectedLabels = options
-    .filter((opt) => value.includes(opt.value))
-    .map((opt) => opt.label)
+    .filter((opt: any) => value.includes(opt.value))
+    .map((opt: any) => opt.label)
     .join(", ");
 
   return (
@@ -76,7 +76,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
             {options.length === 0 ? (
               <div className="p-3 text-description text-muted-foreground">No options available</div>
             ) : (
-              options.map((opt) => (
+              options.map((opt: any) => (
                 <div
                   key={opt.value}
                   onClick={() => toggleOption(opt.value)}

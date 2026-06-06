@@ -249,7 +249,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({
                 <option value="">
                   {en.onboarding.location.fields.state.placeholder}
                 </option>
-                {INDIAN_STATES.map((state) => (
+                {INDIAN_STATES.map((state: any) => (
                   <option key={state.value} value={state.value}>
                     {state.label}
                   </option>

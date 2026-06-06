@@ -9,6 +9,7 @@ export const productSchema = z
     mrp: z.coerce.number().optional(),
     stockQuantity: z.coerce.number().min(0, en.products.validation.stockQuantityMin).default(0),
     categoryId: z.string().min(1, en.products.validation.categoryRequired),
+    subCategoryId: z.string().optional(),
     tagIds: z.array(z.string()).default([]),
     images: z.array(z.string()).min(1, en.products.validation.imagesRequired),
     status: z.enum(["Active", "Inactive"]).default("Inactive"),

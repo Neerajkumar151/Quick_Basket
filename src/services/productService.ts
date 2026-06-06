@@ -1,17 +1,7 @@
-export interface Product {
-  id: string;
-  name: string;
-  description?: string;
-  sellingPrice: number;
-  mrp?: number;
-  stockQuantity: number;
-  categoryId: string;
-  tagIds: string[];
-  images: string[];
-  status: "Active" | "Inactive";
-  createdAt: string;
-  updatedAt: string;
-}
+import { Product } from "../types/product";
+import mockData from "../constants/mock.json";
+
+export type { Product };
 
 const PRODUCTS_STORAGE_KEY = "qb_store_admin_products";
 
@@ -33,27 +23,18 @@ const saveProducts = (products: Product[]) => {
   }
 };
 
-// Seed some initial data if empty
+// Seed from mock.json if localStorage is empty
 const initializeProducts = () => {
   const current = getStoredProducts();
   if (current.length === 0) {
-    const mockProducts: Product[] = [
-      {
-        id: "prod_1",
-        name: "Fresh Organic Bananas",
-        description: "A bunch of 6 fresh organic bananas.",
-        sellingPrice: 2.5,
-        mrp: 3.0,
-        stockQuantity: 150,
-        categoryId: "1", // Assuming 'Fruits' has ID 1 or similar in category service
-        tagIds: ["tag_1"], // Assuming 'Organic' has tag_1
-        images: ["https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&q=80&w=400"],
-        status: "Active",
+    const seedProducts: Product[] = (mockData.products as Omit<Product, "createdAt" | "updatedAt">[]).map(
+      (p) => ({
+        ...p,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      },
-    ];
-    saveProducts(mockProducts);
+      })
+    );
+    saveProducts(seedProducts);
   }
 };
 

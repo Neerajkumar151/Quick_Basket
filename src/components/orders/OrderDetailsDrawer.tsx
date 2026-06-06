@@ -153,7 +153,7 @@ export const OrderDetailsDrawer: React.FC<OrderDetailsDrawerProps> = ({
               {en.orders.drawer.actions}
             </span>
             <div className="flex flex-wrap gap-2">
-              {allowedTransitions.map((nextStatus) => (
+              {allowedTransitions.map((nextStatus: OrderStatus) => (
                 <Button
                   key={nextStatus}
                   variant={nextStatus === ORDER_STATUS.CANCELLED ? "outline" : "primary"}

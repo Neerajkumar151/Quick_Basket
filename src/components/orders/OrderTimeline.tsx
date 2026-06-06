@@ -22,9 +22,9 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
   const isCancelled = currentStatus === ORDER_STATUS.CANCELLED;
 
   const getEntry = (status: OrderStatus) =>
-    timeline.find((t) => t.status === status);
+    timeline.find((t: any) => t.status === status);
 
-  const cancelEntry = timeline.find((t) => t.status === ORDER_STATUS.CANCELLED);
+  const cancelEntry = timeline.find((t: any) => t.status === ORDER_STATUS.CANCELLED);
 
   return (
     <div className="flex flex-col gap-0">

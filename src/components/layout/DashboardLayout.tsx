@@ -12,12 +12,12 @@ import {
   CreditCard,
   BarChart2,
   Store as StoreIcon,
-  Settings,
   HelpCircle,
   LogOut,
   ChevronDown,
   ChevronRight,
   Clock,
+  Network,
 } from "lucide-react";
 import en from "../../locales/en.json";
 import { Header } from "./Header";
@@ -48,6 +48,12 @@ const NAVIGATION = [
         name: en.sidebar.items.categories,
         path: "/dashboard/categories",
         icon: Grid,
+      },
+      {
+        id: "subCategories",
+        name: en.sidebar.items.subCategories,
+        path: "/dashboard/sub-categories",
+        icon: Network,
       },
       {
         id: "tags",
@@ -120,14 +126,8 @@ const NAVIGATION = [
       {
         id: "profile",
         name: en.sidebar.items.storeProfile,
-        path: "/dashboard/profile",
+        path: "/dashboard/store-profile",
         icon: StoreIcon,
-      },
-      {
-        id: "settings",
-        name: en.sidebar.items.storeSettings,
-        path: "/dashboard/settings",
-        icon: Settings,
       },
     ],
   },
@@ -165,7 +165,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
         }`}>
           {/* Navigation */}
           <div className="flex-1 overflow-y-auto py-6 px-3 custom-scrollbar flex flex-col gap-2">
-            {NAVIGATION.map((group) => {
+            {NAVIGATION.map((group: any) => {
               const isExpanded = expandedGroups[group.group];
               return (
                 <div key={group.group} className="mb-2">
@@ -189,7 +189,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
 
                   {isExpanded && (
                     <div className="mt-1 flex flex-col gap-1">
-                      {group.items.map((item) => {
+                      {group.items.map((item: any) => {
                         const isActive = pathname === item.path;
                         const Icon = item.icon;
                         return (

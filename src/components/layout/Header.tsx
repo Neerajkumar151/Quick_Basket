@@ -1,9 +1,9 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Bell, Sun, Moon, Menu } from "lucide-react";
+import { Bell, Sun, Moon, Menu, Store as StoreIcon } from "lucide-react";
 import en from "../../locales/en.json";
 import { useTheme } from "../../providers/ThemeProvider";
-import { SearchInput } from "../ui/SearchInput";
+import { useStoreProfile } from "../../hooks/useStoreProfile";
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -13,6 +13,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { pathname } = useLocation();
   const isLoggedIn = pathname.startsWith('/dashboard');
   const { theme, setTheme } = useTheme();
+  const { data: profile } = useStoreProfile();
 
   const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/onboarding');
 
@@ -47,14 +48,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
 
         {isLoggedIn && (
           <>
-            <div className="hidden md:flex items-center">
-              <div className="w-64">
-                <SearchInput 
-                  placeholder={en.layout.searchPlaceholder}
-                  className="h-9 bg-input/50"
-                />
-              </div>
-            </div>
             <button className="relative w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors group shadow-sm">
               <Bell size={20} className="group-hover:text-primary transition-colors" />
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full border border-background"></span>
@@ -65,13 +58,19 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
           <div className="h-8 w-px bg-border mx-2"></div>
           <div className="flex items-center gap-3 cursor-pointer group">
             <div className="hidden sm:flex flex-col items-end">
-              <span className="text-description font-bold text-foreground group-hover:text-primary transition-colors leading-tight">{en.layout.adminName}</span>
-              <span className="text-caption text-muted-foreground leading-tight">{en.layout.adminRole}</span>
+              <span className="text-description font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
+                {profile?.storeName || en.layout.adminName}
+              </span>
+              <span className="text-caption text-error font-medium leading-tight">{en.layout.adminRole}</span>
             </div>
-            <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center overflow-hidden">
-              <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="Avatar" className="w-full h-full object-cover" />
+            <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center overflow-hidden shrink-0">
+              {profile?.logoUrl ? (
+                <img src={profile.logoUrl} alt="Store Logo" className="w-full h-full object-cover bg-card" />
+              ) : (
+                <StoreIcon size={16} className="text-muted-foreground opacity-50" />
+              )}
             </div>
-            </div>
+          </div>
           </>
         )}
       </div>

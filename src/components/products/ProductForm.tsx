@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema, ProductFormValues } from "../../validations/product";
@@ -7,40 +7,48 @@ import { TextArea } from "../ui/TextArea";
 import { Select } from "../ui/Select";
 import { MultiSelect } from "../ui/MultiSelect";
 import { MultipleImageUploader } from "./MultipleImageUploader";
-import { categoryService, Category } from "../../services/categoryService";
-import { tagService, Tag } from "../../services/tagService";
+import { Button } from "../ui/Button";
+import { useCategories } from "../../hooks/useCategories";
+import { useTags } from "../../hooks/useTags";
+import { useSubCategoriesByParent } from "../../hooks/useSubCategories";
 import en from "../../locales/en.json";
 
 interface ProductFormProps {
   initialData?: ProductFormValues | null;
   onSubmit: (data: ProductFormValues) => Promise<void>;
-  formRef?: React.RefObject<HTMLFormElement>;
+  isSubmitting?: boolean;
+  submitLabel?: string;
+  onCancel?: () => void;
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
   initialData,
   onSubmit,
-  formRef,
+  isSubmitting = false,
+  submitLabel = en.products.form.create,
+  onCancel,
 }) => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [isLoadingMetadata, setIsLoadingMetadata] = useState(true);
+  const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
+  const { data: tags = [], isLoading: isLoadingTags } = useTags();
 
   const {
     register,
     handleSubmit,
     control,
+    watch,
+    setValue,
     formState: { errors },
     reset,
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema) as any,
-    defaultValues: initialData || {
+    defaultValues: initialData ?? {
       name: "",
       description: "",
       sellingPrice: 0,
       mrp: 0,
       stockQuantity: 0,
       categoryId: "",
+      subCategoryId: "",
       tagIds: [],
       images: [],
       status: "Inactive",
@@ -53,32 +61,22 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
   }, [initialData, reset]);
 
-  useEffect(() => {
-    const fetchMetadata = async () => {
-      try {
-        const [cats, tgs] = await Promise.all([
-          categoryService.getCategories(),
-          tagService.getTags()
-        ]);
-        setCategories(cats);
-        setTags(tgs);
-      } catch (error) {
-        console.error("Failed to load categories/tags", error);
-      } finally {
-        setIsLoadingMetadata(false);
-      }
-    };
-    fetchMetadata();
-  }, []);
+  const selectedCategoryId = watch("categoryId");
+  const { data: subCategories = [], isLoading: isLoadingSubCategories } = useSubCategoriesByParent(selectedCategoryId);
+  
+  // Update isLoadingMetadata to include subCategories
+  const isFetchingMetadata = isLoadingCategories || isLoadingTags || isLoadingSubCategories;
 
-  const handleFormSubmit = async (data: ProductFormValues) => {
-    await onSubmit(data);
-  };
+  // Reset subCategory when category changes (but not on initial load)
+  useEffect(() => {
+    if (selectedCategoryId && initialData?.categoryId !== selectedCategoryId) {
+      setValue("subCategoryId", "");
+    }
+  }, [selectedCategoryId, setValue, initialData]);
 
   return (
     <form
-      ref={formRef as any}
-      onSubmit={handleSubmit(handleFormSubmit as any)}
+      onSubmit={handleSubmit((data) => onSubmit(data as ProductFormValues))}
       className="flex flex-col gap-6"
     >
       <div className="flex flex-col gap-4">
@@ -122,16 +120,32 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             label={en.products.form.category}
             error={errors.categoryId?.message}
             {...register("categoryId")}
-            disabled={isLoadingMetadata}
+            disabled={isFetchingMetadata}
           >
             <option value="">{en.products.form.categoryPlaceholder}</option>
-            {categories.map((cat) => (
+            {categories.map((cat: any) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
             ))}
           </Select>
 
+          <Select
+            label={en.products.form.subCategory}
+            error={errors.subCategoryId?.message}
+            {...register("subCategoryId")}
+            disabled={isFetchingMetadata || !selectedCategoryId || subCategories.length === 0}
+          >
+            <option value="">{en.products.form.subCategoryPlaceholder}</option>
+            {subCategories.map((subCat: any) => (
+              <option key={subCat.id} value={subCat.id}>
+                {subCat.name}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             type="number"
             label={en.products.form.initialStock}
@@ -146,7 +160,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           render={({ field }) => (
             <MultiSelect
               label={en.products.form.tags}
-              options={tags.map(t => ({ value: t.id, label: t.name }))}
+              options={tags.map((t: any) => ({ value: t.id, label: t.name }))}
               value={field.value}
               onChange={field.onChange}
               error={errors.tagIds?.message}
@@ -178,6 +192,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             />
           )}
         />
+      </div>
+
+      {/* Form Actions */}
+      <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
+        {onCancel && (
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+            {en.common.cancel}
+          </Button>
+        )}
+        <Button type="submit" variant="primary" disabled={isSubmitting}>
+          {isSubmitting ? "..." : submitLabel}
+        </Button>
       </div>
     </form>
   );

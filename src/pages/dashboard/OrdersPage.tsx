@@ -68,29 +68,29 @@ export const OrdersPage = () => {
   };
 
   const handleStatusUpdated = (updated: Order) => {
-    setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+    setOrders((prev) => prev.map((o: any) => (o.id === updated.id ? updated : o)));
     setSelectedOrder(updated);
   };
 
   // ── Stats cards ────────────────────────────────────────────────────────────
   const stats = useMemo(() => ({
     total: orders.length,
-    new: orders.filter((o) => o.status === ORDER_STATUS.NEW).length,
-    outForDelivery: orders.filter((o) => o.status === ORDER_STATUS.OUT_FOR_DELIVERY).length,
-    delivered: orders.filter((o) => o.status === ORDER_STATUS.DELIVERED).length,
-    cancelled: orders.filter((o) => o.status === ORDER_STATUS.CANCELLED).length,
+    new: orders.filter((o: any) => o.status === ORDER_STATUS.NEW).length,
+    outForDelivery: orders.filter((o: any) => o.status === ORDER_STATUS.OUT_FOR_DELIVERY).length,
+    delivered: orders.filter((o: any) => o.status === ORDER_STATUS.DELIVERED).length,
+    cancelled: orders.filter((o: any) => o.status === ORDER_STATUS.CANCELLED).length,
   }), [orders]);
 
   // ── Filter + Sort + Paginate ───────────────────────────────────────────────
   const processedOrders = useMemo(() => {
-    let result = orders.filter((o) => {
+    let result = orders.filter((o: any) => {
       const matchesSearch = o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         o.customerName.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === "all" || o.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
 
-    result.sort((a, b) => {
+    result.sort((a: any, b: any) => {
       switch (sortBy) {
         case "oldest": return new Date(a.orderDate).getTime() - new Date(b.orderDate).getTime();
         case "amountHigh": return b.total - a.total;
@@ -112,13 +112,13 @@ export const OrdersPage = () => {
   const columns: ColumnDef<Order>[] = [
     {
       header: en.orders.table.orderId,
-      cell: (o) => (
+      cell: (o: any) => (
         <span className="font-mono font-bold text-primary text-description">{o.id}</span>
       ),
     },
     {
       header: en.orders.table.customer,
-      cell: (o) => (
+      cell: (o: any) => (
         <div className="flex flex-col">
           <span className="font-semibold text-foreground">{o.customerName}</span>
           <span className="text-caption text-muted-foreground">{o.customerPhone}</span>
@@ -127,7 +127,7 @@ export const OrdersPage = () => {
     },
     {
       header: en.orders.table.date,
-      cell: (o) => (
+      cell: (o: any) => (
         <span className="text-description text-muted-foreground whitespace-nowrap">
           {formatDateTime(o.orderDate)}
         </span>
@@ -135,18 +135,18 @@ export const OrdersPage = () => {
     },
     {
       header: en.orders.table.amount,
-      cell: (o) => (
+      cell: (o: any) => (
         <span className="font-bold text-foreground">{formatCurrency(o.total)}</span>
       ),
     },
     {
       header: en.orders.table.status,
-      cell: (o) => <StatusBadge status={o.status} />,
+      cell: (o: any) => <StatusBadge status={o.status} />,
     },
     {
       header: en.orders.table.actions,
       className: "text-right",
-      cell: (o) => (
+      cell: (o: any) => (
         <div className="flex justify-end">
           <button
             onClick={() => handleViewOrder(o)}
