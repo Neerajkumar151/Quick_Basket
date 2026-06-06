@@ -4,13 +4,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Input } from '../ui/Input';
 import { TextArea } from '../ui/TextArea';
+import { Select } from '../ui/Select';
 import { ImageUploader } from '../ui/ImageUploader';
 import en from '../../locales/en.json';
 import { Category } from '../../services/categoryService';
 
 const categorySchema = z.object({
   name: z.string().min(1, { message: en.categories.messages.errorNameRequired }),
-  description: z.string().optional()
+  description: z.string().optional(),
+  status: z.enum(['Active', 'Inactive']).optional()
 });
 
 export type CategoryFormValues = z.infer<typeof categorySchema>;
@@ -28,7 +30,8 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, onSubmi
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: '',
-      description: ''
+      description: '',
+      status: 'Active'
     }
   });
 
@@ -36,11 +39,12 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, onSubmi
     if (initialData) {
       reset({
         name: initialData.name,
-        description: initialData.description || ''
+        description: initialData.description || '',
+        status: initialData.status || 'Active'
       });
       setSelectedFile(null); // The ImageUploader takes care of initial preview via prop
     } else {
-      reset({ name: '', description: '' });
+      reset({ name: '', description: '', status: 'Active' });
       setSelectedFile(null);
     }
   }, [initialData, reset]);
@@ -67,6 +71,15 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, onSubmi
         {...register('description')}
         error={errors.description?.message}
       />
+
+      <Select
+        label={en.categories.form.status}
+        {...register('status')}
+        error={errors.status?.message}
+      >
+        <option value="Active">{en.categories.form.active}</option>
+        <option value="Inactive">{en.categories.form.inactive}</option>
+      </Select>
     </form>
   );
 };

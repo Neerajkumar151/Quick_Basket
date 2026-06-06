@@ -9,6 +9,7 @@ import { SearchInput } from "../../components/ui/SearchInput";
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
 import { Pagination } from "../../components/ui/Pagination";
+import { StatusBadge } from "../../components/ui/StatusBadge";
 
 import {
   CategoryForm,
@@ -78,11 +79,16 @@ export const CategoriesPage = () => {
       if (editingCategory) {
         await categoryService.updateCategory(editingCategory.id, {
           ...data,
+          status: data.status || 'Active',
           image: imageUrl,
         });
         toast.success(en.categories.messages.successUpdate);
       } else {
-        await categoryService.createCategory({ ...data, image: imageUrl });
+        await categoryService.createCategory({ 
+          ...data, 
+          status: data.status || 'Active',
+          image: imageUrl 
+        });
         toast.success(en.categories.messages.successCreate);
       }
 
@@ -100,6 +106,16 @@ export const CategoriesPage = () => {
       formRef.current.dispatchEvent(
         new Event("submit", { cancelable: true, bubbles: true }),
       );
+    }
+  };
+
+  const toggleStatus = async (cat: Category) => {
+    try {
+      await categoryService.toggleStatus(cat.id);
+      toast.success(en.categories.messages.successStatus || "Status updated successfully");
+      await fetchCategories(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update status");
     }
   };
 
@@ -169,16 +185,24 @@ export const CategoriesPage = () => {
       className: "text-muted-foreground",
     },
     {
-      header: en.categories.table.actions,
+      header: en.categories.table.status || "Status",
+      cell: (cat) => (
+        <button onClick={() => toggleStatus(cat)} className="hover:opacity-80 transition-opacity">
+          <StatusBadge status={cat.status || 'Active'} />
+        </button>
+      )
+    },
+    {
+      header: en.categories.table.actions || "Actions",
       className: "text-right",
       cell: (cat) => (
         <div className="flex justify-end">
           <button
             onClick={() => handleOpenDrawer(cat)}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-description font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
           >
             <Edit2 size={16} />
-            Edit
+            {en.common.edit}
           </button>
         </div>
       ),

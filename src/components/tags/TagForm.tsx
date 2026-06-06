@@ -18,6 +18,7 @@ export const PREDEFINED_TAGS = [
 
 const tagSchema = z.object({
   name: z.string().min(1, { message: en.tags.messages.errorNameRequired }),
+  status: z.enum(['Active', 'Inactive']).optional()
 });
 
 export type TagFormValues = z.infer<typeof tagSchema>;
@@ -36,17 +37,19 @@ export const TagForm: React.FC<TagFormProps> = ({
   const { register, handleSubmit, formState: { errors }, reset } = useForm<TagFormValues>({
     resolver: zodResolver(tagSchema),
     defaultValues: {
-      name: ''
+      name: '',
+      status: 'Active'
     }
   });
 
   useEffect(() => {
     if (initialData) {
       reset({
-        name: initialData.name
+        name: initialData.name,
+        status: initialData.status || 'Active'
       });
     } else {
-      reset({ name: '' });
+      reset({ name: '', status: 'Active' });
     }
   }, [initialData, reset]);
 
@@ -62,6 +65,15 @@ export const TagForm: React.FC<TagFormProps> = ({
         {PREDEFINED_TAGS.map(tag => (
           <option key={tag} value={tag}>{tag}</option>
         ))}
+      </Select>
+
+      <Select
+        label={en.tags.form.status}
+        {...register('status')}
+        error={errors.status?.message}
+      >
+        <option value="Active">{en.tags.form.active}</option>
+        <option value="Inactive">{en.tags.form.inactive}</option>
       </Select>
     </form>
   );

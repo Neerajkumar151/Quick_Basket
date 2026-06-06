@@ -4,6 +4,7 @@ export interface Tag {
   id: string;
   name: string;
   productsCount: number;
+  status: 'Active' | 'Inactive';
   createdAt: string; // formatted date string e.g. "12 May"
 }
 
@@ -11,8 +12,7 @@ import mockData from '../constants/mock.json';
 
 const STORAGE_KEY = 'quickbasket_tags';
 
-// Initial mock data
-const defaultTags: Tag[] = mockData.tags;
+const defaultTags: Tag[] = mockData.tags as Tag[];
 
 // Helper to simulate network delay
 const delay = (ms = 500) => new Promise(resolve => setTimeout(resolve, ms));
@@ -23,7 +23,15 @@ const getStoredTags = (): Tag[] => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTags));
     return defaultTags;
   }
-  return JSON.parse(stored);
+  const parsed = JSON.parse(stored);
+  
+  // Force update if the stored mock data is older/smaller than the new mock data
+  if (parsed.length < defaultTags.length) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTags));
+    return defaultTags;
+  }
+
+  return parsed;
 };
 
 export const tagService = {
@@ -47,12 +55,33 @@ export const tagService = {
       ...data,
       id: `tag-${Date.now()}`,
       productsCount: 0,
+      status: data.status || 'Active',
       createdAt: formatShortDate(new Date())
     };
 
     tags.unshift(newTag);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tags));
     return newTag;
+  },
+
+  // DELETE /tags/:id
+  deleteTag: async (id: string): Promise<void> => {
+    await delay();
+    const tags = getStoredTags();
+    const filtered = tags.filter(t => t.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  },
+
+  // PATCH /tags/:id/status
+  toggleStatus: async (id: string): Promise<Tag> => {
+    await delay();
+    const tags = getStoredTags();
+    const index = tags.findIndex(t => t.id === id);
+    if (index === -1) throw new Error("Tag not found");
+
+    tags[index].status = tags[index].status === 'Active' ? 'Inactive' : 'Active';
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tags));
+    return tags[index];
   },
 
   // PUT /tags/:id

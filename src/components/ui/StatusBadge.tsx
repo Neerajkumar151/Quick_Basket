@@ -15,16 +15,25 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className }) =
     case 'active':
     case 'delivered':
     case 'success':
+    case 'paid':
       colorClass = "bg-success/10 text-success border-success/20";
       break;
     case 'inactive':
     case 'cancelled':
     case 'error':
+    case 'failed':
       colorClass = "bg-error/10 text-error border-error/20";
       break;
     case 'pending':
     case 'warning':
+    case 'new':
       colorClass = "bg-warning/10 text-warning border-warning/20";
+      break;
+    case 'accepted':
+      colorClass = "bg-primary/10 text-primary border-primary/20";
+      break;
+    case 'out for delivery':
+      colorClass = "bg-status-purple/10 text-status-purple border-status-purple/20";
       break;
   }
 

@@ -41,7 +41,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         <h2 className="text-h1 font-bold text-card-foreground mb-2 tracking-tight">
           {en.auth.login.title}
         </h2>
-        <p className="text-muted-foreground text-description">
+        <p className="text-auth-text/80 text-description">
           {en.auth.login.subtitle}
         </p>
       </div>

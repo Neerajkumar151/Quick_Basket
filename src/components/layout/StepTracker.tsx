@@ -60,8 +60,8 @@ export const StepTracker: React.FC = () => {
             >
               <span
                 className={cn(
-                  "text-body font-semibold leading-none transition-colors group-hover:text-primary/80",
-                  isActive ? "text-primary" : "text-muted-foreground"
+                  "text-body font-semibold leading-none transition-colors group-hover:text-auth-text",
+                  isActive ? "text-auth-text" : "text-auth-text/70"
                 )}
               >
                 {step.title}
@@ -69,7 +69,7 @@ export const StepTracker: React.FC = () => {
               <span
                 className={cn(
                   "text-caption transition-colors mt-1.5",
-                  isActive || isCompleted ? "text-muted-foreground" : "text-muted-foreground/50"
+                  isActive || isCompleted ? "text-auth-text/80" : "text-auth-text/50"
                 )}
               >
                 {step.description}

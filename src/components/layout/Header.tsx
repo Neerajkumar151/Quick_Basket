@@ -14,8 +14,12 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const isLoggedIn = pathname.startsWith('/dashboard');
   const { theme, setTheme } = useTheme();
 
+  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/onboarding');
+
   return (
-    <header className="flex h-16 items-center justify-between border-b border-border px-6 bg-background shrink-0 z-30 relative">
+    <header className={`flex h-16 items-center justify-between px-6 shrink-0 z-30 relative ${
+      isAuthRoute ? 'bg-transparent border-transparent' : 'border-b border-border bg-background'
+    }`}>
       <div className="flex items-center gap-3 mr-8">
         {isLoggedIn && (
           <button 
@@ -26,18 +30,20 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
           </button>
         )}
         <img src="/logo.png" alt={`${en.layout.brand} Logo`} className="h-8 w-auto object-contain" />
-        <span className="font-bold text-h3 text-foreground tracking-tight hidden sm:block">
-          {en.layout.brand} <span className="font-medium text-muted-foreground ml-1 text-description">{en.layout.portal}</span>
+        <span className={`font-bold text-h3 tracking-tight hidden sm:block ${isAuthRoute ? 'text-white' : 'text-foreground'}`}>
+          {en.layout.brand}
         </span>
       </div>
 
       <div className="flex items-center gap-4 md:gap-6">
-        <button 
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="relative w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors group shadow-sm"
-        >
-          {theme === 'dark' ? <Sun size={20} className="group-hover:text-primary transition-colors" /> : <Moon size={20} className="group-hover:text-primary transition-colors" />}
-        </button>
+        {!isAuthRoute && (
+          <button 
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="relative w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors group shadow-sm"
+          >
+            {theme === 'dark' ? <Sun size={20} className="group-hover:text-primary transition-colors" /> : <Moon size={20} className="group-hover:text-primary transition-colors" />}
+          </button>
+        )}
 
         {isLoggedIn && (
           <>

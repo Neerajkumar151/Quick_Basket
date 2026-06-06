@@ -23,7 +23,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         {description && <p className="text-muted-foreground">{description}</p>}
       </div>
       {actionLabel && onAction && (
-        <Button onClick={onAction} className="gap-2 shrink-0">
+        <Button onClick={onAction} className="gap-2 shrink-0 w-full sm:w-40">
           {actionIcon}
           {actionLabel}
         </Button>

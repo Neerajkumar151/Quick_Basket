@@ -23,6 +23,8 @@
   --color-status-cancelled: hsl(var(--status-cancelled));
   --color-status-purple: hsl(var(--status-purple));
 
+  --color-auth-text: hsl(var(--auth-text));
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -57,6 +59,13 @@
     --status-purple: 270 70% 65%;
 
     --radius: 0.5rem;
+
+    /* Auth Page Variables */
+    --auth-overlay-gradient: linear-gradient(rgba(66, 84, 122, 0.75), rgba(137, 138, 145, 0.8));
+    --auth-card-bg: rgba(115, 128, 149, 0.65);
+    --auth-card-border: rgba(102, 105, 108, 0.1);
+    --auth-card-shadow: rgba(58, 89, 155, 0.3);
+    --auth-text: 0 0% 100%;
 
     /* Typography Reference Variables - Admin Standards */
     --text-h1-size: 1.75rem;
@@ -139,6 +148,19 @@
     @apply bg-background text-foreground font-sans text-body;
   }
   
+  /* Pointer cursor on all interactive elements */
+  a,
+  button,
+  [role="button"],
+  [type="button"],
+  [type="submit"],
+  [type="reset"],
+  select,
+  label[for],
+  summary {
+    cursor: pointer;
+  }
+
   /* Fix Chrome autofill turning inputs white */
   input:-webkit-autofill,
   input:-webkit-autofill:hover, 

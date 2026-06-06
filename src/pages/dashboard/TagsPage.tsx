@@ -6,11 +6,10 @@ import { Link } from 'react-router-dom';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { FilterBar } from '../../components/ui/FilterBar';
 import { SearchInput } from '../../components/ui/SearchInput';
-import { Select } from '../../components/ui/Select';
 import { DataTable, ColumnDef } from '../../components/ui/DataTable';
-import { Toggle } from '../../components/ui/Toggle';
 import { EntityDrawer } from '../../components/ui/EntityDrawer';
 import { Pagination } from '../../components/ui/Pagination';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 
 import { TagForm, TagFormValues } from '../../components/tags/TagForm';
 import { tagService, Tag } from '../../services/tagService';
@@ -61,10 +60,16 @@ export const TagsPage = () => {
     setIsSubmitting(true);
     try {
       if (editingTag) {
-        await tagService.updateTag(editingTag.id, data);
+        await tagService.updateTag(editingTag.id, {
+          ...data,
+          status: data.status || 'Active'
+        });
         toast.success(en.tags.messages.successUpdate);
       } else {
-        await tagService.createTag(data);
+        await tagService.createTag({
+          ...data,
+          status: data.status || 'Active'
+        });
         toast.success(en.tags.messages.successCreate);
       }
       
@@ -80,6 +85,16 @@ export const TagsPage = () => {
   const triggerFormSubmit = () => {
     if (formRef.current) {
       formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    }
+  };
+
+  const toggleStatus = async (t: Tag) => {
+    try {
+      await tagService.toggleStatus(t.id);
+      toast.success(en.tags.messages.successStatus || "Status updated successfully");
+      await fetchTags(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update status");
     }
   };
 
@@ -125,6 +140,14 @@ export const TagsPage = () => {
       className: "text-muted-foreground"
     },
     {
+      header: en.tags.table.status || "Status",
+      cell: (t) => (
+        <button onClick={() => toggleStatus(t)} className="hover:opacity-80 transition-opacity">
+          <StatusBadge status={t.status || 'Active'} />
+        </button>
+      )
+    },
+    {
       header: en.tags.table.actions,
       className: "text-right",
       cell: (t) => (
@@ -134,7 +157,7 @@ export const TagsPage = () => {
             className="flex items-center gap-2 px-3 py-1.5 text-description font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
           >
             <Edit2 size={16} />
-            Edit
+            {en.common.edit}
           </button>
         </div>
       )

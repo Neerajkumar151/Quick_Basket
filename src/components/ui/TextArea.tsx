@@ -26,7 +26,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
           ref={ref}
           {...props}
         />
-        {error && <p className="text-caption text-red-500 mt-1">{error}</p>}
+        {error && <p className="text-caption text-error mt-1">{error}</p>}
       </div>
     );
   }

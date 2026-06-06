@@ -1,6 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import {
-  
   Plus,
   Image as ImageIcon,
   BadgeCheck,
@@ -10,9 +10,12 @@ import {
 import { KPICards } from "../../components/dashboard/KPICards";
 import { AnalyticsSection } from "../../components/dashboard/AnalyticsSection";
 import { OperationalInsights } from "../../components/dashboard/OperationalInsights";
+import { Button } from "../../components/ui/Button";
 import en from "../../locales/en.json";
+import { useNavigate } from "react-router-dom";
 
 export const OverviewPage: React.FC = () => {
+  const Navigate = useNavigate();
   return (
     <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-500">
       {/* Store Info Header [NEW] */}
@@ -41,7 +44,8 @@ export const OverviewPage: React.FC = () => {
             </div>
             <div className="hidden md:block w-1 h-1 rounded-full bg-border" />
             <span className="hidden md:block">
-              {en.dashboard.header.lastUpdated} {en.dashboard.storeInfo.lastUpdatedValue}
+              {en.dashboard.header.lastUpdated}{" "}
+              {en.dashboard.storeInfo.lastUpdatedValue}
             </span>
           </div>
         </div>
@@ -60,15 +64,20 @@ export const OverviewPage: React.FC = () => {
 
         <div className="flex items-center gap-3">
           {/* Action Buttons [MODIFY] */}
-          <button className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg text-description font-medium text-foreground hover:bg-white/[0.02] transition-colors shadow-sm">
+          <button
+            onClick={() => Navigate("/dashboard/banners")}
+            className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg text-description font-medium text-foreground hover:bg-white/[0.02] transition-colors shadow-sm"
+          >
             <ImageIcon size={16} className="text-muted-foreground" />
             {en.dashboard.header.buttons.createBanner}
           </button>
 
-          <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg text-description font-semibold transition-colors shadow-[0_0_15px_rgba(var(--primary),0.3)]">
-            <Plus size={16} />
-            {en.dashboard.header.buttons.addProduct}
-          </button>
+          <Link to="/dashboard/products">
+            <Button className="gap-2 w-full sm:w-40">
+              <Plus size={16} />
+              {en.dashboard.header.buttons.addProduct}
+            </Button>
+          </Link>
         </div>
       </div>
 

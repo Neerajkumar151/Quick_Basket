@@ -4,70 +4,373 @@
       "id": "cat-1",
       "name": "Vegetables",
       "description": "Fresh organic vegetables",
-      "image": "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=500&q=80",
       "productsCount": 45,
-      "createdAt": "12 May"
+      "createdAt": "12 May",
+      "image": "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=500&q=80",
+      "status": "Active"
     },
     {
       "id": "cat-2",
       "name": "Fruits",
       "description": "Seasonal fresh fruits",
-      "image": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=500&q=80",
       "productsCount": 32,
-      "createdAt": "15 May"
+      "createdAt": "15 May",
+      "image": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-3",
+      "name": "Dairy Products",
+      "description": "Milk, Butter, Cheese",
+      "productsCount": 28,
+      "createdAt": "16 May",
+      "image": "https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-4",
+      "name": "Bakery & Bread",
+      "description": "Freshly baked breads, buns, and cakes",
+      "productsCount": 15,
+      "createdAt": "18 May",
+      "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-5",
+      "name": "Meat & Seafood",
+      "description": "Fresh cuts, poultry, and fish",
+      "productsCount": 40,
+      "createdAt": "19 May",
+      "image": "https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-6",
+      "name": "Snacks & Branded Foods",
+      "description": "Chips, biscuits, and namkeen",
+      "productsCount": 112,
+      "createdAt": "20 May",
+      "image": "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-7",
+      "name": "Beverages",
+      "description": "Soft drinks, juices, tea, and coffee",
+      "productsCount": 85,
+      "createdAt": "22 May",
+      "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-8",
+      "name": "Personal Care",
+      "description": "Shampoos, soaps, and skincare",
+      "productsCount": 150,
+      "createdAt": "23 May",
+      "image": "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-9",
+      "name": "Home Care",
+      "description": "Detergents, cleaners, and paper goods",
+      "productsCount": 65,
+      "createdAt": "24 May",
+      "image": "https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-10",
+      "name": "Baby Care",
+      "description": "Diapers, wipes, and baby food",
+      "productsCount": 34,
+      "createdAt": "25 May",
+      "image": "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-11",
+      "name": "Pet Supplies",
+      "description": "Dog food, cat litter, and treats",
+      "productsCount": 22,
+      "createdAt": "26 May",
+      "image": "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-12",
+      "name": "Spices & Masalas",
+      "description": "Whole and powdered Indian spices",
+      "productsCount": 78,
+      "createdAt": "28 May",
+      "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-13",
+      "name": "Pulses & Dals",
+      "description": "Lentils, beans, and chickpeas",
+      "productsCount": 42,
+      "createdAt": "29 May",
+      "image": "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-14",
+      "name": "Rice & Grains",
+      "description": "Basmati, wheat, and millets",
+      "productsCount": 18,
+      "createdAt": "30 May",
+      "image": "https://images.unsplash.com/photo-1586201375761-83865001e8ac?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-15",
+      "name": "Edible Oils & Ghee",
+      "description": "Cooking oils and pure ghee",
+      "productsCount": 250,
+      "createdAt": "1 Jun",
+      "image": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-16",
+      "name": "Frozen Foods",
+      "description": "Frozen peas, snacks, and ice cream",
+      "productsCount": 300,
+      "createdAt": "2 Jun",
+      "image": "https://images.unsplash.com/photo-1581515324385-d60f588c5aeb?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-17",
+      "name": "Breakfast & Cereals",
+      "description": "Oats, cornflakes, and muesli",
+      "productsCount": 240,
+      "createdAt": "2 Jun",
+      "image": "https://images.unsplash.com/photo-1521249646440-10901e7e4eb1?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-18",
+      "name": "Sweets & Chocolates",
+      "description": "Candies, gourmet chocolates, and traditional sweets",
+      "productsCount": 600,
+      "createdAt": "3 Jun",
+      "image": "https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-19",
+      "name": "Health & Wellness",
+      "description": "Supplements, protein powders, and vitamins",
+      "productsCount": 150,
+      "createdAt": "4 Jun",
+      "image": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&q=80",
+      "status": "Active"
+    },
+    {
+      "id": "cat-20",
+      "name": "Stationery",
+      "description": "Pens, notebooks, and office supplies",
+      "productsCount": 450,
+      "createdAt": "5 Jun",
+      "image": "https://images.unsplash.com/photo-1497032205947-8c4146a48d88?w=500&q=80",
+      "status": "Active"
     }
   ],
   "tags": [
     {
       "id": "tag-1",
-      "name": "Trending",
-      "productsCount": 24,
-      "createdAt": "12 May"
+      "name": "Fresh",
+      "productsCount": 42,
+      "createdAt": "12 May",
+      "status": "Active"
     },
     {
       "id": "tag-2",
-      "name": "Fresh",
-      "productsCount": 11,
-      "createdAt": "15 May"
+      "name": "Trending",
+      "productsCount": 24,
+      "createdAt": "15 May",
+      "status": "Active"
+    },
+    {
+      "id": "tag-3",
+      "name": "Daily Essentials",
+      "productsCount": 150,
+      "createdAt": "16 May",
+      "status": "Active"
+    },
+    {
+      "id": "tag-4",
+      "name": "Fast Delivery",
+      "productsCount": 85,
+      "createdAt": "18 May",
+      "status": "Active"
+    },
+    {
+      "id": "tag-5",
+      "name": "Recommended",
+      "productsCount": 60,
+      "createdAt": "20 May",
+      "status": "Active"
+    },
+    {
+      "id": "tag-6",
+      "name": "Best Selling",
+      "productsCount": 35,
+      "createdAt": "22 May",
+      "status": "Active"
+    },
+    {
+      "id": "tag-7",
+      "name": "New Arrivals",
+      "productsCount": 20,
+      "createdAt": "25 May",
+      "status": "Active"
     }
   ],
   "revenueData": [
-    { "name": "Jan", "value": 3200 },
-    { "name": "Feb", "value": 4100 },
-    { "name": "Mar", "value": 4800 },
-    { "name": "Apr", "value": 3900 },
-    { "name": "May", "value": 6500 },
-    { "name": "Jun", "value": 6200 },
-    { "name": "Jul", "value": 7100 },
-    { "name": "Aug", "value": 5800 },
-    { "name": "Sep", "value": 8900 },
-    { "name": "Oct", "value": 7200 },
-    { "name": "Nov", "value": 9800 },
-    { "name": "Dec", "value": 8500 }
+    {
+      "name": "Jan",
+      "value": 3200
+    },
+    {
+      "name": "Feb",
+      "value": 4100
+    },
+    {
+      "name": "Mar",
+      "value": 4800
+    },
+    {
+      "name": "Apr",
+      "value": 3900
+    },
+    {
+      "name": "May",
+      "value": 6500
+    },
+    {
+      "name": "Jun",
+      "value": 6200
+    },
+    {
+      "name": "Jul",
+      "value": 7100
+    },
+    {
+      "name": "Aug",
+      "value": 5800
+    },
+    {
+      "name": "Sep",
+      "value": 8900
+    },
+    {
+      "name": "Oct",
+      "value": 7200
+    },
+    {
+      "name": "Nov",
+      "value": 9800
+    },
+    {
+      "name": "Dec",
+      "value": 8500
+    }
   ],
   "ordersData": [
-    { "name": "Jan", "value": 120 },
-    { "name": "Feb", "value": 140 },
-    { "name": "Mar", "value": 180 },
-    { "name": "Apr", "value": 150 },
-    { "name": "May", "value": 250 },
-    { "name": "Jun", "value": 220 },
-    { "name": "Jul", "value": 290 },
-    { "name": "Aug", "value": 210 },
-    { "name": "Sep", "value": 340 },
-    { "name": "Oct", "value": 280 },
-    { "name": "Nov", "value": 420 },
-    { "name": "Dec", "value": 380 }
+    {
+      "name": "Jan",
+      "value": 120
+    },
+    {
+      "name": "Feb",
+      "value": 140
+    },
+    {
+      "name": "Mar",
+      "value": 180
+    },
+    {
+      "name": "Apr",
+      "value": 150
+    },
+    {
+      "name": "May",
+      "value": 250
+    },
+    {
+      "name": "Jun",
+      "value": 220
+    },
+    {
+      "name": "Jul",
+      "value": 290
+    },
+    {
+      "name": "Aug",
+      "value": 210
+    },
+    {
+      "name": "Sep",
+      "value": 340
+    },
+    {
+      "name": "Oct",
+      "value": 280
+    },
+    {
+      "name": "Nov",
+      "value": 420
+    },
+    {
+      "name": "Dec",
+      "value": 380
+    }
   ],
   "orderStatusData": [
-    { "name": "dashboard.analytics.statuses.pending", "value": 142, "color": "hsl(var(--status-pending))" },
-    { "name": "dashboard.analytics.statuses.delivered", "value": 628, "color": "hsl(var(--status-delivered))" },
-    { "name": "dashboard.analytics.statuses.cancelled", "value": 34, "color": "hsl(var(--status-cancelled))" }
+    {
+      "name": "dashboard.analytics.statuses.pending",
+      "value": 142,
+      "color": "hsl(var(--status-pending))"
+    },
+    {
+      "name": "dashboard.analytics.statuses.delivered",
+      "value": 628,
+      "color": "hsl(var(--status-delivered))"
+    },
+    {
+      "name": "dashboard.analytics.statuses.cancelled",
+      "value": 34,
+      "color": "hsl(var(--status-cancelled))"
+    }
   ],
   "recentOrders": [
-    { "id": "#QB-8902", "customer": "Sarah Williams", "time": "10:24 AM", "status": "Delivered", "amount": "₹128.40" },
-    { "id": "#QB-8899", "customer": "Robert Down", "time": "08:30 AM", "status": "Cancelled", "amount": "₹12.50" },
-    { "id": "#QB-8898", "customer": "Jessica Alba", "time": "Yesterday", "status": "Pending", "amount": "₹89.90" }
+    {
+      "id": "#QB-8902",
+      "customer": "Sarah Williams",
+      "time": "10:24 AM",
+      "status": "Delivered",
+      "amount": "₹128.40"
+    },
+    {
+      "id": "#QB-8899",
+      "customer": "Robert Down",
+      "time": "08:30 AM",
+      "status": "Cancelled",
+      "amount": "₹12.50"
+    },
+    {
+      "id": "#QB-8898",
+      "customer": "Jessica Alba",
+      "time": "Yesterday",
+      "status": "Pending",
+      "amount": "₹89.90"
+    }
   ],
   "primaryKpis": [
     {

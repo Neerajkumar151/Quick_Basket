@@ -21,7 +21,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="relative flex items-center">
           {prefixElement && (
-            <div className="absolute left-3 flex items-center pointer-events-none text-muted-foreground border-r border-border pr-3">
+            <div className="absolute left-3 flex items-center pointer-events-none text-muted-foreground">
               {prefixElement}
             </div>
           )}
@@ -29,7 +29,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             className={cn(
               "flex h-10 w-full rounded-md border border-border bg-input px-3 py-2 text-description text-foreground ring-offset-background file:border-0 file:bg-transparent file:text-description file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50 transition-colors",
-              prefixElement && "pl-16",
+              prefixElement && "pl-10",
               suffixElement && "pr-10",
               error && "border-error focus-visible:ring-error",
               className
@@ -43,7 +43,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             </div>
           )}
         </div>
-        {error && <p className="text-caption text-red-500 mt-1">{error}</p>}
+        {error && <p className="text-caption text-error mt-1">{error}</p>}
       </div>
     );
   }

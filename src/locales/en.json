@@ -1,7 +1,6 @@
 {
   "layout": {
     "brand": "QuickBasket",
-    "portal": "Partner Portal",
     "help": "Help",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
@@ -15,8 +14,14 @@
       "title": "Welcome back",
       "subtitle": "Sign in to manage your digital storefront",
       "fields": {
-        "email": { "label": "Business Email", "placeholder": "name@business.com" },
-        "password": { "label": "Password", "placeholder": "Enter your password" }
+        "email": {
+          "label": "Business Email",
+          "placeholder": "name@business.com"
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "Enter your password"
+        }
       },
       "submit": "Sign In",
       "submitting": "Signing in...",
@@ -39,11 +44,26 @@
       "title": "Let's get started",
       "subtitle": "Tell us about yourself and your store name.",
       "fields": {
-        "storeName": { "label": "Store Name", "placeholder": "e.g. Fresh Mart Central" },
-        "ownerName": { "label": "Owner Name", "placeholder": "Full legal name" },
-        "email": { "label": "Business Email", "placeholder": "name@business.com" },
-        "phone": { "label": "Phone Number", "placeholder": "00000 00000" },
-        "password": { "label": "Password", "placeholder": "Create a strong password" }
+        "storeName": {
+          "label": "Store Name",
+          "placeholder": "e.g. Fresh Mart Central"
+        },
+        "ownerName": {
+          "label": "Owner Name",
+          "placeholder": "Full legal name"
+        },
+        "email": {
+          "label": "Business Email",
+          "placeholder": "name@business.com"
+        },
+        "phone": {
+          "label": "Phone Number",
+          "placeholder": "00000 00000"
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "Create a strong password"
+        }
       },
       "submit": "Save & Continue",
       "submitting": "Saving...",
@@ -54,12 +74,30 @@
       "title": "Location Details",
       "subtitle": "Provide the physical address for your store. This will be used for logistics routing and customer pickups.",
       "fields": {
-        "streetAddress": { "label": "Street Address", "placeholder": "e.g. 123 Logistics Blvd, Suite 400" },
-        "landmark": { "label": "Landmark (Optional)", "placeholder": "e.g. Near Apollo Hospital" },
-        "city": { "label": "City", "placeholder": "City name" },
-        "state": { "label": "State", "placeholder": "Select State" },
-        "postalCode": { "label": "PIN Code", "placeholder": "000000" },
-        "country": { "label": "Country", "value": "India" }
+        "streetAddress": {
+          "label": "Street Address",
+          "placeholder": "e.g. 123 Logistics Blvd, Suite 400"
+        },
+        "landmark": {
+          "label": "Landmark (Optional)",
+          "placeholder": "e.g. Near Apollo Hospital"
+        },
+        "city": {
+          "label": "City",
+          "placeholder": "City name"
+        },
+        "state": {
+          "label": "State",
+          "placeholder": "Select State"
+        },
+        "postalCode": {
+          "label": "PIN Code",
+          "placeholder": "000000"
+        },
+        "country": {
+          "label": "Country",
+          "value": "India"
+        }
       },
       "map": {
         "pin": "Use Current Location",
@@ -348,6 +386,217 @@
       "successStatus": "Tag status updated successfully",
       "errorNameRequired": "Tag name is required",
       "errorDuplicate": "Tag already exists"
+    }
+  },
+  "products": {
+    "header": {
+      "title": "Products",
+      "subtitle": "Manage your store catalog and inventory",
+      "addProduct": "Add Product"
+    },
+    "filters": {
+      "searchPlaceholder": "Search products...",
+      "categoryAll": "All Categories",
+      "statusAll": "All Status",
+      "sort": "Sort by",
+      "sortOptions": {
+        "nameAsc": "Name (A-Z)",
+        "nameDesc": "Name (Z-A)",
+        "priceAsc": "Price (Low to High)",
+        "priceDesc": "Price (High to Low)",
+        "newest": "Newest Arrivals",
+        "oldest": "Oldest",
+        "stockAsc": "Stock (Low to High)",
+        "stockDesc": "Stock (High to Low)"
+      }
+    },
+    "table": {
+      "image": "Image",
+      "name": "Product Name",
+      "price": "Price",
+      "stock": "Stock",
+      "inventoryStatus": "Inventory Status",
+      "status": "Status",
+      "actions": "Actions",
+      "inventory": {
+        "outOfStock": "Out of Stock",
+        "lowStock": "Low Stock",
+        "inStock": "In Stock",
+        "inStockLabel": "in stock"
+      }
+    },
+    "form": {
+      "addTitle": "Add Product",
+      "editTitle": "Edit Product",
+      "name": "Product Name *",
+      "namePlaceholder": "e.g. Fresh Apples",
+      "description": "Description",
+      "descriptionPlaceholder": "Detailed description of the product",
+      "pricing": "Pricing",
+      "sellingPrice": "Selling Price *",
+      "mrp": "MRP",
+      "stockAndCategory": "Inventory & Category",
+      "initialStock": "Initial Stock Quantity",
+      "category": "Category *",
+      "categoryPlaceholder": "Select a category",
+      "tags": "Tags",
+      "status": "Status",
+      "images": "Product Images *",
+      "uploadImages": "Upload product images",
+      "cancel": "Cancel",
+      "create": "Save Product",
+      "update": "Update Product",
+      "active": "Active",
+      "inactive": "Inactive",
+      "loadingTags": "Loading tags...",
+      "noTags": "No tags available."
+    },
+    "messages": {
+      "emptyTitle": "No Products Found",
+      "emptySubtitle": "Start building your catalog by adding a product.",
+      "successCreate": "Product created successfully",
+      "successUpdate": "Product updated successfully",
+      "successDelete": "Product deleted successfully",
+      "successStatus": "Product status updated successfully",
+      "deleteConfirm": "Are you sure you want to delete this product?",
+      "deleteTitle": "Delete Product",
+      "errorMaxImages": "You can only upload a maximum of",
+      "errorInvalidFormat": "Invalid file format:",
+      "errorSizeTooLarge": "File size too large:",
+      "images": "images",
+      "max": "Max",
+      "errorFetch": "Failed to fetch data",
+      "errorSave": "Failed to save product",
+      "errorDelete": "Failed to delete product",
+      "errorStatus": "Failed to update status"
+    },
+    "validation": {
+      "nameRequired": "Product name is required",
+      "sellingPriceMin": "Selling price must be 0 or greater",
+      "stockQuantityMin": "Stock quantity cannot be negative",
+      "categoryRequired": "Category is required",
+      "imagesRequired": "At least one product image is required",
+      "mrpExceeded": "Selling Price cannot exceed MRP"
+    }
+  },
+  "banners": {
+    "header": {
+      "title": "Banner Management",
+      "subtitle": "Setup promotional banners",
+      "addBanner": "Add Banner"
+    },
+    "filters": {
+      "searchPlaceholder": "Search Banners"
+    },
+    "table": {
+      "image": "Image",
+      "title": "Title",
+      "target": "Target",
+      "order": "Order",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "form": {
+      "addTitle": "Add Banner",
+      "editTitle": "Edit Banner",
+      "image": "Banner Image *",
+      "title": "Banner Title *",
+      "titlePlaceholder": "e.g. Latest iPhone Collection",
+      "description": "Description",
+      "descriptionPlaceholder": "e.g. Discover the newest iPhones",
+      "redirectType": "Redirect Type *",
+      "redirectTarget": "Redirect Target *",
+      "selectProduct": "Select Product *",
+      "selectCategory": "Select Category *",
+      "selectRedirectType": "Select Redirect Type",
+      "displayOrder": "Display Order *",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "cancel": "Cancel",
+      "create": "Save Banner",
+      "update": "Update Banner",
+      "targetTypeProduct": "Product",
+      "targetTypeCategory": "Category",
+      "searchProducts": "Search products...",
+      "noProducts": "No products found"
+    },
+    "messages": {
+      "emptyTitle": "No Banners Found",
+      "emptySubtitle": "Start creating promotional banners for the home screen.",
+      "successCreate": "Banner created successfully",
+      "successUpdate": "Banner updated successfully",
+      "successDelete": "Banner deleted successfully",
+      "successStatus": "Banner status updated successfully",
+      "deleteConfirm": "Are you sure you want to delete this banner?",
+      "deleteTitle": "Delete Banner",
+      "errorTitleRequired": "Banner title is required",
+      "errorTypeRequired": "Redirect type is required",
+      "errorTargetRequired": "Redirect target is required",
+      "errorOrderRequired": "Display order is required",
+      "errorFetch": "Failed to fetch banners",
+      "errorSave": "Failed to save banner",
+      "errorDelete": "Failed to delete banner",
+      "errorStatus": "Failed to update status"
+    }
+  },
+  "orders": {
+    "header": {
+      "title": "Orders",
+      "subtitle": "Manage and track all customer orders"
+    },
+    "stats": {
+      "total": "Total Orders",
+      "new": "New",
+      "outForDelivery": "Out for Delivery",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "filters": {
+      "searchPlaceholder": "Search by Order ID or Customer...",
+      "statusAll": "All Statuses",
+      "sortNewest": "Newest First",
+      "sortOldest": "Oldest First",
+      "sortAmountHigh": "Amount (High to Low)",
+      "sortAmountLow": "Amount (Low to High)",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing..."
+    },
+    "table": {
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "date": "Date & Time",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": "Actions",
+      "view": "View"
+    },
+    "drawer": {
+      "customer": "Customer Information",
+      "name": "Name",
+      "phone": "Mobile",
+      "email": "Email",
+      "address": "Delivery Address",
+      "items": "Ordered Items",
+      "payment": "Payment Information",
+      "paymentMethod": "Method",
+      "paymentStatus": "Status",
+      "transactionId": "Transaction ID",
+      "breakdown": "Amount Breakdown",
+      "subtotal": "Subtotal",
+      "deliveryFee": "Delivery Fee",
+      "tax": "Tax",
+      "total": "Total",
+      "timeline": "Order Timeline",
+      "actions": "Update Status",
+      "completed": "Order Delivered Successfully",
+      "cancelled": "Order Cancelled"
+    },
+    "messages": {
+      "emptyTitle": "No Orders Found",
+      "emptySubtitle": "Orders placed by customers will appear here.",
+      "errorFetch": "Failed to fetch orders",
+      "refreshed": "Orders refreshed"
     }
   }
 }

@@ -6,6 +6,7 @@ export interface Category {
   description?: string;
   image?: string; // base64 string or url
   productsCount: number;
+  status: 'Active' | 'Inactive';
   createdAt: string; // formatted date string e.g. "12 May"
 }
 
@@ -15,8 +16,7 @@ import mockData from '../constants/mock.json';
 
 const STORAGE_KEY = 'quickbasket_categories';
 
-// Initial mock data
-const defaultCategories: Category[] = mockData.categories;
+const defaultCategories: Category[] = mockData.categories as Category[];
 
 // Helper to simulate network delay
 const delay = (ms = 500) => new Promise(resolve => setTimeout(resolve, ms));
@@ -27,7 +27,15 @@ const getStoredCategories = (): Category[] => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultCategories));
     return defaultCategories;
   }
-  return JSON.parse(stored);
+  const parsed = JSON.parse(stored);
+  
+  // Force update if the stored mock data is older/smaller than the new mock data
+  if (parsed.length < defaultCategories.length) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultCategories));
+    return defaultCategories;
+  }
+
+  return parsed;
 };
 
 export const categoryService = {
@@ -51,6 +59,7 @@ export const categoryService = {
       ...data,
       id: `cat-${Date.now()}`,
       productsCount: 0,
+      status: data.status || 'Active',
       createdAt: formatShortDate(new Date())
     };
 
@@ -85,5 +94,17 @@ export const categoryService = {
     const categories = getStoredCategories();
     const filtered = categories.filter(c => c.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  },
+
+  // PATCH /categories/:id/status
+  toggleStatus: async (id: string): Promise<Category> => {
+    await delay();
+    const categories = getStoredCategories();
+    const index = categories.findIndex(c => c.id === id);
+    if (index === -1) throw new Error("Category not found");
+
+    categories[index].status = categories[index].status === 'Active' ? 'Inactive' : 'Active';
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
+    return categories[index];
   }
 };
