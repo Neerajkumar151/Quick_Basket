@@ -17,6 +17,7 @@ interface BaseCategoryFormProps<TFieldValues extends Record<string, any>> {
   namePlaceholder: string;
   prependChildren?: ReactNode; // Elements before the name field (e.g. ImageUploader or ParentCategory)
   appendChildren?: ReactNode; // Elements after status field if any
+  showDescription?: boolean; // Set to false if the entity does not have a description
 }
 
 export const BaseCategoryForm = <TFieldValues extends Record<string, any>>({
@@ -30,6 +31,7 @@ export const BaseCategoryForm = <TFieldValues extends Record<string, any>>({
   namePlaceholder,
   prependChildren,
   appendChildren,
+  showDescription = true,
 }: BaseCategoryFormProps<TFieldValues>) => {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6 pt-2 pb-6 px-6">
@@ -43,12 +45,14 @@ export const BaseCategoryForm = <TFieldValues extends Record<string, any>>({
           error={errors.name?.message as string}
         />
 
-        <TextArea
-          label={en.categories.form.description}
-          placeholder={en.categories.form.descriptionPlaceholder}
-          {...register("description" as Path<TFieldValues>)}
-          error={errors.description?.message as string}
-        />
+        {showDescription && (
+          <TextArea
+            label={en.categories.form.description}
+            placeholder={en.categories.form.descriptionPlaceholder}
+            {...register("description" as Path<TFieldValues>)}
+            error={errors.description?.message as string}
+          />
+        )}
 
         <Select
           label={en.categories.form.status}

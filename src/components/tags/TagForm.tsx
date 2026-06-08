@@ -3,22 +3,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Tag } from "../../types/tag";
-import { Button } from "../ui/Button";
-import { Select } from "../ui/Select";
+import { BaseCategoryForm } from "../common/forms/BaseCategoryForm";
 import en from "../../locales/en.json";
-
-export const PREDEFINED_TAGS = [
-  "Fresh",
-  "Trending",
-  "Daily Essentials",
-  "Fast Delivery",
-  "Recommended",
-  "Best Selling",
-  "New Arrivals",
-];
 
 const tagSchema = z.object({
   name: z.string().min(1, { message: en.tags.messages.errorNameRequired }),
+  description: z.string().optional(), // Required by BaseCategoryForm type signature, even though we hide it
   status: z.enum(["Active", "Inactive"]).optional(),
 });
 
@@ -64,45 +54,16 @@ export const TagForm: React.FC<TagFormProps> = ({
   }, [initialData, reset]);
 
   return (
-    <form
+    <BaseCategoryForm<TagFormValues>
+      register={register}
+      errors={errors}
+      isSubmitting={isSubmitting}
+      submitLabel={submitLabel}
+      onCancel={onCancel}
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-6 pt-2 pb-6 px-6"
-    >
-      <Select
-        label={en.tags.form.name}
-        {...register("name")}
-        error={errors.name?.message}
-      >
-        <option value="" disabled>
-          {en.tags.form.namePlaceholder || "Select a tag"}
-        </option>
-        {PREDEFINED_TAGS.map((tag: any) => (
-          <option key={tag} value={tag}>
-            {tag}
-          </option>
-        ))}
-      </Select>
-
-      <Select
-        label={en.tags.form.status}
-        {...register("status")}
-        error={errors.status?.message}
-      >
-        <option value="Active">{en.tags.form.active}</option>
-        <option value="Inactive">{en.tags.form.inactive}</option>
-      </Select>
-
-      {/* Form Actions */}
-      <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
-        {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-            {en.common.cancel}
-          </Button>
-        )}
-        <Button type="submit" variant="primary" disabled={isSubmitting}>
-          {isSubmitting ? "..." : submitLabel}
-        </Button>
-      </div>
-    </form>
+      nameLabel={en.tags.form.name}
+      namePlaceholder={en.tags.form.namePlaceholder || "e.g. Trending, Fresh"}
+      showDescription={false}
+    />
   );
 };

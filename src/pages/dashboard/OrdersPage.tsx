@@ -10,8 +10,7 @@ import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { Pagination } from "../../components/ui/Pagination";
 import { Button } from "../../components/ui/Button";
-import { OrderDetailsDrawer } from "../../components/orders/OrderDetailsDrawer";
-
+import { OrderDetailsModal } from "../../components/orders/OrderDetailsModal";
 import { orderService } from "../../services/orderService";
 import { Order, ORDER_STATUS } from "../../types/order";
 import { formatCurrency } from "../../utils/number";
@@ -33,7 +32,7 @@ export const OrdersPage = () => {
 
   // Drawer
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchOrders = async (showLoader = true) => {
     try {
@@ -64,7 +63,7 @@ export const OrdersPage = () => {
 
   const handleViewOrder = (order: Order) => {
     setSelectedOrder(order);
-    setIsDrawerOpen(true);
+    setIsModalOpen(true);
   };
 
   const handleStatusUpdated = (updated: Order) => {
@@ -259,11 +258,11 @@ export const OrdersPage = () => {
         )}
       </div>
 
-      {/* ── Drawer ───────────────────────────────────────────────────────── */}
-      <OrderDetailsDrawer
+      {/* ── Modal ────────────────────────────────────────────────────────── */}
+      <OrderDetailsModal
         order={selectedOrder}
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         onStatusUpdated={handleStatusUpdated}
       />
     </div>
