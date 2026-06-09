@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, UploadCloud } from "lucide-react";
 import toast from 'react-hot-toast';
 import { useTranslation } from "react-i18next";
-
+import { resizeImage } from "../../utils/image";
 interface ImageUploaderProps {
   label?: string;
   maxFiles?: number;
@@ -37,7 +37,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     setPreviewUrl(initialPreviewUrl || null);
   }, [initialPreviewUrl]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (!acceptedFormats.includes(file.type)) {
@@ -48,12 +48,16 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         toast.error(t("common.upload.sizeLimit", `File size must be less than ${maxSizeMB}MB`, { max: maxSizeMB }));
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      onFileSelect(file);
+      
+      try {
+        const resizedDataUrl = await resizeImage(file, 800, 800);
+        setPreviewUrl(resizedDataUrl);
+        // We still pass the original file so that backend can upload the actual file
+        // but local preview uses the resized Base64.
+        onFileSelect(file);
+      } catch (err) {
+        toast.error("Failed to process image");
+      }
     }
   };
 

@@ -19,7 +19,7 @@ export const LocationPage = () => {
 
   return (
     <OnboardingLayout>
-      <LocationForm onNext={handleSaveAndContinue} onPrevious={handlePrevious} />
+      <LocationForm onNext={handleNext} onPrevious={handlePrevious} />
     </OnboardingLayout>
   );
 };

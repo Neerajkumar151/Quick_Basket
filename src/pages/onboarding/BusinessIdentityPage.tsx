@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { OnboardingLayout } from "../../components/layout/OnboardingLayout";
 import { BusinessIdentityForm } from "../../components/forms/BusinessIdentityForm";
 

@@ -245,7 +245,7 @@ export const ProductsPage = () => {
               setSubCategoryFilter("all");
             }}
           >
-            <option value="">{t("products.filters.categoryAll")}</option>
+            <option value="all">{t("products.filters.categoryAll")}</option>
             {categories.map((c: any) => (
               <option key={c.id} value={c.id}>
                 {c.name}

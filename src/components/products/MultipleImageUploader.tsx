@@ -2,6 +2,7 @@ import React from 'react';
 import { X, UploadCloud } from "lucide-react";
 import toast from 'react-hot-toast';
 import { useTranslation } from "react-i18next";
+import { resizeImage } from "../../utils/image";
 
 interface MultipleImageUploaderProps {
   label?: string;
@@ -32,31 +33,32 @@ export const MultipleImageUploader: React.FC<MultipleImageUploaderProps> = ({
       return;
     }
 
-    const newImages: string[] = [];
-    let processed = 0;
-
-    files.forEach(file => {
-      if (!acceptedFormats.includes(file.type)) {
-        toast.error(`${t("products.messages.errorInvalidFormat")} ${file.name}`);
-        processed++;
-        return;
-      }
-      if (file.size > maxSizeMB * 1024 * 1024) {
-        toast.error(`${t("products.messages.errorSizeTooLarge")} ${file.name} (${t("products.messages.max")} ${maxSizeMB}MB)`);
-        processed++;
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        newImages.push(reader.result as string);
-        processed++;
-        if (processed === files.length) {
-          onChange([...images, ...newImages]);
+    const processImages = async () => {
+      const newImages: string[] = [];
+      for (const file of files) {
+        if (!acceptedFormats.includes(file.type)) {
+          toast.error(`${t("products.messages.errorInvalidFormat")} ${file.name}`);
+          continue;
         }
-      };
-      reader.readAsDataURL(file);
-    });
+        if (file.size > maxSizeMB * 1024 * 1024) {
+          toast.error(`${t("products.messages.errorSizeTooLarge")} ${file.name} (${t("products.messages.max")} ${maxSizeMB}MB)`);
+          continue;
+        }
+        
+        try {
+          const resizedDataUrl = await resizeImage(file, 800, 800);
+          newImages.push(resizedDataUrl);
+        } catch (err) {
+          toast.error(`Failed to process ${file.name}`);
+        }
+      }
+      
+      if (newImages.length > 0) {
+        onChange([...images, ...newImages]);
+      }
+    };
+
+    processImages();
   };
 
   const removeImage = (index: number) => {

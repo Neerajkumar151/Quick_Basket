@@ -20,6 +20,7 @@ const saveProducts = (products: Product[]) => {
     localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
   } catch (error) {
     console.error("Failed to save products to local storage", error);
+    throw new Error("Storage limit exceeded. If you uploaded an image, it might be too large.");
   }
 };
 
