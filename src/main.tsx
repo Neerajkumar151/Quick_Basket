@@ -11,7 +11,7 @@ import { ErrorFallback } from "./components/ui/ErrorFallback.tsx";
 
 createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
-    <ThemeProvider defaultTheme="dark" storageKey="quickbasket-theme">
+    <ThemeProvider defaultTheme="light" storageKey="quickbasket-theme">
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <QueryProvider>
           <App />
