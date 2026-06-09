@@ -2,12 +2,13 @@ import React from "react";
 import type { FallbackProps } from "react-error-boundary";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "./Button";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
 
 export const ErrorFallback: React.FC<FallbackProps> = ({
   error,
   resetErrorBoundary,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-6 max-w-md text-center px-6">
@@ -17,10 +18,10 @@ export const ErrorFallback: React.FC<FallbackProps> = ({
 
         <div className="flex flex-col gap-2">
           <h1 className="text-h3 text-foreground">
-            {en.common.errorBoundary.title}
+            {t("common.errorBoundary.title")}
           </h1>
           <p className="text-description text-muted-foreground leading-relaxed">
-            {en.common.errorBoundary.description}
+            {t("common.errorBoundary.description")}
           </p>
         </div>
 
@@ -37,7 +38,7 @@ export const ErrorFallback: React.FC<FallbackProps> = ({
           className="flex items-center gap-2"
         >
           <RefreshCw size={16} />
-          {en.common.errorBoundary.retry}
+          {t("common.errorBoundary.retry")}
         </Button>
       </div>
     </div>

@@ -96,10 +96,10 @@ export const subCategoryService = {
       updatedAt: new Date().toISOString(),
     };
 
-    subCategories[index] = updatedSubCategory;
+    subCategories[index] = updatedSubCategory as SubCategory;
     saveSubCategories(subCategories);
 
-    return updatedSubCategory;
+    return updatedSubCategory as SubCategory;
   },
 
   toggleStatus: async (id: string): Promise<SubCategory> => {
@@ -112,16 +112,16 @@ export const subCategoryService = {
     }
 
     const newStatus =
-      subCategories[index].status === "Active" ? "Inactive" : "Active";
+      ((subCategories[index] as SubCategory).status) === "Active" ? "Inactive" : "Active";
     const updatedSubCategory = {
       ...subCategories[index],
       status: newStatus as "Active" | "Inactive",
       updatedAt: new Date().toISOString(),
     };
 
-    subCategories[index] = updatedSubCategory;
+    subCategories[index] = updatedSubCategory as SubCategory;
     saveSubCategories(subCategories);
 
-    return updatedSubCategory;
+    return updatedSubCategory as SubCategory;
   },
 };

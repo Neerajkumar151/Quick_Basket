@@ -5,18 +5,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Select } from "../ui/Select";
 import { ImageUploader } from "../ui/ImageUploader";
 import { BaseCategoryForm } from "../common/forms/BaseCategoryForm";
-import en from "../../locales/en.json";
 import { SubCategoryInput } from "../../types/subCategory";
 import { useCategories } from "../../hooks/useCategories";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
+import type { Category } from "../../types/category";
 
-const subCategorySchema = z.object({
-  name: z.string().min(1, en.subCategories.messages.errorNameRequired),
-  categoryId: z.string().min(1, en.subCategories.messages.errorParentRequired),
+const createSubCategorySchema = (t: TFunction) => z.object({
+  name: z.string().min(1, t("subCategories.messages.errorNameRequired")),
+  categoryId: z.string().min(1, t("subCategories.messages.errorParentRequired")),
   description: z.string().optional(),
   status: z.enum(["Active", "Inactive"]),
 });
 
-export type SubCategoryFormValues = z.infer<typeof subCategorySchema>;
+export type SubCategoryFormValues = z.infer<ReturnType<typeof createSubCategorySchema>>;
 
 interface SubCategoryFormProps {
   initialData?: (SubCategoryFormValues & { image?: string }) | null;
@@ -30,9 +32,11 @@ export const SubCategoryForm: React.FC<SubCategoryFormProps> = ({
   initialData,
   onSubmit,
   isSubmitting = false,
-  submitLabel = en.subCategories.form.create,
+  submitLabel,
   onCancel,
 }) => {
+  const { t } = useTranslation();
+  const defaultSubmitLabel = submitLabel || t("subCategories.form.create");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { data: categories = [], isLoading: isLoadingCategories } =
     useCategories();
@@ -43,7 +47,7 @@ export const SubCategoryForm: React.FC<SubCategoryFormProps> = ({
     formState: { errors },
     reset,
   } = useForm<SubCategoryFormValues>({
-    resolver: zodResolver(subCategorySchema),
+    resolver: zodResolver(createSubCategorySchema(t)),
     defaultValues: initialData ?? {
       name: "",
       categoryId: "",
@@ -67,11 +71,11 @@ export const SubCategoryForm: React.FC<SubCategoryFormProps> = ({
       register={register}
       errors={errors}
       isSubmitting={isSubmitting}
-      submitLabel={submitLabel}
+      submitLabel={defaultSubmitLabel}
       onCancel={onCancel}
       onSubmit={handleSubmit((data) => onSubmit(data, selectedFile))}
-      nameLabel={en.subCategories.form.name}
-      namePlaceholder={en.subCategories.form.namePlaceholder}
+      nameLabel={t("subCategories.form.name")}
+      namePlaceholder={t("subCategories.form.namePlaceholder")}
       prependChildren={
         <>
           <ImageUploader
@@ -80,15 +84,15 @@ export const SubCategoryForm: React.FC<SubCategoryFormProps> = ({
             onFileSelect={setSelectedFile}
           />
           <Select
-            label={en.subCategories.form.parentCategory}
+            label={t("subCategories.form.parentCategory")}
             error={errors.categoryId?.message}
             {...register("categoryId")}
             disabled={isLoadingCategories}
           >
             <option value="">
-              {en.subCategories.form.parentCategoryPlaceholder}
+              {t("subCategories.form.parentCategoryPlaceholder")}
             </option>
-            {categories.map((cat: any) => (
+            {categories.map((cat: Category) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>

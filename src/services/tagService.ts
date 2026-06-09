@@ -76,9 +76,9 @@ export const tagService = {
     const index = tags.findIndex((t) => t.id === id);
     if (index === -1) throw new Error("Tag not found");
 
-    tags[index].status = tags[index].status === "Active" ? "Inactive" : "Active";
+    ((tags[index] as Tag).status) = ((tags[index] as Tag).status) === "Active" ? "Inactive" : "Active";
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tags));
-    return tags[index];
+    return tags[index] as Tag;
   },
 
   // PUT /tags/:id
@@ -103,8 +103,8 @@ export const tagService = {
     const index = tags.findIndex((t) => t.id === id);
     if (index === -1) throw new Error("Tag not found");
 
-    tags[index] = { ...tags[index], ...data };
+    tags[index] = { ...(tags[index] as Tag), ...data };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tags));
-    return tags[index];
+    return tags[index] as Tag;
   },
 };

@@ -6,13 +6,14 @@ import { ArrowRight, Store, User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { basicInfoSchema, type BasicInfoFormValues } from "../../validations/onboarding";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
 
 interface BasicInfoFormProps {
   onNext: () => void;
 }
 
 export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({ onNext }) => {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -23,22 +24,22 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({ onNext }) => {
     resolver: zodResolver(basicInfoSchema),
   });
 
-  const onSubmit = async (data: BasicInfoFormValues) => {
-    console.log("Submitting Step 1:", data);
+  const onSubmit = async (_data: BasicInfoFormValues) => {
+    // API call placeholder
     await new Promise((resolve) => setTimeout(resolve, 600));
     onNext();
   };
 
   return (
     <div className="bg-card border border-border rounded-2xl p-8 lg:p-10 shadow-sm">
-      <h2 className="text-h2 font-bold text-card-foreground mb-2">{en.onboarding.form.title}</h2>
-      <p className="text-muted-foreground mb-8">{en.onboarding.form.subtitle}</p>
+      <h2 className="text-h2 font-bold text-card-foreground mb-2">{t("onboarding.form.title")}</h2>
+      <p className="text-muted-foreground mb-8">{t("onboarding.form.subtitle")}</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input
-            label={en.onboarding.form.fields.storeName.label}
-            placeholder={en.onboarding.form.fields.storeName.placeholder}
+            label={t("onboarding.form.fields.storeName.label")}
+            placeholder={t("onboarding.form.fields.storeName.placeholder")}
             prefixElement={<Store size={16} className="text-muted-foreground" />}
             error={errors.storeName?.message}
             required
@@ -46,8 +47,8 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({ onNext }) => {
             {...register("storeName")}
           />
           <Input
-            label={en.onboarding.form.fields.ownerName.label}
-            placeholder={en.onboarding.form.fields.ownerName.placeholder}
+            label={t("onboarding.form.fields.ownerName.label")}
+            placeholder={t("onboarding.form.fields.ownerName.placeholder")}
             prefixElement={<User size={16} className="text-muted-foreground" />}
             error={errors.ownerName?.message}
             required
@@ -55,9 +56,9 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({ onNext }) => {
             {...register("ownerName")}
           />
           <Input
-            label={en.onboarding.form.fields.email.label}
+            label={t("onboarding.form.fields.email.label")}
             type="email"
-            placeholder={en.onboarding.form.fields.email.placeholder}
+            placeholder={t("onboarding.form.fields.email.placeholder")}
             prefixElement={<Mail size={16} className="text-muted-foreground" />}
             error={errors.email?.message}
             required
@@ -65,19 +66,19 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({ onNext }) => {
             {...register("email")}
           />
           <Input
-            label={en.onboarding.form.fields.phone.label}
+            label={t("onboarding.form.fields.phone.label")}
             type="tel"
-            placeholder={en.onboarding.form.fields.phone.placeholder}
-            prefixElement={<span className="text-description text-foreground font-medium pr-1 border-r border-border mr-1">{en.common.phonePrefix}</span>}
+            placeholder={t("onboarding.form.fields.phone.placeholder")}
+            prefixElement={<span className="text-description text-foreground font-medium pr-1 border-r border-border mr-1">{t("common.phonePrefix")}</span>}
             error={errors.phone?.message}
             required
             spellCheck={false}
             {...register("phone")}
           />
           <Input
-            label={en.onboarding.form.fields.password.label}
+            label={t("onboarding.form.fields.password.label")}
             type={showPassword ? "text" : "password"}
-            placeholder={en.onboarding.form.fields.password.placeholder}
+            placeholder={t("onboarding.form.fields.password.placeholder")}
             prefixElement={<Lock size={16} className="text-muted-foreground" />}
             suffixElement={
               <button
@@ -97,10 +98,10 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({ onNext }) => {
 
         <div className="pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-description text-muted-foreground">
-            {en.onboarding.form.hasAccount} <Link to="/login" className="text-primary hover:underline font-medium">{en.onboarding.form.signIn}</Link>
+            {t("onboarding.form.hasAccount")} <Link to="/login" className="text-primary hover:underline font-medium">{t("onboarding.form.signIn")}</Link>
           </div>
           <Button type="submit" disabled={isSubmitting} className="min-w-[140px] w-full sm:w-auto">
-            {isSubmitting ? en.onboarding.form.submitting : en.onboarding.form.submit}
+            {isSubmitting ? t("onboarding.form.submitting") : t("onboarding.form.submit")}
             {!isSubmitting && <ArrowRight size={16} className="ml-2" />}
           </Button>
         </div>

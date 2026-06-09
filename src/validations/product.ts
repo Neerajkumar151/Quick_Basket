@@ -1,17 +1,17 @@
 import { z } from "zod";
-import en from "../locales/en.json";
+import type { TFunction } from "i18next";
 
-export const productSchema = z
+export const createProductSchema = (t: TFunction) => z
   .object({
-    name: z.string().min(1, en.products.validation.nameRequired),
+    name: z.string().min(1, t("products.validation.nameRequired")),
     description: z.string().optional(),
-    sellingPrice: z.coerce.number().min(0, en.products.validation.sellingPriceMin),
+    sellingPrice: z.coerce.number().min(0, t("products.validation.sellingPriceMin")),
     mrp: z.coerce.number().optional(),
-    stockQuantity: z.coerce.number().min(0, en.products.validation.stockQuantityMin).default(0),
-    categoryId: z.string().min(1, en.products.validation.categoryRequired),
+    stockQuantity: z.coerce.number().min(0, t("products.validation.stockQuantityMin")).default(0),
+    categoryId: z.string().min(1, t("products.validation.categoryRequired")),
     subCategoryId: z.string().optional(),
     tagIds: z.array(z.string()).default([]),
-    images: z.array(z.string()).min(1, en.products.validation.imagesRequired),
+    images: z.array(z.string()).min(1, t("products.validation.imagesRequired")),
     status: z.enum(["Active", "Inactive"]).default("Inactive"),
   })
   .refine(
@@ -22,9 +22,20 @@ export const productSchema = z
       return true;
     },
     {
-      message: en.products.validation.mrpExceeded,
+      message: t("products.validation.mrpExceeded"),
       path: ["sellingPrice"],
     }
   );
 
-export type ProductFormValues = z.infer<typeof productSchema>;
+export interface ProductFormValues {
+  name: string;
+  description?: string;
+  sellingPrice: number;
+  mrp?: number;
+  stockQuantity: number;
+  categoryId: string;
+  subCategoryId?: string;
+  tagIds: string[];
+  images: string[];
+  status: "Active" | "Inactive";
+}

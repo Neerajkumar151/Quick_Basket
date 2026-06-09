@@ -7,7 +7,6 @@ import { FilterBar } from "../../components/ui/FilterBar";
 import { SearchInput } from "../../components/ui/SearchInput";
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
-import { Pagination } from "../../components/ui/Pagination";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 
 import { BannerForm } from "../../components/banners/BannerForm";
@@ -17,30 +16,21 @@ import { Banner } from "../../types/banner";
 import { useBanners } from "../../hooks/useBanners";
 import { queryClient } from "../../providers/QueryProvider";
 import { BANNERS_QUERY_KEY } from "../../hooks/useBanners";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
+import { useEntityDrawer } from "../../hooks/useEntityDrawer";
 
 export const BannersPage = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   // Drawer
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
+  const { isOpen, editingItem: editingBanner, openDrawer, closeDrawer } = useEntityDrawer<Banner>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Data via TanStack Query (cached)
   const { data: banners = [], isLoading } = useBanners();
 
-  const handleOpenDrawer = (banner?: Banner) => {
-    setEditingBanner(banner || null);
-    setIsDrawerOpen(true);
-  };
 
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
-    setEditingBanner(null);
-  };
 
   const handleSubmitForm = async (
     data: BannerFormValues,
@@ -63,23 +53,23 @@ export const BannersPage = () => {
           redirectName: data.redirectName || "",
           image: imageUrl,
         });
-        toast.success(en.banners.messages.successUpdate);
+        toast.success(t("banners.messages.successUpdate"));
       } else {
         await bannerService.createBanner({
           ...data,
           redirectName: data.redirectName || "",
           image: imageUrl,
         });
-        toast.success(en.banners.messages.successCreate);
+        toast.success(t("banners.messages.successCreate"));
       }
 
       await queryClient.invalidateQueries({ queryKey: BANNERS_QUERY_KEY });
-      handleCloseDrawer();
+      closeDrawer();
     } catch (error: unknown) {
       const message =
         error instanceof Error
           ? error.message
-          : en.banners.messages.errorSave;
+          : t("banners.messages.errorSave");
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -89,38 +79,32 @@ export const BannersPage = () => {
   const toggleStatus = async (banner: Banner) => {
     try {
       await bannerService.toggleStatus(banner.id);
-      toast.success(en.banners.messages.successStatus);
+      toast.success(t("banners.messages.successStatus"));
       await queryClient.invalidateQueries({ queryKey: BANNERS_QUERY_KEY });
     } catch {
-      toast.error(en.banners.messages.errorStatus);
+      toast.error(t("banners.messages.errorStatus"));
     }
   };
 
-  // Filter & Pagination Logic
+  // Filter Logic
   const processedBanners = useMemo(() => {
     let result = [...banners];
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      result = result.filter((b: any) => b.title.toLowerCase().includes(q));
+      result = result.filter((b: Banner) => b.title.toLowerCase().includes(q));
     }
 
     // Sort by display order
-    result.sort((a: any, b: any) => a.displayOrder - b.displayOrder);
+    result.sort((a: Banner, b: Banner) => a.displayOrder - b.displayOrder);
 
     return result;
   }, [banners, searchQuery]);
 
-  const totalPages = Math.ceil(processedBanners.length / itemsPerPage);
-  const paginatedBanners = processedBanners.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
   const columns: ColumnDef<Banner>[] = [
     {
-      header: en.banners.table.image,
-      cell: (banner: any) => (
+      header: t("banners.table.image"),
+      cell: (banner: Banner) => (
         <div className="w-16 h-10 rounded-lg bg-input overflow-hidden flex items-center justify-center border border-border shadow-sm shrink-0">
           {banner.image ? (
             <img
@@ -135,8 +119,8 @@ export const BannersPage = () => {
       ),
     },
     {
-      header: en.banners.table.title,
-      cell: (banner: any) => (
+      header: t("banners.table.title"),
+      cell: (banner: Banner) => (
         <div className="flex flex-col">
           <span className="font-bold text-foreground">{banner.title}</span>
           {banner.description && (
@@ -148,8 +132,8 @@ export const BannersPage = () => {
       ),
     },
     {
-      header: en.banners.table.target,
-      cell: (banner: any) => (
+      header: t("banners.table.target"),
+      cell: (banner: Banner) => (
         <div className="flex flex-col gap-1 items-start">
           <span className="text-caption font-medium uppercase tracking-wider text-muted-foreground">
             {banner.redirectType}
@@ -159,17 +143,17 @@ export const BannersPage = () => {
       ),
     },
     {
-      header: en.banners.table.order,
+      header: t("banners.table.order"),
       accessorKey: "displayOrder",
-      cell: (banner: any) => (
+      cell: (banner: Banner) => (
         <span className="text-description font-medium bg-input px-2 py-1 rounded border border-border">
           {banner.displayOrder}
         </span>
       ),
     },
     {
-      header: en.banners.table.status,
-      cell: (banner: any) => (
+      header: t("banners.table.status"),
+      cell: (banner: Banner) => (
         <button
           onClick={() => toggleStatus(banner)}
           className="hover:opacity-80 transition-opacity"
@@ -179,15 +163,15 @@ export const BannersPage = () => {
       ),
     },
     {
-      header: en.banners.table.actions,
-      cell: (banner: any) => (
+      header: t("banners.table.actions"),
+      cell: (banner: Banner) => (
         <div className="flex justify-end">
           <button
-            onClick={() => handleOpenDrawer(banner)}
+            onClick={() => openDrawer(banner)}
             className="flex items-center gap-2 px-3 py-1.5 text-description font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
           >
             <Edit2 size={16} />
-            {en.common.edit}
+            {t("common.edit")}
           </button>
         </div>
       ),
@@ -197,11 +181,11 @@ export const BannersPage = () => {
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500 pb-12">
       <PageHeader
-        title={en.banners.header.title}
-        description={en.banners.header.subtitle}
-        actionLabel={en.banners.header.addBanner}
+        title={t("banners.header.title")}
+        description={t("banners.header.subtitle")}
+        actionLabel={t("banners.header.addBanner")}
         actionIcon={<Plus size={18} />}
-        onAction={() => handleOpenDrawer()}
+        onAction={() => openDrawer()}
       />
 
       <FilterBar>
@@ -210,36 +194,30 @@ export const BannersPage = () => {
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              setCurrentPage(1);
             }}
-            placeholder={en.banners.filters.searchPlaceholder}
+            placeholder={t("banners.filters.searchPlaceholder")}
           />
         </div>
       </FilterBar>
 
       <div className="flex flex-col">
         <DataTable
-          data={paginatedBanners}
+          data={processedBanners}
           columns={columns}
           isLoading={isLoading}
-          emptyTitle={en.banners.messages.emptyTitle}
-          emptyDescription={en.banners.messages.emptySubtitle}
-        />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          emptyTitle={t("banners.messages.emptyTitle")}
+          emptyDescription={t("banners.messages.emptySubtitle")}
+          itemsPerPage={10}
         />
       </div>
 
-      {/* EntityDrawer has no onSubmit — BannerForm manages its own submit button */}
       <EntityDrawer
-        isOpen={isDrawerOpen}
-        onClose={handleCloseDrawer}
+        isOpen={isOpen}
+        onClose={closeDrawer}
         title={
           editingBanner
-            ? en.banners.form.editTitle
-            : en.banners.form.addTitle
+            ? t("banners.form.editTitle")
+            : t("banners.form.addTitle")
         }
       >
         <BannerForm
@@ -247,9 +225,9 @@ export const BannersPage = () => {
           onSubmit={handleSubmitForm}
           isSubmitting={isSubmitting}
           submitLabel={
-            editingBanner ? en.banners.form.update : en.banners.form.create
+            editingBanner ? t("banners.form.update") : t("banners.form.create")
           }
-          onCancel={handleCloseDrawer}
+          onCancel={closeDrawer}
         />
       </EntityDrawer>
     </div>

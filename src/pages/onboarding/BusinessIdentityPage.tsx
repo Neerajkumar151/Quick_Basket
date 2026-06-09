@@ -5,10 +5,11 @@ import { BusinessIdentityForm } from "../../components/forms/BusinessIdentityFor
 
 export const BusinessIdentityPage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleFinalSubmit = (data: any) => {
     console.log("Final Registration Data:", data);
-    toast.success("Store onboarding complete! Verification in progress.", {
+    toast.success(t("onboarding.business.success", "Store onboarding complete! Verification in progress."), {
       duration: 5000,
       icon: "🎉",
     });

@@ -2,27 +2,30 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "../ui/Button";
 import { Check } from "lucide-react";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
-const ONBOARDING_STEPS = [
-  { ...en.onboarding.steps[0], id: 1, path: "/onboarding/basic-info" },
-  { ...en.onboarding.steps[1], id: 2, path: "/onboarding/location" },
-  { ...en.onboarding.steps[2], id: 3, path: "/onboarding/identity" },
+const getOnboardingSteps = (t: TFunction) => [
+  { title: t("onboarding.steps.0.title" as any) as string, description: t("onboarding.steps.0.description" as any) as string, id: 1, path: "/onboarding/basic-info" },
+  { title: t("onboarding.steps.1.title" as any) as string, description: t("onboarding.steps.1.description" as any) as string, id: 2, path: "/onboarding/location" },
+  { title: t("onboarding.steps.2.title" as any) as string, description: t("onboarding.steps.2.description" as any) as string, id: 3, path: "/onboarding/identity" },
 ];
 
 export const StepTracker: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
+  const onboardingSteps = getOnboardingSteps(t);
   
-  const currentIndex = ONBOARDING_STEPS.findIndex(s => s.path === location.pathname);
+  const currentIndex = onboardingSteps.findIndex(s => s.path === location.pathname);
   const currentStepNum = currentIndex !== -1 ? currentIndex + 1 : 1;
 
   return (
     <div className="flex flex-col">
-      {ONBOARDING_STEPS.map((step, index) => {
+      {onboardingSteps.map((step, index) => {
         const isActive = step.path === location.pathname;
         const isCompleted = step.id < currentStepNum;
-        const isLast = index === ONBOARDING_STEPS.length - 1;
+        const isLast = index === onboardingSteps.length - 1;
 
         return (
           <div key={step.id} className="relative flex items-start gap-4 pb-10 last:pb-0">

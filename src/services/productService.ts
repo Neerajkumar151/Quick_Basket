@@ -84,9 +84,9 @@ export const productService = {
       ...data,
       updatedAt: new Date().toISOString(),
     };
-    products[index] = updatedProduct;
+    products[index] = updatedProduct as Product;
     saveProducts(products);
-    return updatedProduct;
+    return updatedProduct as Product;
   },
 
   deleteProduct: async (id: string): Promise<void> => {

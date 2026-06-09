@@ -15,18 +15,15 @@ import { OrdersPage } from "./pages/dashboard/OrdersPage";
 import { StoreProfilePage } from "./pages/dashboard/StoreProfilePage";
 import { HelpPage } from "./pages/dashboard/HelpPage";
 import { Toaster } from "react-hot-toast";
+import { AuthGuard } from "./components/auth/AuthGuard";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/onboarding/basic-info" replace />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/onboarding" element={<Navigate to="/onboarding/basic-info" replace />} />
-        
-        {/* Legacy redirects */}
-        <Route path="/onboarding/1" element={<Navigate to="/onboarding/basic-info" replace />} />
-        <Route path="/onboarding/2" element={<Navigate to="/onboarding/location" replace />} />
-        <Route path="/onboarding/3" element={<Navigate to="/onboarding/identity" replace />} />
+
 
         <Route path="/onboarding/basic-info" element={<BasicInfoPage />} />
         <Route path="/onboarding/location" element={<LocationPage />} />
@@ -37,15 +34,15 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         
         {/* Dashboard Pages */}
-        <Route path="/dashboard" element={<DashboardLayout><OverviewPage /></DashboardLayout>} />
-        <Route path="/dashboard/products" element={<DashboardLayout><ProductsPage /></DashboardLayout>} />
-        <Route path="/dashboard/categories" element={<DashboardLayout><CategoriesPage /></DashboardLayout>} />
-        <Route path="/dashboard/sub-categories" element={<DashboardLayout><SubCategoriesPage /></DashboardLayout>} />
-        <Route path="/dashboard/tags" element={<DashboardLayout><TagsPage /></DashboardLayout>} />
-        <Route path="/dashboard/banners" element={<DashboardLayout><BannersPage /></DashboardLayout>} />
-        <Route path="/dashboard/orders" element={<DashboardLayout><OrdersPage /></DashboardLayout>} />
-        <Route path="/dashboard/store-profile" element={<DashboardLayout><StoreProfilePage /></DashboardLayout>} />
-        <Route path="/dashboard/help" element={<DashboardLayout><HelpPage /></DashboardLayout>} />
+        <Route path="/dashboard" element={<AuthGuard><DashboardLayout><OverviewPage /></DashboardLayout></AuthGuard>} />
+        <Route path="/dashboard/products" element={<AuthGuard><DashboardLayout><ProductsPage /></DashboardLayout></AuthGuard>} />
+        <Route path="/dashboard/categories" element={<AuthGuard><DashboardLayout><CategoriesPage /></DashboardLayout></AuthGuard>} />
+        <Route path="/dashboard/sub-categories" element={<AuthGuard><DashboardLayout><SubCategoriesPage /></DashboardLayout></AuthGuard>} />
+        <Route path="/dashboard/tags" element={<AuthGuard><DashboardLayout><TagsPage /></DashboardLayout></AuthGuard>} />
+        <Route path="/dashboard/banners" element={<AuthGuard><DashboardLayout><BannersPage /></DashboardLayout></AuthGuard>} />
+        <Route path="/dashboard/orders" element={<AuthGuard><DashboardLayout><OrdersPage /></DashboardLayout></AuthGuard>} />
+        <Route path="/dashboard/store-profile" element={<AuthGuard><DashboardLayout><StoreProfilePage /></DashboardLayout></AuthGuard>} />
+        <Route path="/dashboard/help" element={<AuthGuard><DashboardLayout><HelpPage /></DashboardLayout></AuthGuard>} />
         
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
@@ -60,14 +57,14 @@ function App() {
           },
           success: {
             iconTheme: {
-              primary: '#22c55e',
-              secondary: '#fff',
+              primary: 'hsl(var(--success))',
+              secondary: 'hsl(var(--card))',
             },
           },
           error: {
             iconTheme: {
-              primary: '#ef4444',
-              secondary: '#fff',
+              primary: 'hsl(var(--error))',
+              secondary: 'hsl(var(--card))',
             },
           },
         }}

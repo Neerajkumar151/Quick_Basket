@@ -9,7 +9,6 @@ import { SearchInput } from "../../components/ui/SearchInput";
 import { Select } from "../../components/ui/Select";
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
-import { Pagination } from "../../components/ui/Pagination";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 
 import {
@@ -21,35 +20,26 @@ import { SubCategory } from "../../types/subCategory";
 import { useSubCategories, SUB_CATEGORIES_QUERY_KEY } from "../../hooks/useSubCategories";
 import { useCategories } from "../../hooks/useCategories";
 import { queryClient } from "../../providers/QueryProvider";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
+import { useEntityDrawer } from "../../hooks/useEntityDrawer";
 
 export const SubCategoriesPage = () => {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCategoryFilter = searchParams.get("category") || "";
 
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState(initialCategoryFilter);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   // Drawer
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [editingSubCategory, setEditingSubCategory] = useState<SubCategory | null>(null);
+  const { isOpen, editingItem: editingSubCategory, openDrawer, closeDrawer } = useEntityDrawer<SubCategory>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Data via TanStack Query (cached)
   const { data: subCategories = [], isLoading } = useSubCategories();
   const { data: categories = [] } = useCategories();
 
-  const handleOpenDrawer = (subCat?: SubCategory) => {
-    setEditingSubCategory(subCat || null);
-    setIsDrawerOpen(true);
-  };
 
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
-    setEditingSubCategory(null);
-  };
 
   const handleSubmitForm = async (data: SubCategoryFormValues, imageFile: File | null) => {
     setIsSubmitting(true);
@@ -69,21 +59,21 @@ export const SubCategoriesPage = () => {
           status: data.status || "Active",
           image: imageUrl,
         });
-        toast.success(en.subCategories.messages.successUpdate);
+        toast.success(t("subCategories.messages.successUpdate"));
       } else {
         await subCategoryService.createSubCategory({
           ...data,
           status: data.status || "Active",
           image: imageUrl,
         });
-        toast.success(en.subCategories.messages.successCreate);
+        toast.success(t("subCategories.messages.successCreate"));
       }
 
       await queryClient.invalidateQueries({ queryKey: SUB_CATEGORIES_QUERY_KEY });
-      handleCloseDrawer();
+      closeDrawer();
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : en.subCategories.messages.errorSave;
+        error instanceof Error ? error.message : t("subCategories.messages.errorSave");
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -94,35 +84,29 @@ export const SubCategoriesPage = () => {
     try {
       await subCategoryService.toggleStatus(subCat.id);
       toast.success(
-        en.subCategories.messages.successStatus || "Status updated successfully"
+        t("subCategories.messages.successStatus") || "Status updated successfully"
       );
       await queryClient.invalidateQueries({ queryKey: SUB_CATEGORIES_QUERY_KEY });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : en.subCategories.messages.errorStatus
+        error instanceof Error ? error.message : t("subCategories.messages.errorStatus")
       );
     }
   };
 
-  // Filter & Pagination Logic
+  // Filter Logic
   const filteredSubCategories = useMemo(() => {
-    return subCategories.filter((sc: any) => {
+    return subCategories.filter((sc: SubCategory) => {
       const matchesSearch = sc.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = categoryFilter ? sc.categoryId === categoryFilter : true;
       return matchesSearch && matchesCategory;
     });
   }, [subCategories, searchQuery, categoryFilter]);
 
-  const totalPages = Math.ceil(filteredSubCategories.length / itemsPerPage);
-  const paginatedSubCategories = filteredSubCategories.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
   const columns: ColumnDef<SubCategory>[] = [
     {
-      header: en.subCategories.table.image,
-      cell: (sc: any) => (
+      header: t("subCategories.table.image"),
+      cell: (sc: SubCategory) => (
         <div className="w-10 h-10 rounded-lg bg-input overflow-hidden flex items-center justify-center border border-border shadow-sm">
           {sc.image ? (
             <img
@@ -137,15 +121,15 @@ export const SubCategoriesPage = () => {
       ),
     },
     {
-      header: en.subCategories.table.name,
+      header: t("subCategories.table.name"),
       accessorKey: "name",
-      cell: (sc: any) => (
+      cell: (sc: SubCategory) => (
         <span className="font-bold text-foreground">{sc.name}</span>
       ),
     },
     {
-      header: en.subCategories.table.parent,
-      cell: (sc: any) => {
+      header: t("subCategories.table.parent"),
+      cell: (sc: SubCategory) => {
         const parent = categories.find((c: any) => c.id === sc.categoryId);
         return (
           <span className="text-muted-foreground font-medium">
@@ -155,33 +139,33 @@ export const SubCategoriesPage = () => {
       },
     },
     {
-      header: en.subCategories.table.description,
-      cell: (sc: any) => (
+      header: t("subCategories.table.description"),
+      cell: (sc: SubCategory) => (
         <span className="text-muted-foreground max-w-[200px] truncate block">
           {sc.description || "-"}
         </span>
       ),
     },
     {
-      header: en.subCategories.table.products,
-      cell: (sc: any) => (
+      header: t("subCategories.table.products"),
+      cell: (sc: SubCategory) => (
         <Link
           to={`/dashboard/products?subCategory=${encodeURIComponent(sc.id)}`}
           className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors"
-          title={en.subCategories.messages.viewProducts}
+          title={t("subCategories.messages.viewProducts")}
         >
           {sc.productsCount}
         </Link>
       ),
     },
     {
-      header: en.subCategories.table.createdOn,
+      header: t("subCategories.table.createdOn"),
       accessorKey: "createdAt",
       className: "text-muted-foreground",
     },
     {
-      header: en.subCategories.table.status || "Status",
-      cell: (sc: any) => (
+      header: t("subCategories.table.status") || "Status",
+      cell: (sc: SubCategory) => (
         <button
           onClick={() => toggleStatus(sc)}
           className="hover:opacity-80 transition-opacity"
@@ -191,16 +175,16 @@ export const SubCategoriesPage = () => {
       ),
     },
     {
-      header: en.subCategories.table.actions || "Actions",
+      header: t("subCategories.table.actions") || "Actions",
       className: "text-right",
-      cell: (sc: any) => (
+      cell: (sc: SubCategory) => (
         <div className="flex justify-end">
           <button
-            onClick={() => handleOpenDrawer(sc)}
+            onClick={() => openDrawer(sc)}
             className="flex items-center gap-2 px-3 py-1.5 text-description font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
           >
             <Edit2 size={16} />
-            {en.common.edit}
+            {t("common.edit")}
           </button>
         </div>
       ),
@@ -210,11 +194,11 @@ export const SubCategoriesPage = () => {
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500 pb-12">
       <PageHeader
-        title={en.subCategories.header.title}
-        description={en.subCategories.header.subtitle}
-        actionLabel={en.subCategories.header.addSubCategory}
+        title={t("subCategories.header.title")}
+        description={t("subCategories.header.subtitle")}
+        actionLabel={t("subCategories.header.addSubCategory")}
         actionIcon={<Plus size={18} />}
-        onAction={() => handleOpenDrawer()}
+        onAction={() => openDrawer()}
       />
 
       <FilterBar>
@@ -223,9 +207,8 @@ export const SubCategoriesPage = () => {
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              setCurrentPage(1);
             }}
-            placeholder={en.subCategories.filters.searchPlaceholder}
+            placeholder={t("subCategories.filters.searchPlaceholder")}
           />
         </div>
         <div className="w-full sm:w-56">
@@ -234,7 +217,6 @@ export const SubCategoriesPage = () => {
             onChange={(e) => {
               setCategoryFilter(e.target.value);
               setSearchParams(e.target.value ? { category: e.target.value } : {});
-              setCurrentPage(1);
             }}
             aria-label="Filter by Category"
           >
@@ -250,26 +232,22 @@ export const SubCategoriesPage = () => {
 
       <div className="flex flex-col">
         <DataTable
-          data={paginatedSubCategories}
+          data={filteredSubCategories}
           columns={columns}
           isLoading={isLoading}
-          emptyTitle={en.subCategories.messages.emptyTitle}
-          emptyDescription={en.subCategories.messages.emptySubtitle}
-        />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          emptyTitle={t("subCategories.messages.emptyTitle")}
+          emptyDescription={t("subCategories.messages.emptySubtitle")}
+          itemsPerPage={10}
         />
       </div>
 
       <EntityDrawer
-        isOpen={isDrawerOpen}
-        onClose={handleCloseDrawer}
+        isOpen={isOpen}
+        onClose={closeDrawer}
         title={
           editingSubCategory
-            ? en.subCategories.form.editTitle
-            : en.subCategories.form.addTitle
+            ? t("subCategories.form.editTitle")
+            : t("subCategories.form.addTitle")
         }
       >
         <SubCategoryForm
@@ -278,10 +256,10 @@ export const SubCategoriesPage = () => {
           isSubmitting={isSubmitting}
           submitLabel={
             editingSubCategory
-              ? en.subCategories.form.update
-              : en.subCategories.form.create
+              ? t("subCategories.form.update")
+              : t("subCategories.form.create")
           }
-          onCancel={handleCloseDrawer}
+          onCancel={closeDrawer}
         />
       </EntityDrawer>
     </div>

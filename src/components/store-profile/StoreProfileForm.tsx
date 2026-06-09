@@ -7,18 +7,18 @@ import {
   StoreProfileUpdateInput,
 } from "../../types/storeProfile";
 import {
-  storeProfileSchema,
+  createStoreProfileSchema,
   StoreProfileFormValues,
 } from "../../validations/storeProfileSchema";
+import { useTranslation } from "react-i18next";
 import { SectionCard } from "../ui/SectionCard";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { TextArea } from "../ui/TextArea";
 import { ImageUploader } from "../ui/ImageUploader";
-import { Phone, Mail, MapPin, FileText, Save, X, User } from "lucide-react";
+import { Phone, Mail, MapPin, FileText, Save, X, User, Clock } from "lucide-react";
 import { VerificationBadge } from "./VerificationBadge";
-import en from "../../locales/en.json";
-
+import { formatDateTime } from "../../utils/date";
 interface StoreProfileFormProps {
   profile: StoreProfile;
   operations: StoreOperations;
@@ -40,6 +40,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
 }) => {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const { t } = useTranslation();
 
   const {
     register,
@@ -47,7 +48,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
     formState: { errors },
     reset,
   } = useForm<StoreProfileFormValues>({
-    resolver: zodResolver(storeProfileSchema),
+    resolver: zodResolver(createStoreProfileSchema(t)),
     defaultValues: {
       storeName: profile.storeName,
       ownerName: profile.ownerName,
@@ -75,6 +76,12 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
     await onSave(data, logoFile, bannerFile);
   };
 
+  const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
+  const todayHours = operations.businessHours.find((bh) => bh.day === today);
+  const hoursText = todayHours?.enabled
+    ? `${todayHours.openingTime} - ${todayHours.closingTime}`
+    : t("storeProfile.operations.status.closed", "Closed Today");
+
   return (
     <form
       onSubmit={handleSubmit(handleFormSubmit)}
@@ -83,7 +90,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
       {/* Unified Header Section */}
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
         {/* Store Banner */}
-        <div className="w-full h-32 md:h-48 relative border-b border-border bg-muted/30">
+        <div className="w-full h-32 md:h-48 relative bg-muted/30">
           <ImageUploader
             label=""
             previewUrl={profile.bannerUrl}
@@ -110,25 +117,31 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
               />
             </div>
 
-            {/* Store Name Input & Badges */}
-            <div className="flex flex-col gap-1 pb-1 w-full max-w-sm">
-              <Input
-                {...register("storeName")}
-                error={errors.storeName?.message}
-                placeholder={en.storeProfile.form.storeName}
-                className="text-h1 font-bold h-10 border-dashed bg-transparent hover:bg-input/50 focus:bg-background transition-colors -ml-3"
-              />
-              <div className="flex flex-wrap items-center gap-2 mt-1">
-                {/* Verification Badge */}
+            {/* Store Name Input & Details */}
+            <div className="flex flex-col gap-1 pb-1 w-full">
+              <div className="flex items-center gap-2 mb-1">
+                <Input
+                  {...register("storeName")}
+                  error={errors.storeName?.message}
+                  wrapperClassName="w-auto"
+                  placeholder={t("storeProfile.form.storeName")}
+                  className="text-h1 font-bold h-10 w-full min-w-[200px] max-w-xs border-dashed bg-transparent hover:bg-input/50 focus:bg-background transition-colors px-2 -ml-2"
+                />
                 <VerificationBadge status={profile.verificationStatus} />
+              </div>
 
-                {/* Store Status */}
-                <span
-                  className={`px-2 py-0.5 rounded-full text-caption uppercase tracking-wider ${operations.storeStatus ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
-                >
-                  {operations.storeStatus
-                    ? en.storeProfile.operations.status.open
-                    : en.storeProfile.operations.status.closed}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-description text-muted-foreground ml-1">
+                <div className={`flex items-center gap-1.5 font-medium ${operations.storeStatus ? "text-status-delivered" : "text-muted-foreground"}`}>
+                  <span className={`w-2 h-2 rounded-full ${operations.storeStatus ? "bg-status-delivered animate-pulse" : "bg-muted-foreground"}`} />
+                  {operations.storeStatus ? t("storeProfile.operations.status.open") : t("storeProfile.operations.status.closed")}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock size={14} />
+                  {hoursText}
+                </div>
+                <div className="hidden md:block w-1 h-1 rounded-full bg-border" />
+                <span className="hidden md:block">
+                  {t("storeProfile.overview.lastUpdated")}: {formatDateTime(profile.lastUpdated)}
                 </span>
               </div>
             </div>
@@ -143,15 +156,15 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
               disabled={isSubmitting}
             >
               <X size={16} className="mr-2" />
-              {en.storeProfile.form.cancel}
+              {t("storeProfile.form.cancel")}
             </Button>
             <Button type="submit" variant="primary" disabled={isSubmitting}>
               {isSubmitting ? (
-                "..."
+                t("common.saving", "Saving...")
               ) : (
                 <>
                   <Save size={16} className="mr-2" />
-                  {en.storeProfile.form.save}
+                  {t("storeProfile.form.save")}
                 </>
               )}
             </Button>
@@ -162,7 +175,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Description Section */}
         <SectionCard
-          title={en.storeProfile.description.title}
+          title={t("storeProfile.description.title")}
           icon={<FileText size={20} />}
           className="h-full"
         >
@@ -176,7 +189,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
         <div className="flex flex-col gap-6">
           {/* Contact Section */}
           <SectionCard
-            title={en.storeProfile.contact.title}
+            title={t("storeProfile.contact.title")}
             icon={<Phone size={20} />}
           >
             <div className="flex flex-col gap-4">
@@ -186,7 +199,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                 </div>
                 <div className="flex-1">
                   <p className="text-caption text-muted-foreground uppercase tracking-wider mb-1">
-                    {en.storeProfile.contact.ownerName}
+                    {t("storeProfile.contact.ownerName")}
                   </p>
                   <Input
                     {...register("ownerName")}
@@ -195,7 +208,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                     className="bg-muted cursor-not-allowed opacity-70"
                   />
                   <p className="text-caption text-muted-foreground mt-1">
-                    {en.storeProfile.contact.ownerNameReadOnly}
+                    {t("storeProfile.contact.ownerNameReadOnly")}
                   </p>
                 </div>
               </div>
@@ -205,7 +218,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                 </div>
                 <div className="flex-1">
                   <p className="text-caption text-muted-foreground uppercase tracking-wider mb-1">
-                    {en.storeProfile.contact.phone}
+                    {t("storeProfile.contact.phone")}
                   </p>
                   <Input
                     {...register("phoneNumber")}
@@ -219,7 +232,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                 </div>
                 <div className="flex-1">
                   <p className="text-caption text-muted-foreground uppercase tracking-wider mb-1">
-                    {en.storeProfile.contact.email}
+                    {t("storeProfile.contact.email")}
                   </p>
                   <Input
                     {...register("email")}
@@ -228,7 +241,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                     className="bg-muted cursor-not-allowed opacity-70"
                   />
                   <p className="text-xs text-muted-foreground mt-1.5">
-                    {en.storeProfile.contact.emailReadOnly}
+                    {t("storeProfile.contact.emailReadOnly")}
                   </p>
                 </div>
               </div>
@@ -237,7 +250,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
 
           {/* Address Section */}
           <SectionCard
-            title={en.storeProfile.address.title}
+            title={t("storeProfile.address.title")}
             icon={<MapPin size={20} />}
           >
             <div className="flex items-start gap-3">
@@ -246,7 +259,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
               </div>
               <div className="flex-1">
                 <p className="text-caption text-muted-foreground uppercase tracking-wider mb-1">
-                  {en.storeProfile.address.fullAddress}
+                  {t("storeProfile.address.fullAddress")}
                 </p>
                 <TextArea
                   {...register("address")}

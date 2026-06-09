@@ -7,12 +7,13 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   required?: boolean;
   prefixElement?: React.ReactNode;
   suffixElement?: React.ReactNode;
+  wrapperClassName?: string;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, label, error, required, prefixElement, suffixElement, ...props }, ref) => {
+  ({ className, type, label, error, required, prefixElement, suffixElement, wrapperClassName, ...props }, ref) => {
     return (
-      <div className="flex flex-col gap-1.5 w-full">
+      <div className={cn("flex flex-col gap-1.5 w-full", wrapperClassName)}>
         {label && (
           <label className="text-description font-medium text-foreground">
             {label}

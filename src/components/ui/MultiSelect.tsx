@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { cn } from "./Button";
 import { ChevronDown, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export interface MultiSelectProps {
   label?: string;
@@ -25,6 +26,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -74,7 +76,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         {isOpen && (
           <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto">
             {options.length === 0 ? (
-              <div className="p-3 text-description text-muted-foreground">No options available</div>
+              <div className="p-3 text-description text-muted-foreground">{t("common.noOptions", "No options available")}</div>
             ) : (
               options.map((opt: any) => (
                 <div

@@ -18,7 +18,7 @@ import {
   businessIdentitySchema,
   type BusinessIdentityFormValues,
 } from "../../validations/onboarding";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
 
 interface BusinessIdentityFormProps {
   onSubmit: (data: BusinessIdentityFormValues) => void;
@@ -32,6 +32,7 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const {
     register,
@@ -59,12 +60,12 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
       setError("registrationProof", {
         message: "Only PDF, PNG, and JPG formats are supported",
       });
-      toast.error("Invalid file format. Please upload PDF, PNG, or JPG.");
+      toast.error(t("onboarding.business.invalidFormat", "Invalid file format. Please upload PDF, PNG, or JPG."));
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
       setError("registrationProof", { message: "Max file size is 10MB" });
-      toast.error("File is too large. Max allowed size is 10MB.");
+      toast.error(t("onboarding.business.sizeLimit", "File is too large. Max allowed size is 10MB."));
       return;
     }
     clearErrors("registrationProof");
@@ -78,7 +79,7 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
       setPreviewUrl(null);
     }
 
-    toast.success("Document attached successfully.");
+    toast.success(t("onboarding.business.documentAttached", "Document attached successfully."));
   };
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -109,7 +110,7 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
   };
 
   const handleFinalSubmit = async (data: BusinessIdentityFormValues) => {
-    console.log("Submitting Step 3:", data);
+    // API call placeholder
     await new Promise((resolve) => setTimeout(resolve, 800));
     onSubmit(data);
   };
@@ -118,10 +119,10 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
     <div className="flex flex-col gap-6 w-full h-full max-w-4xl mx-auto">
       <div className="bg-card border border-border rounded-2xl p-8 lg:p-10 shadow-sm">
         <h2 className="text-h2 font-bold text-card-foreground mb-2">
-          {en.onboarding.identity.title}
+          {t("onboarding.identity.title")}
         </h2>
         <p className="text-muted-foreground text-description mb-8">
-          {en.onboarding.identity.subtitle}
+          {t("onboarding.identity.subtitle")}
         </p>
 
         <form
@@ -130,49 +131,46 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
           className="flex flex-col gap-6"
         >
           <Select
-            label={en.onboarding.identity.fields.businessType.label}
+            label={t("onboarding.identity.fields.businessType.label")}
             error={errors.businessType?.message}
             required
             {...register("businessType")}
           >
             <option value="">
-              {en.onboarding.identity.fields.businessType.placeholder}
+              {t("onboarding.identity.fields.businessType.placeholder")}
             </option>
             <option value="individual">
-              {en.onboarding.identity.fields.businessType.options.individual}
+              {t("onboarding.identity.fields.businessType.options.individual")}
             </option>
             <option value="proprietorship">
-              {
-                en.onboarding.identity.fields.businessType.options
-                  .proprietorship
-              }
+              {t("onboarding.identity.fields.businessType.options.proprietorship")}
             </option>
             <option value="partnership">
-              {en.onboarding.identity.fields.businessType.options.partnership}
+              {t("onboarding.identity.fields.businessType.options.partnership")}
             </option>
             <option value="pvtLtd">
-              {en.onboarding.identity.fields.businessType.options.pvtLtd}
+              {t("onboarding.identity.fields.businessType.options.pvtLtd")}
             </option>
           </Select>
 
           <div className="flex flex-col">
             <Input
-              label={en.onboarding.identity.fields.gstin.label}
-              placeholder={en.onboarding.identity.fields.gstin.placeholder}
+              label={t("onboarding.identity.fields.gstin.label")}
+              placeholder={t("onboarding.identity.fields.gstin.placeholder")}
               error={errors.gstin?.message}
               spellCheck={false}
               {...register("gstin")}
             />
             {!errors.gstin?.message && (
               <p className="text-caption text-muted-foreground mt-1.5 ml-1">
-                {en.onboarding.identity.fields.gstin.description}
+                {t("onboarding.identity.fields.gstin.description")}
               </p>
             )}
           </div>
 
           <Input
-            label={en.onboarding.identity.fields.pan.label}
-            placeholder={en.onboarding.identity.fields.pan.placeholder}
+            label={t("onboarding.identity.fields.pan.label")}
+            placeholder={t("onboarding.identity.fields.pan.placeholder")}
             error={errors.pan?.message}
             spellCheck={false}
             className="uppercase"
@@ -181,10 +179,10 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
           />
 
           <Input
-            label={en.onboarding.identity.fields.registrationDate.label}
+            label={t("onboarding.identity.fields.registrationDate.label")}
             type="date"
             placeholder={
-              en.onboarding.identity.fields.registrationDate.placeholder
+              t("onboarding.identity.fields.registrationDate.placeholder")
             }
             error={errors.registrationDate?.message}
             suffixElement={
@@ -193,15 +191,24 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
                 className="text-muted-foreground pointer-events-none"
               />
             }
-            className="date-input-custom"
+            className="date-input-custom cursor-pointer"
             required
             {...register("registrationDate")}
+            onClick={(e) => {
+              try {
+                if ("showPicker" in e.target) {
+                  (e.target as HTMLInputElement).showPicker();
+                }
+              } catch (err) {
+                // Ignore if showPicker is not supported or fails
+              }
+            }}
           />
 
           {/* File Upload Zone */}
           <div className="flex flex-col gap-1.5 w-full mt-2">
             <label className="text-description font-medium text-foreground">
-              {en.onboarding.identity.fields.proof.label}
+              {t("onboarding.identity.fields.proof.label")}
               {/* <span className="text-muted-foreground text-caption ml-1 font-normal">(Optional)</span> */}
             </label>
 
@@ -231,12 +238,12 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
                   <Upload className="w-8 h-8 text-primary mb-3" />
                   <p className="text-description text-foreground">
                     <span className="font-semibold text-primary">
-                      {en.onboarding.identity.fields.proof.upload}
+                      {t("onboarding.identity.fields.proof.upload")}
                     </span>
-                    {en.onboarding.identity.fields.proof.drag}
+                    {t("onboarding.identity.fields.proof.drag")}
                   </p>
                   <p className="text-caption text-muted-foreground mt-1">
-                    {en.onboarding.identity.fields.proof.formats}
+                    {t("onboarding.identity.fields.proof.formats")}
                   </p>
                 </div>
               ) : (
@@ -292,7 +299,7 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
             disabled={isSubmitting}
           >
             <ArrowLeft size={16} className="mr-2" />
-            {en.onboarding.identity.buttons.previous}
+            {t("onboarding.identity.buttons.previous")}
           </Button>
           <Button
             type="submit"
@@ -301,8 +308,8 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
             className="min-w-[140px] bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isSubmitting
-              ? en.onboarding.form.submitting
-              : en.onboarding.identity.buttons.submit}
+              ? t("onboarding.form.submitting")
+              : t("onboarding.identity.buttons.submit")}
             {!isSubmitting && <ArrowRight size={16} className="ml-2" />}
           </Button>
         </div>

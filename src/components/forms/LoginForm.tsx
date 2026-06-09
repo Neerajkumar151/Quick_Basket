@@ -7,13 +7,14 @@ import toast from "react-hot-toast";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { loginSchema, type LoginFormValues } from "../../validations/auth";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
 
 interface LoginFormProps {
   onSuccess: () => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -24,33 +25,34 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (_data: LoginFormValues) => {
     try {
-      console.log("Login data:", data);
+      // API call placeholder
       await new Promise((resolve) => setTimeout(resolve, 800));
-      toast.success("Welcome back!", { icon: "👋" });
+      localStorage.setItem("qb_admin_auth_token", "dummy-token");
+      toast.success(t("common.success" as any) || "Welcome back!", { icon: "👋" });
       onSuccess();
-    } catch (error) {
-      toast.error("Invalid credentials.");
-    }
+    } catch (err) {
+      toast.error(t("auth.messages.invalidCredentials", "Invalid credentials."));
+    } finally { };
   };
 
   return (
     <div className="flex flex-col w-full max-w-sm mx-auto">
       <div className="flex flex-col mb-8 text-center sm:text-left">
         <h2 className="text-h1 font-bold text-card-foreground mb-2 tracking-tight">
-          {en.auth.login.title}
+          {t("auth.login.title")}
         </h2>
         <p className="text-auth-text/80 text-description">
-          {en.auth.login.subtitle}
+          {t("auth.login.subtitle")}
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
         <Input
-          label={en.auth.login.fields.email.label}
+          label={t("auth.login.fields.email.label")}
           type="email"
-          placeholder={en.auth.login.fields.email.placeholder}
+          placeholder={t("auth.login.fields.email.placeholder")}
           prefixElement={<Mail size={18} className="text-muted-foreground" />}
           error={errors.email?.message}
           required
@@ -59,9 +61,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         />
 
         <Input
-          label={en.auth.login.fields.password.label}
+          label={t("auth.login.fields.password.label")}
           type={showPassword ? "text" : "password"}
-          placeholder={en.auth.login.fields.password.placeholder}
+          placeholder={t("auth.login.fields.password.placeholder")}
           prefixElement={<Lock size={18} className="text-muted-foreground" />}
           suffixElement={
             <button
@@ -83,7 +85,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
           disabled={isSubmitting}
           className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md mt-2 py-6 text-body"
         >
-          {isSubmitting ? en.auth.login.submitting : en.auth.login.submit}
+          {isSubmitting ? t("auth.login.submitting") : t("auth.login.submit")}
           {!isSubmitting && <ArrowRight size={18} className="ml-2" />}
         </Button>
       </form>

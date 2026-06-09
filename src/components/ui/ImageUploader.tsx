@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, UploadCloud } from "lucide-react";
 import toast from 'react-hot-toast';
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
 
 interface ImageUploaderProps {
   label?: string;
@@ -29,6 +29,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   className = "w-full",
   compact = false
 }) => {
+  const { t } = useTranslation();
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialPreviewUrl || null);
 
   // Sync with prop changes (e.g. form reset)
@@ -40,11 +41,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     const file = e.target.files?.[0];
     if (file) {
       if (!acceptedFormats.includes(file.type)) {
-        toast.error("Invalid file format");
+        toast.error(t("common.upload.invalidFormat", "Invalid file format"));
         return;
       }
       if (file.size > maxSizeMB * 1024 * 1024) {
-        toast.error(`File size must be less than ${maxSizeMB}MB`);
+        toast.error(t("common.upload.sizeLimit", `File size must be less than ${maxSizeMB}MB`, { max: maxSizeMB }));
         return;
       }
       const reader = new FileReader();
@@ -83,8 +84,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             <UploadCloud className={`text-muted-foreground/50 group-hover:text-primary transition-colors ${compact ? "w-6 h-6" : "w-8 h-8 mb-2"}`} />
             {!compact && (
               <>
-                <p className="text-description font-semibold">{en.common.upload.title}</p>
-                <p className="text-caption mt-1 text-muted-foreground/70">{en.common.upload.allowed}: {acceptedFormats.map(f => f.split('/')[1].toUpperCase()).join(', ')} ({en.common.upload.max} {maxSizeMB}MB)</p>
+                <p className="text-description font-semibold">{t("common.upload.title")}</p>
+                <p className="text-caption mt-1 text-muted-foreground/70">{t("common.upload.allowed")}: {acceptedFormats.map(f => (f.split('/')[1] || '').toUpperCase()).join(', ')} ({t("common.upload.max")} {maxSizeMB}MB)</p>
               </>
             )}
           </div>
