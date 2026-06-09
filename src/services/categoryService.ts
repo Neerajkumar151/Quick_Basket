@@ -81,9 +81,9 @@ export const categoryService = {
     const index = categories.findIndex((c) => c.id === id);
     if (index === -1) throw new Error("Category not found");
 
-    categories[index] = { ...categories[index], ...data };
+    categories[index] = { ...(categories[index] as Category), ...data };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
-    return categories[index];
+    return categories[index] as Category;
   },
 
   // DELETE /categories/:id
@@ -101,9 +101,9 @@ export const categoryService = {
     const index = categories.findIndex((c) => c.id === id);
     if (index === -1) throw new Error("Category not found");
 
-    categories[index].status =
-      categories[index].status === "Active" ? "Inactive" : "Active";
+    ((categories[index] as Category).status) =
+      ((categories[index] as Category).status) === "Active" ? "Inactive" : "Active";
     localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
-    return categories[index];
+    return categories[index] as Category;
   },
 };

@@ -2,9 +2,10 @@ import { Header } from "../../components/layout/Header";
 import { Footer } from "../../components/layout/Footer";
 import { Hourglass } from "lucide-react";
 import VerificationImage from "../../assets/verification.png";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
 
 export const PendingVerificationPage = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
       <Header />
@@ -13,14 +14,14 @@ export const PendingVerificationPage = () => {
         <div className="max-w-md w-full bg-card border border-border rounded-2xl p-8 shadow-lg flex flex-col items-center animate-in fade-in zoom-in duration-500">
           <img 
             src={VerificationImage} 
-            alt={en.onboarding.pending.title} 
+            alt={t("onboarding.pending.title")} 
             className="w-48 h-48 object-contain mb-6 drop-shadow-2xl"
           />
           <h1 className="text-h2 font-bold text-card-foreground mb-3">
-            {en.onboarding.pending.title}
+            {t("onboarding.pending.title")}
           </h1>
           <p className="text-muted-foreground text-description leading-relaxed mb-6">
-            {en.onboarding.pending.description}
+            {t("onboarding.pending.description")}
           </p>
           <div className="w-full mt-2 p-6 bg-card border border-border/50 rounded-xl flex flex-col items-center gap-5 shadow-inner">
             
@@ -31,10 +32,10 @@ export const PendingVerificationPage = () => {
 
             <div className="flex flex-col items-center">
               <span className="text-description font-semibold text-warning uppercase tracking-wider mb-1">
-                {en.onboarding.pending.statusLabel}
+                {t("onboarding.pending.statusLabel")}
               </span>
               <span className="text-body font-medium text-foreground">
-                {en.onboarding.pending.statusValue}
+                {t("onboarding.pending.statusValue")}
               </span>
             </div>
           </div>

@@ -1,13 +1,13 @@
 import * as z from "zod";
-import en from "../locales/en.json";
+import type { TFunction } from "i18next";
 
-export const storeProfileSchema = z.object({
-  storeName: z.string().min(1, en.storeProfile.messages.validationName),
-  ownerName: z.string().min(1, "Owner Name is required"),
+export const createStoreProfileSchema = (t: TFunction) => z.object({
+  storeName: z.string().min(1, t("storeProfile.messages.validationName")),
+  ownerName: z.string().min(1, t("storeProfile.contact.ownerName")),
   description: z.string().optional(),
-  phoneNumber: z.string().min(1, en.storeProfile.messages.validationPhone),
-  email: z.string().email(en.storeProfile.messages.validationEmail),
-  address: z.string().min(1, en.storeProfile.messages.validationAddress),
+  phoneNumber: z.string().min(1, t("storeProfile.messages.validationPhone")),
+  email: z.string().email(t("storeProfile.messages.validationEmail")),
+  address: z.string().min(1, t("storeProfile.messages.validationAddress")),
 });
 
-export type StoreProfileFormValues = z.infer<typeof storeProfileSchema>;
+export type StoreProfileFormValues = z.infer<ReturnType<typeof createStoreProfileSchema>>;

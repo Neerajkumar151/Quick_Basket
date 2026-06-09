@@ -8,18 +8,16 @@ import { SearchInput } from "../../components/ui/SearchInput";
 import { Select } from "../../components/ui/Select";
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { StatusBadge } from "../../components/ui/StatusBadge";
-import { Pagination } from "../../components/ui/Pagination";
 import { Button } from "../../components/ui/Button";
 import { OrderDetailsModal } from "../../components/orders/OrderDetailsModal";
 import { orderService } from "../../services/orderService";
 import { Order, ORDER_STATUS } from "../../types/order";
 import { formatCurrency } from "../../utils/number";
 import { formatDateTime } from "../../utils/date";
-import en from "../../locales/en.json";
-
-const ITEMS_PER_PAGE = 10;
+import { useTranslation } from "react-i18next";
 
 export const OrdersPage = () => {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -28,7 +26,6 @@ export const OrdersPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  const [currentPage, setCurrentPage] = useState(1);
 
   // Drawer
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -40,7 +37,7 @@ export const OrdersPage = () => {
       const data = await orderService.getOrders();
       setOrders(data);
     } catch {
-      toast.error(en.orders.messages.errorFetch);
+      toast.error(t("orders.messages.errorFetch"));
     } finally {
       if (showLoader) setIsLoading(false);
     }
@@ -53,9 +50,9 @@ export const OrdersPage = () => {
     try {
       const data = await orderService.refreshOrders();
       setOrders(data);
-      toast.success(en.orders.messages.refreshed);
+      toast.success(t("orders.messages.refreshed"));
     } catch {
-      toast.error(en.orders.messages.errorFetch);
+      toast.error(t("orders.messages.errorFetch"));
     } finally {
       setIsRefreshing(false);
     }
@@ -67,29 +64,29 @@ export const OrdersPage = () => {
   };
 
   const handleStatusUpdated = (updated: Order) => {
-    setOrders((prev) => prev.map((o: any) => (o.id === updated.id ? updated : o)));
+    setOrders((prev) => prev.map((o: Order) => (o.id === updated.id ? updated : o)));
     setSelectedOrder(updated);
   };
 
   // ── Stats cards ────────────────────────────────────────────────────────────
   const stats = useMemo(() => ({
     total: orders.length,
-    new: orders.filter((o: any) => o.status === ORDER_STATUS.NEW).length,
-    outForDelivery: orders.filter((o: any) => o.status === ORDER_STATUS.OUT_FOR_DELIVERY).length,
-    delivered: orders.filter((o: any) => o.status === ORDER_STATUS.DELIVERED).length,
-    cancelled: orders.filter((o: any) => o.status === ORDER_STATUS.CANCELLED).length,
+    new: orders.filter((o: Order) => o.status === ORDER_STATUS.NEW).length,
+    outForDelivery: orders.filter((o: Order) => o.status === ORDER_STATUS.OUT_FOR_DELIVERY).length,
+    delivered: orders.filter((o: Order) => o.status === ORDER_STATUS.DELIVERED).length,
+    cancelled: orders.filter((o: Order) => o.status === ORDER_STATUS.CANCELLED).length,
   }), [orders]);
 
   // ── Filter + Sort + Paginate ───────────────────────────────────────────────
   const processedOrders = useMemo(() => {
-    let result = orders.filter((o: any) => {
+    let result = orders.filter((o: Order) => {
       const matchesSearch = o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         o.customerName.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === "all" || o.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
 
-    result.sort((a: any, b: any) => {
+    result.sort((a: Order, b: Order) => {
       switch (sortBy) {
         case "oldest": return new Date(a.orderDate).getTime() - new Date(b.orderDate).getTime();
         case "amountHigh": return b.total - a.total;
@@ -102,22 +99,16 @@ export const OrdersPage = () => {
     return result;
   }, [orders, searchQuery, statusFilter, sortBy]);
 
-  const totalPages = Math.ceil(processedOrders.length / ITEMS_PER_PAGE);
-  const paginated = processedOrders.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
   const columns: ColumnDef<Order>[] = [
     {
-      header: en.orders.table.orderId,
-      cell: (o: any) => (
+      header: t("orders.table.orderId"),
+      cell: (o: Order) => (
         <span className="font-mono font-bold text-primary text-description">{o.id}</span>
       ),
     },
     {
-      header: en.orders.table.customer,
-      cell: (o: any) => (
+      header: t("orders.table.customer"),
+      cell: (o: Order) => (
         <div className="flex flex-col">
           <span className="font-semibold text-foreground">{o.customerName}</span>
           <span className="text-caption text-muted-foreground">{o.customerPhone}</span>
@@ -125,34 +116,34 @@ export const OrdersPage = () => {
       ),
     },
     {
-      header: en.orders.table.date,
-      cell: (o: any) => (
+      header: t("orders.table.date"),
+      cell: (o: Order) => (
         <span className="text-description text-muted-foreground whitespace-nowrap">
           {formatDateTime(o.orderDate)}
         </span>
       ),
     },
     {
-      header: en.orders.table.amount,
-      cell: (o: any) => (
+      header: t("orders.table.amount"),
+      cell: (o: Order) => (
         <span className="font-bold text-foreground">{formatCurrency(o.total)}</span>
       ),
     },
     {
-      header: en.orders.table.status,
-      cell: (o: any) => <StatusBadge status={o.status} />,
+      header: t("orders.table.status"),
+      cell: (o: Order) => <StatusBadge status={o.status} />,
     },
     {
-      header: en.orders.table.actions,
+      header: t("orders.table.actions"),
       className: "text-right",
-      cell: (o: any) => (
+      cell: (o: Order) => (
         <div className="flex justify-end">
           <button
             onClick={() => handleViewOrder(o)}
             className="flex items-center gap-2 px-3 py-1.5 text-description font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
           >
             <Eye size={16} />
-            {en.orders.table.view}
+            {t("orders.table.view")}
           </button>
         </div>
       ),
@@ -162,38 +153,38 @@ export const OrdersPage = () => {
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500 pb-12">
       <PageHeader
-        title={en.orders.header.title}
-        description={en.orders.header.subtitle}
+        title={t("orders.header.title")}
+        description={t("orders.header.subtitle")}
       />
 
       {/* ── Stats Cards ──────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <StatCard
-          label={en.orders.stats.total}
+          label={t("orders.stats.total")}
           value={stats.total}
           icon={<ShoppingCart size={20} className="text-primary" />}
           color="bg-primary/10"
         />
         <StatCard
-          label={en.orders.stats.new}
+          label={t("orders.stats.new")}
           value={stats.new}
           icon={<Clock size={20} className="text-warning" />}
           color="bg-warning/10"
         />
         <StatCard
-          label={en.orders.stats.outForDelivery}
+          label={t("orders.stats.outForDelivery")}
           value={stats.outForDelivery}
           icon={<Truck size={20} className="text-status-purple" />}
           color="bg-status-purple/10"
         />
         <StatCard
-          label={en.orders.stats.delivered}
+          label={t("orders.stats.delivered")}
           value={stats.delivered}
           icon={<PackageCheck size={20} className="text-success" />}
           color="bg-success/10"
         />
         <StatCard
-          label={en.orders.stats.cancelled}
+          label={t("orders.stats.cancelled")}
           value={stats.cancelled}
           icon={<XCircle size={20} className="text-error" />}
           color="bg-error/10"
@@ -205,14 +196,14 @@ export const OrdersPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
           <SearchInput
             value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-            placeholder={en.orders.filters.searchPlaceholder}
+            onChange={(e) => { setSearchQuery(e.target.value); }}
+            placeholder={t("orders.filters.searchPlaceholder")}
           />
           <Select
             value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+            onChange={(e) => { setStatusFilter(e.target.value); }}
           >
-            <option value="all">{en.orders.filters.statusAll}</option>
+            <option value="all">{t("orders.filters.statusAll")}</option>
             <option value={ORDER_STATUS.NEW}>{ORDER_STATUS.NEW}</option>
             <option value={ORDER_STATUS.ACCEPTED}>{ORDER_STATUS.ACCEPTED}</option>
             <option value={ORDER_STATUS.OUT_FOR_DELIVERY}>{ORDER_STATUS.OUT_FOR_DELIVERY}</option>
@@ -221,12 +212,12 @@ export const OrdersPage = () => {
           </Select>
           <Select
             value={sortBy}
-            onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }}
+            onChange={(e) => { setSortBy(e.target.value); }}
           >
-            <option value="newest">{en.orders.filters.sortNewest}</option>
-            <option value="oldest">{en.orders.filters.sortOldest}</option>
-            <option value="amountHigh">{en.orders.filters.sortAmountHigh}</option>
-            <option value="amountLow">{en.orders.filters.sortAmountLow}</option>
+            <option value="newest">{t("orders.filters.sortNewest")}</option>
+            <option value="oldest">{t("orders.filters.sortOldest")}</option>
+            <option value="amountHigh">{t("orders.filters.sortAmountHigh")}</option>
+            <option value="amountLow">{t("orders.filters.sortAmountLow")}</option>
           </Select>
           <Button
             variant="outline"
@@ -235,7 +226,7 @@ export const OrdersPage = () => {
             className="flex items-center gap-2"
           >
             <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
-            {isRefreshing ? en.orders.filters.refreshing : en.orders.filters.refresh}
+            {isRefreshing ? t("orders.filters.refreshing") : t("orders.filters.refresh")}
           </Button>
         </div>
       </FilterBar>
@@ -243,19 +234,13 @@ export const OrdersPage = () => {
       {/* ── Table ────────────────────────────────────────────────────────── */}
       <div className="flex flex-col">
         <DataTable
-          data={paginated}
+          data={processedOrders}
           columns={columns}
           isLoading={isLoading}
-          emptyTitle={en.orders.messages.emptyTitle}
-          emptyDescription={en.orders.messages.emptySubtitle}
+          emptyTitle={t("orders.messages.emptyTitle")}
+          emptyDescription={t("orders.messages.emptySubtitle")}
+          itemsPerPage={10}
         />
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        )}
       </div>
 
       {/* ── Modal ────────────────────────────────────────────────────────── */}

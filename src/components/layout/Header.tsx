@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Bell, Sun, Moon, Menu, Store as StoreIcon } from "lucide-react";
-import en from "../../locales/en.json";
+import { Sun, Moon, Menu, Store as StoreIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "../../providers/ThemeProvider";
 import { useStoreProfile } from "../../hooks/useStoreProfile";
 import { useNavigate } from "react-router-dom";
@@ -15,10 +15,12 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const isLoggedIn = pathname.startsWith("/dashboard");
   const { theme, setTheme } = useTheme();
   const { data: profile } = useStoreProfile();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const isAuthRoute =
-    pathname.startsWith("/login") || pathname.startsWith("/onboarding");
+    pathname.startsWith("/login") ||
+    (pathname.startsWith("/onboarding") && pathname !== "/onboarding/pending");
 
   return (
     <header
@@ -43,13 +45,13 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
         >
           <img
             src="/logo.png"
-            alt={`${en.layout.brand} Logo`}
+            alt={`${t("layout.brand")} Logo`}
             className="h-8 w-auto object-contain"
           />
           <span
             className={`font-bold text-h3 tracking-tight hidden sm:block ${isAuthRoute ? "text-white" : "text-foreground"}`}
           >
-            {en.layout.brand}
+            {t("layout.brand")}
           </span>
         </div>
       </div>
@@ -87,16 +89,16 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
               onClick={() => navigate("/dashboard/help")}
               className="text-description font-medium text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
             >
-              {en.layout.help}
+              {t("layout.help")}
             </span>
             <div className="h-8 w-px bg-border mx-2"></div>
             <div className="flex items-center gap-3 cursor-pointer group">
               <div className="hidden sm:flex flex-col items-end">
                 <span className="text-description font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
-                  {profile?.storeName || en.layout.adminName}
+                  {profile?.storeName || t("layout.adminName")}
                 </span>
                 <span className="text-caption text-error font-medium leading-tight">
-                  {en.layout.adminRole}
+                  {t("layout.adminRole")}
                 </span>
               </div>
               <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center overflow-hidden shrink-0">

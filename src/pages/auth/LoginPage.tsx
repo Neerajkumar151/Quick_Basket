@@ -1,14 +1,16 @@
 import { useNavigate, Link } from "react-router-dom";
 import { LoginForm } from "../../components/forms/LoginForm";
 import { Header } from "../../components/layout/Header";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
 
+  const { t } = useTranslation();
+
   const handleLoginSuccess = () => {
     navigate("/dashboard");
-    console.log("Logged in successfully");
+    // API call placeholder
   };
 
   return (
@@ -47,13 +49,13 @@ export const LoginPage = () => {
 
             <div className="mt-8 text-center">
               <span className="text-auth-text/80">
-                {en.auth.login.noAccount}{" "}
+                {t("auth.login.noAccount")}{" "}
               </span>
               <Link
                 to="/onboarding/basic-info"
                 className="text-auth-text hover:underline font-bold"
               >
-                {en.auth.login.createAccount}
+                {t("auth.login.createAccount")}
               </Link>
             </div>
           </div>

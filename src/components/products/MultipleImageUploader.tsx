@@ -1,7 +1,8 @@
 import React from 'react';
 import { X, UploadCloud } from "lucide-react";
 import toast from 'react-hot-toast';
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
+import { resizeImage } from "../../utils/image";
 
 interface MultipleImageUploaderProps {
   label?: string;
@@ -22,40 +23,42 @@ export const MultipleImageUploader: React.FC<MultipleImageUploaderProps> = ({
   onChange,
   error
 }) => {
+  const { t } = useTranslation();
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
     if (images.length + files.length > maxFiles) {
-      toast.error(`${en.products.messages.errorMaxImages} ${maxFiles} ${en.products.messages.images}`);
+      toast.error(`${t("products.messages.errorMaxImages")} ${maxFiles} ${t("products.messages.images")}`);
       return;
     }
 
-    const newImages: string[] = [];
-    let processed = 0;
-
-    files.forEach(file => {
-      if (!acceptedFormats.includes(file.type)) {
-        toast.error(`${en.products.messages.errorInvalidFormat} ${file.name}`);
-        processed++;
-        return;
-      }
-      if (file.size > maxSizeMB * 1024 * 1024) {
-        toast.error(`${en.products.messages.errorSizeTooLarge} ${file.name} (${en.products.messages.max} ${maxSizeMB}MB)`);
-        processed++;
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        newImages.push(reader.result as string);
-        processed++;
-        if (processed === files.length) {
-          onChange([...images, ...newImages]);
+    const processImages = async () => {
+      const newImages: string[] = [];
+      for (const file of files) {
+        if (!acceptedFormats.includes(file.type)) {
+          toast.error(`${t("products.messages.errorInvalidFormat")} ${file.name}`);
+          continue;
         }
-      };
-      reader.readAsDataURL(file);
-    });
+        if (file.size > maxSizeMB * 1024 * 1024) {
+          toast.error(`${t("products.messages.errorSizeTooLarge")} ${file.name} (${t("products.messages.max")} ${maxSizeMB}MB)`);
+          continue;
+        }
+        
+        try {
+          const resizedDataUrl = await resizeImage(file, 800, 800);
+          newImages.push(resizedDataUrl);
+        } catch (err) {
+          toast.error(`Failed to process ${file.name}`);
+        }
+      }
+      
+      if (newImages.length > 0) {
+        onChange([...images, ...newImages]);
+      }
+    };
+
+    processImages();
   };
 
   const removeImage = (index: number) => {
@@ -88,7 +91,7 @@ export const MultipleImageUploader: React.FC<MultipleImageUploaderProps> = ({
           <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-border rounded-lg cursor-pointer bg-input/50 hover:bg-input transition-colors">
             <div className="flex flex-col items-center justify-center text-muted-foreground hover:text-foreground transition-colors text-center">
               <UploadCloud className="w-6 h-6 text-muted-foreground/50 mb-1 group-hover:text-primary transition-colors" />
-              <p className="text-caption font-semibold">{en.common.upload.title}</p>
+              <p className="text-caption font-semibold">{t("common.upload.title")}</p>
             </div>
             <input type="file" multiple className="hidden" accept={acceptedFormats.join(',')} onChange={handleFileChange} />
           </label>

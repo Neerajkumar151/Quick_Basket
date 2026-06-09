@@ -13,7 +13,7 @@ import { Order, ORDER_STATUS, ORDER_FLOW, OrderStatus } from "../../types/order"
 import { orderService } from "../../services/orderService";
 import { formatCurrency } from "../../utils/number";
 import { formatDateTime } from "../../utils/date";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
 
 interface OrderDetailsModalProps {
   order: Order | null;
@@ -22,13 +22,7 @@ interface OrderDetailsModalProps {
   onStatusUpdated: (updated: Order) => void;
 }
 
-// ─── Label for action buttons per transition ──────────────────────────────────
-const ACTION_LABELS: Partial<Record<OrderStatus, string>> = {
-  [ORDER_STATUS.ACCEPTED]: "Accept Order",
-  [ORDER_STATUS.OUT_FOR_DELIVERY]: "Mark Out for Delivery",
-  [ORDER_STATUS.DELIVERED]: "Mark Delivered",
-  [ORDER_STATUS.CANCELLED]: "Cancel Order",
-};
+// Remove ACTION_LABELS from module level, moved inside component
 
 export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   order,
@@ -36,9 +30,17 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   onClose,
   onStatusUpdated,
 }) => {
+  const { t } = useTranslation();
   const [isUpdating, setIsUpdating] = useState(false);
 
   if (!order) return null;
+
+  const ACTION_LABELS: Partial<Record<OrderStatus, string>> = {
+    [ORDER_STATUS.ACCEPTED]: t("orders.actions.accept", "Accept Order"),
+    [ORDER_STATUS.OUT_FOR_DELIVERY]: t("orders.actions.outForDelivery", "Mark Out for Delivery"),
+    [ORDER_STATUS.DELIVERED]: t("orders.actions.delivered", "Mark Delivered"),
+    [ORDER_STATUS.CANCELLED]: t("orders.actions.cancel", "Cancel Order"),
+  };
 
   const allowedTransitions = ORDER_FLOW[order.status];
 
@@ -46,10 +48,10 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     setIsUpdating(true);
     try {
       const updated = await orderService.updateOrderStatus(order.id, newStatus);
-      toast.success(`Order ${order.id} updated to "${newStatus}"`);
+      toast.success(t("orders.messages.statusUpdated", `Order ${order.id} updated to "${newStatus}"`, { id: order.id, status: newStatus }));
       onStatusUpdated(updated);
     } catch (err: any) {
-      toast.error(err.message || "Failed to update status");
+      toast.error(err.message || t("orders.messages.updateFailed", "Failed to update status"));
     } finally {
       setIsUpdating(false);
     }
@@ -59,7 +61,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Order ${order.id}`}
+      title={t("orders.modal.title", `Order ${order.id}`, { id: order.id })}
       maxWidth="4xl"
     >
       <div className="flex flex-col gap-6">
@@ -67,14 +69,14 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-4 bg-muted/30 p-4 rounded-xl border border-border">
           <div className="flex flex-col gap-1">
             <span className="text-body font-semibold text-foreground">
-              Order Placed On
+              {t("orders.drawer.orderPlacedOn", "Order Placed On")}
             </span>
             <span className="text-description text-muted-foreground">
               {formatDateTime(order.orderDate)}
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-description font-medium text-foreground">Current Status:</span>
+            <span className="text-description font-medium text-foreground">{t("orders.drawer.currentStatus", "Current Status:")}</span>
             <StatusBadge status={order.status} className="text-sm px-3 py-1" />
           </div>
         </div>
@@ -85,16 +87,16 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           {/* ── LEFT COLUMN ─────────────────────────────────────────────── */}
           <div className="flex flex-col gap-8">
             {/* ── Section 1: Customer Information ──────────────────────── */}
-            <Section title={en.orders.drawer.customer} icon={<User size={18} />}>
+            <Section title={t("orders.drawer.customer")} icon={<User size={18} />}>
               <div className="bg-card border border-border p-4 rounded-xl space-y-3 shadow-sm">
-                <InfoRow label={en.orders.drawer.name} value={order.customerName} />
+                <InfoRow label={t("orders.drawer.name")} value={order.customerName} />
                 <InfoRow
-                  label={en.orders.drawer.phone}
+                  label={t("orders.drawer.phone")}
                   value={order.customerPhone}
                   icon={<Phone size={14} className="text-muted-foreground" />}
                 />
                 <InfoRow
-                  label={en.orders.drawer.email}
+                  label={t("orders.drawer.email")}
                   value={order.customerEmail}
                   icon={<Mail size={14} className="text-muted-foreground" />}
                 />
@@ -102,7 +104,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </Section>
 
             {/* ── Section 2: Delivery Address ───────────────────────────── */}
-            <Section title={en.orders.drawer.address} icon={<MapPin size={18} />}>
+            <Section title={t("orders.drawer.address")} icon={<MapPin size={18} />}>
               <div className="bg-card border border-border p-4 rounded-xl shadow-sm">
                 <p className="text-description text-foreground leading-relaxed">
                   {order.address.flatNo}, {order.address.area},<br />
@@ -113,18 +115,18 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </Section>
 
             {/* ── Section 4: Payment Information ───────────────────────── */}
-            <Section title={en.orders.drawer.payment} icon={<CreditCard size={18} />}>
+            <Section title={t("orders.drawer.payment")} icon={<CreditCard size={18} />}>
               <div className="bg-card border border-border p-4 rounded-xl space-y-3 shadow-sm">
-                <InfoRow label={en.orders.drawer.paymentMethod} value={order.payment.method} />
+                <InfoRow label={t("orders.drawer.paymentMethod")} value={order.payment.method} />
                 <div className="flex items-center justify-between">
-                  <span className="text-description text-muted-foreground">{en.orders.drawer.paymentStatus}</span>
+                  <span className="text-description text-muted-foreground">{t("orders.drawer.paymentStatus")}</span>
                   <StatusBadge
                     status={order.payment.status}
-                    className="text-[10px]"
+                    className="text-caption"
                   />
                 </div>
                 {order.payment.transactionId && (
-                  <InfoRow label={en.orders.drawer.transactionId} value={order.payment.transactionId} />
+                  <InfoRow label={t("orders.drawer.transactionId")} value={order.payment.transactionId} />
                 )}
               </div>
             </Section>
@@ -133,7 +135,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           {/* ── RIGHT COLUMN ────────────────────────────────────────────── */}
           <div className="flex flex-col gap-8">
             {/* ── Section 3: Ordered Products ───────────────────────────── */}
-            <Section title={en.orders.drawer.items} icon={<Package size={18} />}>
+            <Section title={t("orders.drawer.items")} icon={<Package size={18} />}>
               <div className="bg-card border border-border p-4 rounded-xl shadow-sm flex flex-col gap-3">
                 {order.items.map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between pb-3 border-b border-border last:border-0 last:pb-0">
@@ -154,19 +156,19 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </Section>
 
             {/* ── Section 5: Amount Breakdown ───────────────────────────── */}
-            <Section title={en.orders.drawer.breakdown} icon={<ReceiptText size={18} />}>
+            <Section title={t("orders.drawer.breakdown")} icon={<ReceiptText size={18} />}>
               <div className="bg-card border border-border p-4 rounded-xl space-y-2 shadow-sm">
-                <AmountRow label={en.orders.drawer.subtotal} value={order.subtotal} />
-                <AmountRow label={en.orders.drawer.deliveryFee} value={order.deliveryFee} />
-                <AmountRow label={en.orders.drawer.tax} value={order.tax} />
+                <AmountRow label={t("orders.drawer.subtotal")} value={order.subtotal} />
+                <AmountRow label={t("orders.drawer.deliveryFee")} value={order.deliveryFee} />
+                <AmountRow label={t("orders.drawer.tax")} value={order.tax} />
                 <div className="border-t border-border pt-3 mt-2">
-                  <AmountRow label={en.orders.drawer.total} value={order.total} bold />
+                  <AmountRow label={t("orders.drawer.total")} value={order.total} bold />
                 </div>
               </div>
             </Section>
 
             {/* ── Section 6: Order Timeline ─────────────────────────────── */}
-            <Section title={en.orders.drawer.timeline} icon={<CheckCircle2 size={18} />}>
+            <Section title={t("orders.drawer.timeline")} icon={<CheckCircle2 size={18} />}>
               <div className="bg-card border border-border p-4 rounded-xl shadow-sm">
                 <OrderTimeline timeline={order.timeline} currentStatus={order.status} />
               </div>
@@ -190,7 +192,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       : "w-full sm:w-auto"
                   }
                 >
-                  {isUpdating ? "Updating..." : ACTION_LABELS[nextStatus] ?? nextStatus}
+                  {isUpdating ? t("orders.actions.updating", "Updating...") : ACTION_LABELS[nextStatus] ?? nextStatus}
                 </Button>
               ))}
             </div>
@@ -200,13 +202,13 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           {order.status === ORDER_STATUS.DELIVERED && (
             <div className="flex items-center justify-center gap-2 text-success text-description font-medium p-3 bg-success/10 rounded-xl border border-success/20">
               <CheckCircle2 size={20} />
-              {en.orders.drawer.completed}
+              {t("orders.drawer.completed")}
             </div>
           )}
           {order.status === ORDER_STATUS.CANCELLED && (
             <div className="flex items-center justify-center gap-2 text-error text-description font-medium p-3 bg-error/10 rounded-xl border border-error/20">
               <X size={20} />
-              {en.orders.drawer.cancelled}
+              {t("orders.drawer.cancelled")}
             </div>
           )}
         </div>

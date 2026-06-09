@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { X, UploadCloud } from "lucide-react";
 import toast from 'react-hot-toast';
-import en from "../../locales/en.json";
-
+import { useTranslation } from "react-i18next";
+import { resizeImage } from "../../utils/image";
 interface ImageUploaderProps {
   label?: string;
   maxFiles?: number;
@@ -29,6 +29,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   className = "w-full",
   compact = false
 }) => {
+  const { t } = useTranslation();
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialPreviewUrl || null);
 
   // Sync with prop changes (e.g. form reset)
@@ -36,23 +37,27 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     setPreviewUrl(initialPreviewUrl || null);
   }, [initialPreviewUrl]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (!acceptedFormats.includes(file.type)) {
-        toast.error("Invalid file format");
+        toast.error(t("common.upload.invalidFormat", "Invalid file format"));
         return;
       }
       if (file.size > maxSizeMB * 1024 * 1024) {
-        toast.error(`File size must be less than ${maxSizeMB}MB`);
+        toast.error(t("common.upload.sizeLimit", `File size must be less than ${maxSizeMB}MB`, { max: maxSizeMB }));
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      onFileSelect(file);
+      
+      try {
+        const resizedDataUrl = await resizeImage(file, 800, 800);
+        setPreviewUrl(resizedDataUrl);
+        // We still pass the original file so that backend can upload the actual file
+        // but local preview uses the resized Base64.
+        onFileSelect(file);
+      } catch (err) {
+        toast.error("Failed to process image");
+      }
     }
   };
 
@@ -83,8 +88,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             <UploadCloud className={`text-muted-foreground/50 group-hover:text-primary transition-colors ${compact ? "w-6 h-6" : "w-8 h-8 mb-2"}`} />
             {!compact && (
               <>
-                <p className="text-description font-semibold">{en.common.upload.title}</p>
-                <p className="text-caption mt-1 text-muted-foreground/70">{en.common.upload.allowed}: {acceptedFormats.map(f => f.split('/')[1].toUpperCase()).join(', ')} ({en.common.upload.max} {maxSizeMB}MB)</p>
+                <p className="text-description font-semibold">{t("common.upload.title")}</p>
+                <p className="text-caption mt-1 text-muted-foreground/70">{t("common.upload.allowed")}: {acceptedFormats.map(f => (f.split('/')[1] || '').toUpperCase()).join(', ')} ({t("common.upload.max")} {maxSizeMB}MB)</p>
               </>
             )}
           </div>

@@ -20,6 +20,7 @@ const saveProducts = (products: Product[]) => {
     localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
   } catch (error) {
     console.error("Failed to save products to local storage", error);
+    throw new Error("Storage limit exceeded. If you uploaded an image, it might be too large.");
   }
 };
 
@@ -84,9 +85,9 @@ export const productService = {
       ...data,
       updatedAt: new Date().toISOString(),
     };
-    products[index] = updatedProduct;
+    products[index] = updatedProduct as Product;
     saveProducts(products);
-    return updatedProduct;
+    return updatedProduct as Product;
   },
 
   deleteProduct: async (id: string): Promise<void> => {

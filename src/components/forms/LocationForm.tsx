@@ -26,7 +26,7 @@ import {
   type LocationDetailsFormValues,
 } from "../../validations/onboarding";
 import { INDIAN_STATES } from "../../constants/locations";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
 
 // Fix Leaflet's default marker icon issue in React
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -52,6 +52,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({
   const [isLocating, setIsLocating] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { t } = useTranslation();
 
   const {
     register,
@@ -143,8 +144,8 @@ export const LocationForm: React.FC<LocationFormProps> = ({
     );
   };
 
-  const onSubmit = async (data: LocationDetailsFormValues) => {
-    console.log("Submitting Step 2:", data);
+  const onSubmit = async () => {
+    // API call placeholder
     await new Promise((resolve) => setTimeout(resolve, 600));
     onNext();
   };
@@ -187,17 +188,17 @@ export const LocationForm: React.FC<LocationFormProps> = ({
               <div className="flex flex-col items-center gap-3 bg-background border border-border p-4 rounded-xl shadow-lg">
                 <MapIcon className="animate-bounce text-primary" size={24} />
                 <span className="text-description font-medium">
-                  {en.onboarding.location.map.fetching}
+                  {t("onboarding.location.map.fetching")}
                 </span>
               </div>
             </div>
           )}
 
           <h2 className="text-h2 font-bold text-card-foreground mb-2">
-            {en.onboarding.location.title}
+            {t("onboarding.location.title")}
           </h2>
           <p className="text-muted-foreground text-description mb-8">
-            {en.onboarding.location.subtitle}
+            {t("onboarding.location.subtitle")}
           </p>
 
           <form
@@ -206,9 +207,9 @@ export const LocationForm: React.FC<LocationFormProps> = ({
             className="flex flex-col gap-6"
           >
             <Input
-              label={en.onboarding.location.fields.streetAddress.label}
+              label={t("onboarding.location.fields.streetAddress.label")}
               placeholder={
-                en.onboarding.location.fields.streetAddress.placeholder
+                t("onboarding.location.fields.streetAddress.placeholder")
               }
               prefixElement={
                 <MapPin size={16} className="text-muted-foreground" />
@@ -221,8 +222,8 @@ export const LocationForm: React.FC<LocationFormProps> = ({
             />
 
             <Input
-              label={en.onboarding.location.fields.landmark.label}
-              placeholder={en.onboarding.location.fields.landmark.placeholder}
+              label={t("onboarding.location.fields.landmark.label")}
+              placeholder={t("onboarding.location.fields.landmark.placeholder")}
               error={errors.landmark?.message}
               spellCheck={false}
               disabled={isFetching || isSubmitting}
@@ -231,8 +232,8 @@ export const LocationForm: React.FC<LocationFormProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
-                label={en.onboarding.location.fields.city.label}
-                placeholder={en.onboarding.location.fields.city.placeholder}
+                label={t("onboarding.location.fields.city.label")}
+                placeholder={t("onboarding.location.fields.city.placeholder")}
                 error={errors.city?.message}
                 spellCheck={false}
                 disabled={isFetching || isSubmitting}
@@ -240,16 +241,16 @@ export const LocationForm: React.FC<LocationFormProps> = ({
                 {...register("city")}
               />
               <Select
-                label={en.onboarding.location.fields.state.label}
+                label={t("onboarding.location.fields.state.label")}
                 error={errors.state?.message}
                 disabled={isFetching || isSubmitting}
                 required
                 {...register("state")}
               >
                 <option value="">
-                  {en.onboarding.location.fields.state.placeholder}
+                  {t("onboarding.location.fields.state.placeholder")}
                 </option>
-                {INDIAN_STATES.map((state: any) => (
+                {INDIAN_STATES.map((state: {value: string, label: string}) => (
                   <option key={state.value} value={state.value}>
                     {state.label}
                   </option>
@@ -259,9 +260,9 @@ export const LocationForm: React.FC<LocationFormProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
-                label={en.onboarding.location.fields.postalCode.label}
+                label={t("onboarding.location.fields.postalCode.label")}
                 placeholder={
-                  en.onboarding.location.fields.postalCode.placeholder
+                  t("onboarding.location.fields.postalCode.placeholder")
                 }
                 error={errors.postalCode?.message}
                 spellCheck={false}
@@ -270,8 +271,8 @@ export const LocationForm: React.FC<LocationFormProps> = ({
                 {...register("postalCode")}
               />
               <Input
-                label={en.onboarding.location.fields.country.label}
-                value={en.onboarding.location.fields.country.value}
+                label={t("onboarding.location.fields.country.label")}
+                value={t("onboarding.location.fields.country.value")}
                 readOnly
                 className="text-muted-foreground bg-muted/30"
                 suffixElement={
@@ -319,7 +320,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({
               className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-md text-description font-medium text-foreground shadow-md hover:bg-muted transition-colors disabled:opacity-50"
             >
               <Navigation size={16} className="text-primary" />
-              {isLocating ? "Locating..." : en.onboarding.location.map.pin}
+              {isLocating ? "Locating..." : t("onboarding.location.map.pin")}
             </button>
           </div>
 
@@ -327,7 +328,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({
           {position && !isFetching && (
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-full text-caption font-medium text-foreground shadow-md transition-opacity">
               <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-              {en.onboarding.location.map.status}
+              {t("onboarding.location.map.status")}
             </div>
           )}
         </div>
@@ -342,7 +343,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({
           disabled={isSubmitting || isFetching}
         >
           <ArrowLeft size={16} className="mr-2" />
-          {en.onboarding.location.buttons.previous}
+          {t("onboarding.location.buttons.previous")}
         </Button>
         <Button
           type="submit"
@@ -351,8 +352,8 @@ export const LocationForm: React.FC<LocationFormProps> = ({
           className="min-w-[140px]"
         >
           {isSubmitting
-            ? en.onboarding.form.submitting
-            : en.onboarding.location.buttons.continue}
+            ? t("onboarding.form.submitting")
+            : t("onboarding.location.buttons.continue")}
           {!isSubmitting && <ArrowRight size={16} className="ml-2" />}
         </Button>
       </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './Button';
+import { useTranslation } from "react-i18next";
 
 interface PaginationProps {
   currentPage: number;
@@ -9,6 +10,7 @@ interface PaginationProps {
 }
 
 export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+  const { t } = useTranslation();
   if (totalPages <= 1) return null;
 
   return (
@@ -19,20 +21,20 @@ export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages,
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
         >
-          Previous
+          {t("common.previous", "Previous")}
         </Button>
         <Button 
           variant="outline"
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
         >
-          Next
+          {t("common.next", "Next")}
         </Button>
       </div>
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
           <p className="text-description text-muted-foreground">
-            Showing page <span className="font-medium text-foreground">{currentPage}</span> of <span className="font-medium text-foreground">{totalPages}</span>
+            {t("common.showingPage", "Showing page")} <span className="font-medium text-foreground">{currentPage}</span> {t("common.of", "of")} <span className="font-medium text-foreground">{totalPages}</span>
           </p>
         </div>
         <div>

@@ -5,15 +5,18 @@ import * as z from "zod";
 import { ImageUploader } from "../ui/ImageUploader";
 import { BaseCategoryForm } from "../common/forms/BaseCategoryForm";
 import { Category } from "../../types/category";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
-const categorySchema = z.object({
-  name: z.string().min(1, { message: en.categories.messages.errorNameRequired }),
+const createCategorySchema = (t: TFunction) => z.object({
+  name: z.string().min(1, { message: t("categories.messages.errorNameRequired") }),
   description: z.string().optional(),
   status: z.enum(["Active", "Inactive"]).optional(),
 });
 
-export type CategoryFormValues = z.infer<typeof categorySchema>;
+export type CategoryFormValues = z.infer<ReturnType<typeof createCategorySchema>>;
+
+
 
 interface CategoryFormProps {
   initialData?: Category | null;
@@ -27,9 +30,11 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   initialData,
   onSubmit,
   isSubmitting = false,
-  submitLabel = en.categories.form.create,
+  submitLabel,
   onCancel,
 }) => {
+  const { t } = useTranslation();
+  const defaultSubmitLabel = submitLabel || t("categories.form.create");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const {
@@ -38,7 +43,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     formState: { errors },
     reset,
   } = useForm<CategoryFormValues>({
-    resolver: zodResolver(categorySchema),
+    resolver: zodResolver(createCategorySchema(t)),
     defaultValues: {
       name: "",
       description: "",
@@ -65,14 +70,14 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       register={register}
       errors={errors}
       isSubmitting={isSubmitting}
-      submitLabel={submitLabel}
+      submitLabel={defaultSubmitLabel}
       onCancel={onCancel}
       onSubmit={handleSubmit((data) => onSubmit(data, selectedFile))}
-      nameLabel={en.categories.form.name}
-      namePlaceholder={en.categories.form.namePlaceholder}
+      nameLabel={t("categories.form.name")}
+      namePlaceholder={t("categories.form.namePlaceholder")}
       prependChildren={
         <ImageUploader
-          label={en.categories.form.image}
+          label={t("categories.form.image")}
           previewUrl={initialData?.image}
           onFileSelect={setSelectedFile}
         />

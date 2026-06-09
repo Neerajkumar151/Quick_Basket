@@ -1,13 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { OnboardingLayout } from "../../components/layout/OnboardingLayout";
 import { LocationForm } from "../../components/forms/LocationForm";
 
 export const LocationPage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
-  const handleSaveAndContinue = () => {
-    toast.success("Location details saved securely.", { icon: "💾" });
+  const handleNext = () => {
+    toast.success(t("onboarding.location.success", "Location details saved securely."), { icon: "💾" });
     navigate("/onboarding/identity");
   };
 
@@ -17,7 +19,7 @@ export const LocationPage = () => {
 
   return (
     <OnboardingLayout>
-      <LocationForm onNext={handleSaveAndContinue} onPrevious={handlePrevious} />
+      <LocationForm onNext={handleNext} onPrevious={handlePrevious} />
     </OnboardingLayout>
   );
 };

@@ -7,7 +7,8 @@ import {
   XCircle,
   CheckCircle2,
 } from "lucide-react";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 import mockData from "../../constants/mock.json";
 
@@ -21,29 +22,25 @@ const IconMap: Record<string, any> = {
   XCircle,
 };
 
-const resolveKpiData = (kpiArray: any[]) => {
-  return kpiArray.map((kpi: any) => {
-    const keys = kpi.title.split(".");
-    let translatedTitle = en as any;
-    keys.forEach((k: string) => {
-      translatedTitle = translatedTitle[k];
-    });
+const resolveKpiData = (kpiArray: { title: string, icon: string, bgClass: string, colorClass: string, value: string, borderClass?: string }[], t: TFunction) => {
+  return kpiArray.map((kpi) => {
     return {
       ...kpi,
-      title: translatedTitle as string,
+      title: t(kpi.title as any),
       icon: IconMap[kpi.icon],
     };
   });
 };
 
-const PRIMARY_KPI_DATA = resolveKpiData(mockData.primaryKpis);
-const ORDER_STATUS_KPI = resolveKpiData(mockData.orderStatusKpis);
-
 export const KPICards: React.FC = () => {
+  const { t } = useTranslation();
+  const primaryKpiData = resolveKpiData(mockData.primaryKpis, t);
+  const orderStatusKpi = resolveKpiData(mockData.orderStatusKpis, t);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
       {/* Primary Metrics */}
-      {PRIMARY_KPI_DATA.map((kpi, idx) => (
+      {primaryKpiData.map((kpi, idx) => (
         <div
           key={`primary-${idx}`}
           className="bg-card border border-border rounded-xl p-5 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.1)] hover:shadow-md hover:border-border/80 transition-all group flex flex-col justify-between min-h-[110px]"
@@ -65,7 +62,7 @@ export const KPICards: React.FC = () => {
       ))}
 
       {/* Order Status Metrics */}
-      {ORDER_STATUS_KPI.map((kpi, idx) => (
+      {orderStatusKpi.map((kpi, idx) => (
         <div
           key={`status-${idx}`}
           className={`bg-card/50 border border-border rounded-xl p-5 shadow-sm transition-all flex flex-col justify-between cursor-pointer group min-h-[110px] ${kpi.borderClass}`}

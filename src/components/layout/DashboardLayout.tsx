@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -19,113 +19,114 @@ import {
   Clock,
   Network,
 } from "lucide-react";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { Header } from "./Header";
 
-const NAVIGATION = [
+const getNavigation = (t: TFunction) => [
   {
-    group: en.sidebar.groups.overview,
+    group: t("sidebar.groups.overview"),
     items: [
       {
         id: "dashboard",
-        name: en.sidebar.items.dashboard,
+        name: t("sidebar.items.dashboard"),
         path: "/dashboard",
         icon: LayoutDashboard,
       },
     ],
   },
   {
-    group: en.sidebar.groups.catalog,
+    group: t("sidebar.groups.catalog"),
     items: [
       {
         id: "products",
-        name: en.sidebar.items.products,
+        name: t("sidebar.items.products"),
         path: "/dashboard/products",
         icon: Package,
       },
       {
         id: "categories",
-        name: en.sidebar.items.categories,
+        name: t("sidebar.items.categories"),
         path: "/dashboard/categories",
         icon: Grid,
       },
       {
         id: "subCategories",
-        name: en.sidebar.items.subCategories,
+        name: t("sidebar.items.subCategories"),
         path: "/dashboard/sub-categories",
         icon: Network,
       },
       {
         id: "tags",
-        name: en.sidebar.items.tags,
+        name: t("sidebar.items.tags"),
         path: "/dashboard/tags",
         icon: Tags,
       },
       {
         id: "banners",
-        name: en.sidebar.items.banners,
+        name: t("sidebar.items.banners"),
         path: "/dashboard/banners",
         icon: ImageIcon,
       },
     ],
   },
   {
-    group: en.sidebar.groups.inventory,
+    group: t("sidebar.groups.inventory"),
     items: [
       {
         id: "stock",
-        name: en.sidebar.items.inventory,
+        name: t("sidebar.items.inventory"),
         path: "/dashboard/inventory",
         icon: Box,
       },
       {
         id: "history",
-        name: en.sidebar.items.history,
+        name: t("sidebar.items.history"),
         path: "/dashboard/inventory/history",
         icon: Clock,
       },
     ],
   },
   {
-    group: en.sidebar.groups.sales,
+    group: t("sidebar.groups.sales"),
     items: [
       {
         id: "orders",
-        name: en.sidebar.items.orders,
+        name: t("sidebar.items.orders"),
         path: "/dashboard/orders",
         icon: ShoppingBag,
       },
       {
         id: "customers",
-        name: en.sidebar.items.customers,
+        name: t("sidebar.items.customers"),
         path: "/dashboard/customers",
         icon: Users,
       },
       {
         id: "payments",
-        name: en.sidebar.items.payments,
+        name: t("sidebar.items.payments"),
         path: "/dashboard/payments",
         icon: CreditCard,
       },
     ],
   },
   {
-    group: en.sidebar.groups.analytics,
+    group: t("sidebar.groups.analytics"),
     items: [
       {
         id: "reports",
-        name: en.sidebar.items.reports,
+        name: t("sidebar.items.reports"),
         path: "/dashboard/reports",
         icon: BarChart2,
       },
     ],
   },
   {
-    group: en.sidebar.groups.storeManagement,
+    group: t("sidebar.groups.storeManagement"),
     items: [
       {
         id: "profile",
-        name: en.sidebar.items.storeProfile,
+        name: t("sidebar.items.storeProfile"),
         path: "/dashboard/store-profile",
         icon: StoreIcon,
       },
@@ -137,10 +138,14 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { pathname } = useLocation();
+  const { t } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  const navigation = useMemo(() => getNavigation(t), [t]);
+  
   // State to track expanded groups by title. Initially all open.
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
-    NAVIGATION.reduce((acc, group) => ({ ...acc, [group.group]: true }), {}),
+    navigation.reduce((acc, group) => ({ ...acc, [group.group]: true }), {}),
   );
 
   const toggleGroup = (title: string) => {
@@ -165,7 +170,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
         }`}>
           {/* Navigation */}
           <div className="flex-1 overflow-y-auto py-6 px-3 custom-scrollbar flex flex-col gap-2">
-            {NAVIGATION.map((group: any) => {
+            {navigation.map((group: any) => {
               const isExpanded = expandedGroups[group.group];
               return (
                 <div key={group.group} className="mb-2">
@@ -226,14 +231,14 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                 className="flex items-center gap-3 px-3 py-2.5 rounded-md text-description font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-foreground transition-colors"
               >
                 <HelpCircle size={18} className="text-muted-foreground" />
-                {en.sidebar.footer.help}
+                {t("sidebar.footer.help")}
               </Link>
               <Link
                 to="/login"
                 className="flex items-center gap-3 px-3 py-2.5 rounded-md text-description font-medium text-error hover:bg-error/10 transition-colors"
               >
                 <LogOut size={18} />
-                {en.sidebar.footer.logout}
+                {t("sidebar.footer.logout")}
               </Link>
             </div>
           </div>

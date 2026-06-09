@@ -1,16 +1,24 @@
 import * as z from 'zod';
-import en from '../locales/en.json';
+import type { TFunction } from "i18next";
 
-export const bannerSchema = z.object({
-  title: z.string().min(1, { message: en.banners.messages.errorTitleRequired }),
+export const createBannerSchema = (t: TFunction) => z.object({
+  title: z.string().min(1, { message: t("banners.messages.errorTitleRequired") }),
   description: z.string().optional(),
   redirectType: z.enum(['Product', 'Category'], {
-    message: en.banners.messages.errorTypeRequired
+    message: t("banners.messages.errorTypeRequired")
   }),
-  redirectId: z.string().min(1, { message: en.banners.messages.errorTargetRequired }),
+  redirectId: z.string().min(1, { message: t("banners.messages.errorTargetRequired") }),
   redirectName: z.string().optional(),
-  displayOrder: z.coerce.number().min(1, { message: en.banners.messages.errorOrderRequired }),
+  displayOrder: z.coerce.number().min(1, { message: t("banners.messages.errorOrderRequired") }),
   status: z.enum(['Active', 'Inactive']).default('Inactive'),
 });
 
-export type BannerFormValues = z.infer<typeof bannerSchema>;
+export interface BannerFormValues {
+  title: string;
+  description?: string;
+  redirectType: "Product" | "Category";
+  redirectId: string;
+  redirectName?: string;
+  displayOrder: number;
+  status: "Active" | "Inactive";
+}

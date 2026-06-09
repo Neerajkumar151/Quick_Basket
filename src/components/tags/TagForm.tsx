@@ -4,15 +4,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Tag } from "../../types/tag";
 import { BaseCategoryForm } from "../common/forms/BaseCategoryForm";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
-const tagSchema = z.object({
-  name: z.string().min(1, { message: en.tags.messages.errorNameRequired }),
+const createTagSchema = (t: TFunction) => z.object({
+  name: z.string().min(1, { message: t("tags.messages.errorNameRequired") }),
   description: z.string().optional(), // Required by BaseCategoryForm type signature, even though we hide it
   status: z.enum(["Active", "Inactive"]).optional(),
 });
 
-export type TagFormValues = z.infer<typeof tagSchema>;
+export type TagFormValues = z.infer<ReturnType<typeof createTagSchema>>;
 
 interface TagFormProps {
   initialData?: Tag | null;
@@ -26,16 +27,18 @@ export const TagForm: React.FC<TagFormProps> = ({
   initialData,
   onSubmit,
   isSubmitting = false,
-  submitLabel = en.tags.form.create,
+  submitLabel,
   onCancel,
 }) => {
+  const { t } = useTranslation();
+  const defaultSubmitLabel = submitLabel || t("tags.form.create");
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm<TagFormValues>({
-    resolver: zodResolver(tagSchema),
+    resolver: zodResolver(createTagSchema(t)),
     defaultValues: {
       name: "",
       status: "Active",
@@ -58,11 +61,11 @@ export const TagForm: React.FC<TagFormProps> = ({
       register={register}
       errors={errors}
       isSubmitting={isSubmitting}
-      submitLabel={submitLabel}
+      submitLabel={defaultSubmitLabel}
       onCancel={onCancel}
       onSubmit={handleSubmit(onSubmit)}
-      nameLabel={en.tags.form.name}
-      namePlaceholder={en.tags.form.namePlaceholder || "e.g. Trending, Fresh"}
+      nameLabel={t("tags.form.name")}
+      namePlaceholder={t("tags.form.namePlaceholder") || "e.g. Trending, Fresh"}
       showDescription={false}
     />
   );

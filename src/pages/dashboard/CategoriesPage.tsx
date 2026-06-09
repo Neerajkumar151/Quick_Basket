@@ -8,7 +8,6 @@ import { FilterBar } from "../../components/ui/FilterBar";
 import { SearchInput } from "../../components/ui/SearchInput";
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
-import { Pagination } from "../../components/ui/Pagination";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 
 import {
@@ -21,31 +20,22 @@ import { useCategories } from "../../hooks/useCategories";
 import { queryClient } from "../../providers/QueryProvider";
 import { CATEGORIES_QUERY_KEY } from "../../hooks/useCategories";
 import { useSubCategories } from "../../hooks/useSubCategories";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
+import { useEntityDrawer } from "../../hooks/useEntityDrawer";
 
 export const CategoriesPage = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   // Drawer
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const { isOpen, editingItem: editingCategory, openDrawer, closeDrawer } = useEntityDrawer<Category>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Data via TanStack Query (cached)
   const { data: categories = [], isLoading } = useCategories();
   const { data: subCategories = [] } = useSubCategories();
 
-  const handleOpenDrawer = (category?: Category) => {
-    setEditingCategory(category || null);
-    setIsDrawerOpen(true);
-  };
 
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
-    setEditingCategory(null);
-  };
 
   const handleSubmitForm = async (
     data: CategoryFormValues,
@@ -68,21 +58,21 @@ export const CategoriesPage = () => {
           status: data.status || "Active",
           image: imageUrl,
         });
-        toast.success(en.categories.messages.successUpdate);
+        toast.success(t("categories.messages.successUpdate"));
       } else {
         await categoryService.createCategory({
           ...data,
           status: data.status || "Active",
           image: imageUrl,
         });
-        toast.success(en.categories.messages.successCreate);
+        toast.success(t("categories.messages.successCreate"));
       }
 
       await queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
-      handleCloseDrawer();
+      closeDrawer();
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : en.categories.messages.errorSave;
+        error instanceof Error ? error.message : t("categories.messages.errorSave");
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -93,33 +83,27 @@ export const CategoriesPage = () => {
     try {
       await categoryService.toggleStatus(cat.id);
       toast.success(
-        en.categories.messages.successStatus || "Status updated successfully"
+        t("categories.messages.successStatus") || "Status updated successfully"
       );
       await queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : en.categories.messages.errorStatus
+        error instanceof Error ? error.message : t("categories.messages.errorStatus")
       );
     }
   };
 
-  // Filter & Pagination Logic
+  // Filter Logic
   const filteredCategories = useMemo(() => {
-    return categories.filter((c: any) =>
+    return categories.filter((c: Category) =>
       c.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [categories, searchQuery]);
 
-  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
-  const paginatedCategories = filteredCategories.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
   const columns: ColumnDef<Category>[] = [
     {
-      header: en.categories.table.image,
-      cell: (cat: any) => (
+      header: t("categories.table.image"),
+      cell: (cat: Category) => (
         <div className="w-10 h-10 rounded-lg bg-input overflow-hidden flex items-center justify-center border border-border shadow-sm">
           {cat.image ? (
             <img
@@ -134,29 +118,29 @@ export const CategoriesPage = () => {
       ),
     },
     {
-      header: en.categories.table.name,
+      header: t("categories.table.name"),
       accessorKey: "name",
-      cell: (cat: any) => (
+      cell: (cat: Category) => (
         <span className="font-bold text-foreground">{cat.name}</span>
       ),
     },
     {
-      header: en.categories.table.description,
-      cell: (cat: any) => (
+      header: t("categories.table.description"),
+      cell: (cat: Category) => (
         <span className="text-muted-foreground max-w-[200px] truncate block">
           {cat.description || "-"}
         </span>
       ),
     },
     {
-      header: en.subCategories.header.title || "Sub-Categories",
-      cell: (cat: any) => {
+      header: t("subCategories.header.title") || "Sub-Categories",
+      cell: (cat: Category) => {
         const count = subCategories.filter((sc: any) => sc.categoryId === cat.id).length;
         return (
           <Link
             to={`/dashboard/sub-categories?category=${encodeURIComponent(cat.id)}`}
             className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors"
-            title={en.subCategories.header.title}
+            title={t("subCategories.header.title")}
           >
             {count}
           </Link>
@@ -164,25 +148,25 @@ export const CategoriesPage = () => {
       },
     },
     {
-      header: en.categories.table.products,
-      cell: (cat: any) => (
+      header: t("categories.table.products"),
+      cell: (cat: Category) => (
         <Link
           to={`/dashboard/products?category=${encodeURIComponent(cat.name)}`}
           className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors"
-          title={en.categories.messages.viewProducts}
+          title={t("categories.messages.viewProducts")}
         >
           {cat.productsCount}
         </Link>
       ),
     },
     {
-      header: en.categories.table.createdOn,
+      header: t("categories.table.createdOn"),
       accessorKey: "createdAt",
       className: "text-muted-foreground",
     },
     {
-      header: en.categories.table.status || "Status",
-      cell: (cat: any) => (
+      header: t("categories.table.status") || "Status",
+      cell: (cat: Category) => (
         <button
           onClick={() => toggleStatus(cat)}
           className="hover:opacity-80 transition-opacity"
@@ -192,16 +176,16 @@ export const CategoriesPage = () => {
       ),
     },
     {
-      header: en.categories.table.actions || "Actions",
+      header: t("categories.table.actions") || "Actions",
       className: "text-right",
-      cell: (cat: any) => (
+      cell: (cat: Category) => (
         <div className="flex justify-end">
           <button
-            onClick={() => handleOpenDrawer(cat)}
+            onClick={() => openDrawer(cat)}
             className="flex items-center gap-2 px-3 py-1.5 text-description font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
           >
             <Edit2 size={16} />
-            {en.common.edit}
+            {t("common.edit")}
           </button>
         </div>
       ),
@@ -211,11 +195,11 @@ export const CategoriesPage = () => {
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500 pb-12">
       <PageHeader
-        title={en.categories.header.title}
-        description={en.categories.header.subtitle}
-        actionLabel={en.categories.header.addCategory}
+        title={t("categories.header.title")}
+        description={t("categories.header.subtitle")}
+        actionLabel={t("categories.header.addCategory")}
         actionIcon={<Plus size={18} />}
-        onAction={() => handleOpenDrawer()}
+        onAction={() => openDrawer()}
       />
 
       <FilterBar>
@@ -224,36 +208,30 @@ export const CategoriesPage = () => {
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              setCurrentPage(1);
             }}
-            placeholder={en.categories.filters.searchPlaceholder}
+            placeholder={t("categories.filters.searchPlaceholder")}
           />
         </div>
       </FilterBar>
 
       <div className="flex flex-col">
         <DataTable
-          data={paginatedCategories}
+          data={filteredCategories}
           columns={columns}
           isLoading={isLoading}
-          emptyTitle={en.categories.messages.emptyTitle}
-          emptyDescription={en.categories.messages.emptySubtitle}
-        />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          emptyTitle={t("categories.messages.emptyTitle")}
+          emptyDescription={t("categories.messages.emptySubtitle")}
+          itemsPerPage={10}
         />
       </div>
 
-      {/* EntityDrawer has no onSubmit — CategoryForm manages its own submit button */}
       <EntityDrawer
-        isOpen={isDrawerOpen}
-        onClose={handleCloseDrawer}
+        isOpen={isOpen}
+        onClose={closeDrawer}
         title={
           editingCategory
-            ? en.categories.form.editTitle
-            : en.categories.form.addTitle
+            ? t("categories.form.editTitle")
+            : t("categories.form.addTitle")
         }
       >
         <CategoryForm
@@ -262,10 +240,10 @@ export const CategoriesPage = () => {
           isSubmitting={isSubmitting}
           submitLabel={
             editingCategory
-              ? en.categories.form.update
-              : en.categories.form.create
+              ? t("categories.form.update")
+              : t("categories.form.create")
           }
-          onCancel={handleCloseDrawer}
+          onCancel={closeDrawer}
         />
       </EntityDrawer>
     </div>

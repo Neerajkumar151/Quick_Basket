@@ -15,9 +15,10 @@ import {
   useUpdateStoreOperations 
 } from "../../hooks/useStoreProfile";
 import { StoreProfileUpdateInput } from "../../types/storeProfile";
-import en from "../../locales/en.json";
+import { useTranslation } from "react-i18next";
 
 export const StoreProfilePage = () => {
+  const { t } = useTranslation();
   const { data: profile, isLoading: isLoadingProfile } = useStoreProfile();
   const { data: operations, isLoading: isLoadingOperations } = useStoreOperations();
   
@@ -56,9 +57,9 @@ export const StoreProfilePage = () => {
         bannerUrl,
       });
 
-      toast.success(en.storeProfile.messages.successUpdateProfile);
+      toast.success(t("storeProfile.messages.successUpdateProfile"));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : en.storeProfile.messages.errorSave);
+      toast.error(error instanceof Error ? error.message : t("storeProfile.messages.errorSave"));
     }
   };
 
@@ -75,13 +76,13 @@ export const StoreProfilePage = () => {
   }
 
   if (!profile || !operations) {
-    return <div>{en.storeProfile.messages.errorLoading}</div>;
+    return <div>{t("storeProfile.messages.errorLoading")}</div>;
   }
 
   const tabs: Tab[] = [
     {
       id: "profile-info",
-      label: en.storeProfile.tabs.profileInfo,
+      label: t("storeProfile.tabs.profileInfo"),
       icon: <User size={16} />,
       content: (
         <ProfileInformationTab 
@@ -94,7 +95,7 @@ export const StoreProfilePage = () => {
     },
     {
       id: "store-operations",
-      label: en.storeProfile.tabs.storeOperations,
+      label: t("storeProfile.tabs.storeOperations"),
       icon: <Settings size={16} />,
       content: (
         <StoreOperationsTab 
@@ -109,8 +110,8 @@ export const StoreProfilePage = () => {
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500 pb-12">
       <PageHeader
-        title={en.storeProfile.header.title}
-        description={en.storeProfile.header.subtitle}
+        title={t("storeProfile.header.title")}
+        description={t("storeProfile.header.subtitle")}
       />
 
       <div className="w-full">
