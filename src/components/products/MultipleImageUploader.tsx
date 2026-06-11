@@ -1,8 +1,9 @@
-import React from 'react';
-import { X, UploadCloud } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { UploadCloud, Trash2, Edit2 } from "lucide-react";
 import toast from 'react-hot-toast';
 import { useTranslation } from "react-i18next";
 import { resizeImage } from "../../utils/image";
+import { ImageCropperModal } from '../ui/ImageCropperModal';
 
 interface MultipleImageUploaderProps {
   label?: string;
@@ -12,6 +13,9 @@ interface MultipleImageUploaderProps {
   images: string[];
   onChange: (images: string[]) => void;
   error?: string;
+  maxWidth?: number;
+  maxHeight?: number;
+  quality?: number;
 }
 
 export const MultipleImageUploader: React.FC<MultipleImageUploaderProps> = ({
@@ -21,44 +25,110 @@ export const MultipleImageUploader: React.FC<MultipleImageUploaderProps> = ({
   acceptedFormats = ["image/jpeg", "image/jpg", "image/png", "image/webp"],
   images,
   onChange,
-  error
+  error,
+  maxWidth = 800,
+  maxHeight = 800,
+  quality = 0.8
 }) => {
   const { t } = useTranslation();
+  
+  // Cropper Queue State
+  const [cropperQueue, setCropperQueue] = useState<File[]>([]);
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
+  const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
+  const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (cropperQueue.length > 0 && !isCropperOpen && replaceIndex === null) {
+      const file = cropperQueue[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        setRawImageSrc(reader.result?.toString() || null);
+        setIsCropperOpen(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, [cropperQueue, isCropperOpen, replaceIndex]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    if (images.length + files.length > maxFiles) {
+    if (images.length + cropperQueue.length + files.length > maxFiles) {
       toast.error(`${t("products.messages.errorMaxImages")} ${maxFiles} ${t("products.messages.images")}`);
       return;
     }
 
-    const processImages = async () => {
-      const newImages: string[] = [];
-      for (const file of files) {
-        if (!acceptedFormats.includes(file.type)) {
-          toast.error(`${t("products.messages.errorInvalidFormat")} ${file.name}`);
-          continue;
-        }
-        if (file.size > maxSizeMB * 1024 * 1024) {
-          toast.error(`${t("products.messages.errorSizeTooLarge")} ${file.name} (${t("products.messages.max")} ${maxSizeMB}MB)`);
-          continue;
-        }
-        
-        try {
-          const resizedDataUrl = await resizeImage(file, 800, 800);
-          newImages.push(resizedDataUrl);
-        } catch (err) {
-          toast.error(`Failed to process ${file.name}`);
-        }
+    const validFiles = files.filter(file => {
+      if (!acceptedFormats.includes(file.type)) {
+        toast.error(`${t("products.messages.errorInvalidFormat")} ${file.name}`);
+        return false;
       }
-      
-      if (newImages.length > 0) {
-        onChange([...images, ...newImages]);
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        toast.error(`${t("products.messages.errorSizeTooLarge")} ${file.name} (${t("products.messages.max")} ${maxSizeMB}MB)`);
+        return false;
       }
-    };
+      return true;
+    });
 
-    processImages();
+    setCropperQueue(prev => [...prev, ...validFiles]);
+    e.target.value = '';
+  };
+
+  const handleReplaceFileChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!acceptedFormats.includes(file.type)) {
+      toast.error(`${t("products.messages.errorInvalidFormat")} ${file.name}`);
+      return;
+    }
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      toast.error(`${t("products.messages.errorSizeTooLarge")} ${file.name} (${t("products.messages.max")} ${maxSizeMB}MB)`);
+      return;
+    }
+
+    setReplaceIndex(index);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRawImageSrc(reader.result?.toString() || null);
+      setIsCropperOpen(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleCropComplete = async (croppedFile: File) => {
+    try {
+      const resizedDataUrl = await resizeImage(croppedFile, maxWidth, maxHeight, quality);
+      if (replaceIndex !== null) {
+        const updated = [...images];
+        updated[replaceIndex] = resizedDataUrl;
+        onChange(updated);
+      } else {
+        onChange([...images, resizedDataUrl]);
+      }
+    } catch (err) {
+      toast.error(t("common.upload.errorProcessing", "Failed to process cropped image"));
+    } finally {
+      setIsCropperOpen(false);
+      setRawImageSrc(null);
+      if (replaceIndex !== null) {
+        setReplaceIndex(null);
+      } else {
+        setCropperQueue(prev => prev.slice(1));
+      }
+    }
+  };
+
+  const handleCropCancel = () => {
+    setIsCropperOpen(false);
+    setRawImageSrc(null);
+    if (replaceIndex !== null) {
+      setReplaceIndex(null);
+    } else {
+      setCropperQueue(prev => prev.slice(1));
+    }
   };
 
   const removeImage = (index: number) => {
@@ -75,13 +145,22 @@ export const MultipleImageUploader: React.FC<MultipleImageUploaderProps> = ({
         {images.map((img, index) => (
           <div key={index} className="relative w-24 h-24 rounded-lg border border-border overflow-hidden group bg-input flex items-center justify-center">
             <img src={img} alt={`Preview ${index}`} className="max-w-full max-h-full object-cover" />
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div className="absolute inset-0 bg-foreground/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-2">
+              <label className="p-2 bg-background/20 hover:bg-background/30 text-background rounded-full cursor-pointer transition-all hover:scale-105 backdrop-blur-md shadow-sm">
+                <Edit2 size={14} />
+                <input 
+                  type="file" 
+                  className="hidden" 
+                  accept={acceptedFormats.join(',')} 
+                  onChange={(e) => handleReplaceFileChange(e, index)} 
+                />
+              </label>
               <button
                 type="button"
                 onClick={() => removeImage(index)}
-                className="p-1.5 bg-error text-white rounded-full hover:bg-error/80 transition-colors"
+                className="p-2 bg-error/80 hover:bg-error text-background rounded-full cursor-pointer transition-all hover:scale-105 backdrop-blur-md shadow-sm"
               >
-                <X size={14} />
+                <Trash2 size={14} />
               </button>
             </div>
           </div>
@@ -99,6 +178,16 @@ export const MultipleImageUploader: React.FC<MultipleImageUploaderProps> = ({
       </div>
 
       {error && <p className="text-caption text-error">{error}</p>}
+
+      {rawImageSrc && (
+        <ImageCropperModal
+          isOpen={isCropperOpen}
+          onClose={handleCropCancel}
+          imageSrc={rawImageSrc}
+          onCropComplete={handleCropComplete}
+          aspectRatio={1}
+        />
+      )}
     </div>
   );
 };

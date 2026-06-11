@@ -25,7 +25,7 @@ export const StoreInfoHeader: React.FC<StoreInfoHeaderProps> = ({
       <div className="bg-card border border-border rounded-xl shadow-sm mb-6 overflow-hidden h-64 animate-pulse">
         <div className="w-full h-32 md:h-48 bg-muted" />
         <div className="p-6 pt-0 flex gap-4">
-          <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-muted border-4 border-card -mt-10 md:-mt-12" />
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-muted border-4 border-card -mt-10 md:-mt-12" />
           <div className="flex flex-col gap-2 pt-2 flex-1">
             <div className="h-6 bg-muted rounded w-1/3" />
             <div className="h-4 bg-muted rounded w-1/4" />
@@ -61,7 +61,7 @@ export const StoreInfoHeader: React.FC<StoreInfoHeaderProps> = ({
       <div className="p-6 pt-0 flex flex-col md:flex-row items-start md:items-end justify-between gap-4 relative">
         <div className="flex items-end gap-4 w-full">
           {/* Logo */}
-          <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-card border-4 border-card shadow-sm flex items-center justify-center overflow-hidden shrink-0 relative z-10 -mt-10 md:-mt-12">
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-card border-4 border-card shadow-sm flex items-center justify-center overflow-hidden shrink-0 relative z-10 -mt-10 md:-mt-12">
             {profile.logoUrl ? (
               <img src={profile.logoUrl} alt="Store Logo" className="w-full h-full object-cover bg-muted" />
             ) : (

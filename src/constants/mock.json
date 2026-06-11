@@ -44,141 +44,6 @@
       "createdAt": "19 May",
       "image": "https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=500&q=80",
       "status": "Active"
-    },
-    {
-      "id": "cat-6",
-      "name": "Snacks & Branded Foods",
-      "description": "Chips, biscuits, and namkeen",
-      "productsCount": 112,
-      "createdAt": "20 May",
-      "image": "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-7",
-      "name": "Beverages",
-      "description": "Soft drinks, juices, tea, and coffee",
-      "productsCount": 85,
-      "createdAt": "22 May",
-      "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-8",
-      "name": "Personal Care",
-      "description": "Shampoos, soaps, and skincare",
-      "productsCount": 150,
-      "createdAt": "23 May",
-      "image": "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-9",
-      "name": "Home Care",
-      "description": "Detergents, cleaners, and paper goods",
-      "productsCount": 65,
-      "createdAt": "24 May",
-      "image": "https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-10",
-      "name": "Baby Care",
-      "description": "Diapers, wipes, and baby food",
-      "productsCount": 34,
-      "createdAt": "25 May",
-      "image": "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-11",
-      "name": "Pet Supplies",
-      "description": "Dog food, cat litter, and treats",
-      "productsCount": 22,
-      "createdAt": "26 May",
-      "image": "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-12",
-      "name": "Spices & Masalas",
-      "description": "Whole and powdered Indian spices",
-      "productsCount": 78,
-      "createdAt": "28 May",
-      "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-13",
-      "name": "Pulses & Dals",
-      "description": "Lentils, beans, and chickpeas",
-      "productsCount": 42,
-      "createdAt": "29 May",
-      "image": "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-14",
-      "name": "Rice & Grains",
-      "description": "Basmati, wheat, and millets",
-      "productsCount": 18,
-      "createdAt": "30 May",
-      "image": "https://images.unsplash.com/photo-1586201375761-83865001e8ac?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-15",
-      "name": "Edible Oils & Ghee",
-      "description": "Cooking oils and pure ghee",
-      "productsCount": 250,
-      "createdAt": "1 Jun",
-      "image": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-16",
-      "name": "Frozen Foods",
-      "description": "Frozen peas, snacks, and ice cream",
-      "productsCount": 300,
-      "createdAt": "2 Jun",
-      "image": "https://images.unsplash.com/photo-1581515324385-d60f588c5aeb?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-17",
-      "name": "Breakfast & Cereals",
-      "description": "Oats, cornflakes, and muesli",
-      "productsCount": 240,
-      "createdAt": "2 Jun",
-      "image": "https://images.unsplash.com/photo-1521249646440-10901e7e4eb1?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-18",
-      "name": "Sweets & Chocolates",
-      "description": "Candies, gourmet chocolates, and traditional sweets",
-      "productsCount": 600,
-      "createdAt": "3 Jun",
-      "image": "https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-19",
-      "name": "Health & Wellness",
-      "description": "Supplements, protein powders, and vitamins",
-      "productsCount": 150,
-      "createdAt": "4 Jun",
-      "image": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&q=80",
-      "status": "Active"
-    },
-    {
-      "id": "cat-20",
-      "name": "Stationery",
-      "description": "Pens, notebooks, and office supplies",
-      "productsCount": 450,
-      "createdAt": "5 Jun",
-      "image": "https://images.unsplash.com/photo-1497032205947-8c4146a48d88?w=500&q=80",
-      "status": "Active"
     }
   ],
   "tags": [
@@ -465,11 +330,15 @@
       "name": "Fresh Organic Bananas",
       "description": "A bunch of 6 fresh organic bananas.",
       "sellingPrice": 2.5,
-      "mrp": 3.0,
+      "mrp": 3,
       "stockQuantity": 150,
       "categoryId": "cat-1",
-      "tagIds": ["tag-1"],
-      "images": ["https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&q=80&w=400"],
+      "tagIds": [
+        "tag-1"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&q=80&w=400"
+      ],
       "status": "Active"
     }
   ],
@@ -481,8 +350,8 @@
     "phoneNumber": "+1 234 567 8900",
     "email": "contact@quickbasket.com",
     "address": "123 Market Street, San Francisco, CA 94105",
-    "logoUrl": "",
-    "bannerUrl": "",
+    "logoUrl": "/shop_image.png",
+    "bannerUrl": "/bannerimage.png",
     "verificationStatus": "verified",
     "lastUpdated": "2024-05-15T10:00:00.000Z"
   },
@@ -492,13 +361,48 @@
     "minimumOrderAmount": 20,
     "estimatedDeliveryTime": 30,
     "businessHours": [
-      { "day": "Monday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
-      { "day": "Tuesday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
-      { "day": "Wednesday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
-      { "day": "Thursday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
-      { "day": "Friday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
-      { "day": "Saturday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
-      { "day": "Sunday", "enabled": false, "openingTime": "09:00", "closingTime": "21:00" }
+      {
+        "day": "Monday",
+        "enabled": true,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      },
+      {
+        "day": "Tuesday",
+        "enabled": true,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      },
+      {
+        "day": "Wednesday",
+        "enabled": true,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      },
+      {
+        "day": "Thursday",
+        "enabled": true,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      },
+      {
+        "day": "Friday",
+        "enabled": true,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      },
+      {
+        "day": "Saturday",
+        "enabled": true,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      },
+      {
+        "day": "Sunday",
+        "enabled": false,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      }
     ]
   }
 }

@@ -19,6 +19,7 @@
     "lucide-react": "^1.17.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-easy-crop": "^6.0.1",
     "react-error-boundary": "^6.1.2",
     "react-hook-form": "^7.77.0",
     "react-hot-toast": "^2.6.0",

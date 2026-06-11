@@ -108,6 +108,10 @@ export const BannerForm: React.FC<BannerFormProps> = ({
         label={t("banners.form.image")}
         previewUrl={initialData?.image}
         onFileSelect={setSelectedFile}
+        aspectRatio={16/9}
+        maxWidth={1920}
+        maxHeight={1080}
+        quality={0.9}
       />
 
       <Input
