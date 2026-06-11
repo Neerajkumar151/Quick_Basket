@@ -49,6 +49,8 @@ export interface TimelineEntry {
 // ─── Main Order Interface ────────────────────────────────────────────────────
 export interface Order {
   id: string;
+  customerId?: string;
+  storeName?: string;
   customerName: string;
   customerPhone: string;
   customerEmail: string;

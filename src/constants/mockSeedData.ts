@@ -1,6 +1,7 @@
 import { Banner } from "../types/banner";
 import { Order, ORDER_STATUS } from "../types/order";
 
+
 export const defaultBanners: Banner[] = [
   {
     id: "banner-1",
@@ -33,9 +34,11 @@ export const defaultBanners: Banner[] = [
 export const SEED_ORDERS: Order[] = [
   {
     id: "ORD-1001",
-    customerName: "Ravi Sharma",
-    customerPhone: "+91 98765 43210",
-    customerEmail: "ravi.sharma@gmail.com",
+    customerId: "CUST-1001",
+    storeName: "QuickBasket Main Store",
+    customerName: "John Doe",
+    customerPhone: "+1 555-0101",
+    customerEmail: "john.doe@example.com",
     orderDate: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
     status: ORDER_STATUS.NEW,
     address: { flatNo: "12A", area: "Koramangala 5th Block", city: "Bengaluru", pincode: "560095", state: "Karnataka" },
@@ -49,9 +52,11 @@ export const SEED_ORDERS: Order[] = [
   },
   {
     id: "ORD-1002",
-    customerName: "Priya Mehta",
-    customerPhone: "+91 91234 56789",
-    customerEmail: "priya.mehta@outlook.com",
+    customerId: "CUST-1001",
+    storeName: "QuickBasket Main Store",
+    customerName: "John Doe",
+    customerPhone: "+1 555-0101",
+    customerEmail: "john.doe@example.com",
     orderDate: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
     status: ORDER_STATUS.ACCEPTED,
     address: { flatNo: "B-204", area: "Whitefield", city: "Bengaluru", pincode: "560066", state: "Karnataka" },
@@ -69,9 +74,11 @@ export const SEED_ORDERS: Order[] = [
   },
   {
     id: "ORD-1003",
-    customerName: "Arjun Nair",
-    customerPhone: "+91 87654 32109",
-    customerEmail: "arjun.nair@yahoo.com",
+    customerId: "CUST-1002",
+    storeName: "QuickBasket Electronics",
+    customerName: "Jane Smith",
+    customerPhone: "+1 555-0102",
+    customerEmail: "jane.smith@example.com",
     orderDate: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     status: ORDER_STATUS.OUT_FOR_DELIVERY,
     address: { flatNo: "Villa 7", area: "Electronic City Phase 1", city: "Bengaluru", pincode: "560100", state: "Karnataka" },
@@ -88,9 +95,11 @@ export const SEED_ORDERS: Order[] = [
   },
   {
     id: "ORD-1004",
-    customerName: "Sunita Agarwal",
-    customerPhone: "+91 99988 77665",
-    customerEmail: "sunita.a@rediffmail.com",
+    customerId: "CUST-1001",
+    storeName: "QuickBasket Main Store",
+    customerName: "John Doe",
+    customerPhone: "+1 555-0101",
+    customerEmail: "john.doe@example.com",
     orderDate: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
     status: ORDER_STATUS.DELIVERED,
     address: { flatNo: "301", area: "JP Nagar 7th Phase", city: "Bengaluru", pincode: "560078", state: "Karnataka" },
@@ -110,9 +119,11 @@ export const SEED_ORDERS: Order[] = [
   },
   {
     id: "ORD-1005",
-    customerName: "Mohammed Khalid",
-    customerPhone: "+91 77711 22334",
-    customerEmail: "m.khalid@gmail.com",
+    customerId: "CUST-1004",
+    storeName: "QuickBasket Express",
+    customerName: "Emily Davis",
+    customerPhone: "+1 555-0104",
+    customerEmail: "emily.davis@example.com",
     orderDate: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
     status: ORDER_STATUS.CANCELLED,
     address: { flatNo: "8/1", area: "Shivajinagar", city: "Bengaluru", pincode: "560001", state: "Karnataka" },
@@ -144,3 +155,6 @@ export const SEED_ORDERS: Order[] = [
     subtotal: 295, deliveryFee: 30, tax: 15, total: 340,
   },
 ];
+
+
+

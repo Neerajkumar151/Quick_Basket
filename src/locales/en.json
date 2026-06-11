@@ -189,7 +189,7 @@
       "history": "History",
       "orders": "Orders",
       "customers": "Customers",
-      "payments": "Payments",
+      "paymentSetup": "Payment Setup",
       "reports": "Reports",
       "storeProfile": "Store Profile",
       "storeSettings": "Store Settings"
@@ -849,6 +849,79 @@
           "a": "A product might not be visible if its status is set to 'Inactive', if its stock has dropped to zero (depending on your settings), or if the assigned category is inactive."
         }
       }
+    }
+  },
+  "paymentSetup": {
+    "title": "Payment Account Setup",
+    "subtitle": "Configure and connect your Razorpay account to receive payments",
+    "status": {
+      "Not Started": "Not Started",
+      "Pending Verification": "Pending Verification",
+      "Under Review": "Under Review",
+      "Connected": "Connected",
+      "Verified": "Verified",
+      "Verification Failed": "Verification Failed",
+      "Disconnected": "Disconnected",
+      "label": "Integration Status:"
+    },
+    "verification": {
+      "title": "Verification Details",
+      "requirements": "Pending Requirements",
+      "remarks": "Verification Remarks",
+      "merchantId": "Merchant ID",
+      "accountStatus": "Merchant Account Status",
+      "kycStatus": "KYC Status",
+      "gatewayStatus": "Gateway Activation Status",
+      "checkStatus": "Check Status",
+      "retryVerification": "Retry Verification",
+      "checking": "Checking..."
+    },
+    "form": {
+      "businessDetails": "Business Details",
+      "businessName": "Business Name",
+      "businessNamePlaceholder": "Enter your registered business name",
+      "bankDetails": "Settlement Bank Account",
+      "accountName": "Account Holder Name",
+      "accountNamePlaceholder": "Name exactly as per bank records",
+      "accountNumber": "Account Number",
+      "accountNumberPlaceholder": "Enter account number",
+      "ifscCode": "IFSC Code",
+      "ifscCodePlaceholder": "e.g. SBIN0001234",
+      "taxDetails": "Tax & Identification",
+      "panNumber": "PAN Number",
+      "panNumberPlaceholder": "Enter 10-digit PAN",
+      "gstNumber": "GSTIN (Optional)",
+      "gstNumberPlaceholder": "Enter 15-digit GSTIN",
+      "saveConfig": "Save Configuration"
+    },
+    "razorpay": {
+      "title": "Razorpay Integration",
+      "description": "Connect your Razorpay Merchant account to start accepting online payments instantly.",
+      "connect": "Connect with Razorpay",
+      "connecting": "Connecting...",
+      "connected": "Razorpay Account Connected",
+      "disconnect": "Disconnect Account",
+      "reconnect": "Reconnect Account",
+      "merchantId": "Merchant ID: "
+    },
+    "onlinePayments": {
+      "title": "Enable Online Payments",
+      "description": "Allow customers to pay via UPI, Credit/Debit Cards, and Netbanking",
+      "errorUnconfigured": "You must complete Business Details and Connect Razorpay before enabling online payments."
+    },
+    "messages": {
+      "successSave": "Payment configuration saved successfully",
+      "errorSave": "Failed to save configuration",
+      "successConnect": "Razorpay account connected and verified!",
+      "errorConnect": "Failed to connect Razorpay account",
+      "successDisconnect": "Razorpay account disconnected successfully",
+      "errorDisconnect": "Failed to disconnect Razorpay account",
+      "successEnable": "Online payments enabled",
+      "successDisable": "Online payments disabled",
+      "errorEnable": "Cannot enable online payments",
+      "successCheck": "Verification status updated",
+      "errorCheck": "Failed to check verification status",
+      "successRetry": "Verification documents re-submitted"
     }
   }
 }
