@@ -1,4 +1,4 @@
-export const resizeImage = (file: File, maxWidth = 800, maxHeight = 800): Promise<string> => {
+export const resizeImage = (file: File, maxWidth = 2048, maxHeight = 2048, quality = 0.9): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -34,8 +34,8 @@ export const resizeImage = (file: File, maxWidth = 800, maxHeight = 800): Promis
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
         
-        // Compress to 70% quality JPEG
-        resolve(canvas.toDataURL("image/jpeg", 0.7)); 
+        // Compress to specified quality JPEG
+        resolve(canvas.toDataURL("image/jpeg", quality)); 
       };
       img.onerror = () => reject(new Error("Failed to load image"));
       img.src = event.target?.result as string;

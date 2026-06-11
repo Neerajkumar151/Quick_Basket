@@ -98,6 +98,10 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
             previewClassName="w-full h-full rounded-none border-0"
             emptyClassName="w-full h-full rounded-none border-0 bg-transparent hover:bg-muted/50 transition-colors"
             className="absolute inset-0 z-0 h-full !gap-0"
+            aspectRatio={3}
+            maxWidth={2048}
+            maxHeight={1024}
+            quality={0.9}
           />
         </div>
 
@@ -105,15 +109,16 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
         <div className="p-6 pt-0 flex flex-col md:flex-row items-start md:items-end justify-between gap-4 relative">
           <div className="flex items-end gap-4 w-full">
             {/* Logo */}
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-card border-4 border-card shadow-sm flex items-center justify-center shrink-0 relative z-10 -mt-10 md:-mt-12 group/logo">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-card border-4 border-card shadow-sm flex items-center justify-center shrink-0 relative z-10 -mt-10 md:-mt-12 group/logo overflow-hidden">
               <ImageUploader
                 label=""
                 className="w-full h-full !gap-0"
                 previewUrl={profile.logoUrl}
                 onFileSelect={setLogoFile}
-                previewClassName="w-full h-full rounded-lg border-0"
-                emptyClassName="w-full h-full rounded-lg border-2 border-dashed bg-muted/50 hover:bg-muted transition-colors"
+                previewClassName="w-full h-full rounded-full border-0"
+                emptyClassName="w-full h-full rounded-full border-2 border-dashed bg-muted/50 hover:bg-muted transition-colors"
                 compact={true}
+                aspectRatio={1}
               />
             </div>
 
@@ -240,7 +245,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                     disabled
                     className="bg-muted cursor-not-allowed opacity-70"
                   />
-                  <p className="text-xs text-muted-foreground mt-1.5">
+                  <p className="text-caption text-muted-foreground mt-1.5">
                     {t("storeProfile.contact.emailReadOnly")}
                   </p>
                 </div>

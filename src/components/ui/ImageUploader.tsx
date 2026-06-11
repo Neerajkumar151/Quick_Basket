@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { X, UploadCloud } from "lucide-react";
+import { UploadCloud, Edit2, Trash2 } from "lucide-react";
 import toast from 'react-hot-toast';
 import { useTranslation } from "react-i18next";
 import { resizeImage } from "../../utils/image";
+import { ImageCropperModal } from './ImageCropperModal';
+
 interface ImageUploaderProps {
   label?: string;
   maxFiles?: number;
@@ -15,6 +17,10 @@ interface ImageUploaderProps {
   emptyClassName?: string;
   className?: string;
   compact?: boolean;
+  aspectRatio?: number;
+  maxWidth?: number;
+  maxHeight?: number;
+  quality?: number;
 }
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
@@ -27,10 +33,18 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   previewClassName = "w-32 h-32",
   emptyClassName = "w-full h-32",
   className = "w-full",
-  compact = false
+  compact = false,
+  aspectRatio = 1,
+  maxWidth = 800,
+  maxHeight = 800,
+  quality = 0.8
 }) => {
   const { t } = useTranslation();
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialPreviewUrl || null);
+  
+  // Cropper state
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
+  const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
 
   // Sync with prop changes (e.g. form reset)
   React.useEffect(() => {
@@ -49,15 +63,24 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         return;
       }
       
-      try {
-        const resizedDataUrl = await resizeImage(file, 800, 800);
-        setPreviewUrl(resizedDataUrl);
-        // We still pass the original file so that backend can upload the actual file
-        // but local preview uses the resized Base64.
-        onFileSelect(file);
-      } catch (err) {
-        toast.error("Failed to process image");
-      }
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        setRawImageSrc(reader.result?.toString() || null);
+        setIsCropperOpen(true);
+      });
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCropComplete = async (croppedFile: File) => {
+    setIsCropperOpen(false);
+    setRawImageSrc(null);
+    try {
+      const resizedDataUrl = await resizeImage(croppedFile, maxWidth, maxHeight, quality);
+      setPreviewUrl(resizedDataUrl);
+      onFileSelect(croppedFile);
+    } catch (err) {
+      toast.error(t("common.upload.errorProcessing", "Failed to process cropped image"));
     }
   };
 
@@ -72,13 +95,17 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       {previewUrl ? (
         <div className={`relative rounded-lg border border-border overflow-hidden group bg-input flex items-center justify-center ${previewClassName}`}>
           <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div className="absolute inset-0 bg-foreground/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3">
+            <label className="p-2.5 bg-background/20 hover:bg-background/30 text-background rounded-full cursor-pointer transition-all hover:scale-105 backdrop-blur-md shadow-sm">
+              <Edit2 size={18} />
+              <input type="file" className="hidden" accept={acceptedFormats.join(',')} onChange={handleFileChange} />
+            </label>
             <button
               type="button"
               onClick={removeImage}
-              className="p-1.5 bg-error text-white rounded-full hover:bg-error/80 transition-colors"
+              className="p-2.5 bg-error/80 hover:bg-error text-background rounded-full cursor-pointer transition-all hover:scale-105 backdrop-blur-md shadow-sm"
             >
-              <X size={16} />
+              <Trash2 size={18} />
             </button>
           </div>
         </div>
@@ -97,6 +124,19 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         </label>
       )}
       {error && <p className="text-caption text-error">{error}</p>}
+
+      {rawImageSrc && (
+        <ImageCropperModal
+          isOpen={isCropperOpen}
+          onClose={() => {
+            setIsCropperOpen(false);
+            setRawImageSrc(null);
+          }}
+          imageSrc={rawImageSrc}
+          onCropComplete={handleCropComplete}
+          aspectRatio={aspectRatio}
+        />
+      )}
     </div>
   );
 };
