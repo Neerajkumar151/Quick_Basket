@@ -16,8 +16,8 @@ import { ProductFormValues } from "../../validations/product";
 import { productService } from "../../services/productService";
 import { Product } from "../../types/product";
 import { useProducts, PRODUCTS_QUERY_KEY } from "../../hooks/useProducts";
-import { useCategories } from "../../hooks/useCategories";
-import { useSubCategories, useSubCategoriesByParent } from "../../hooks/useSubCategories";
+import { useCatalogMetadata, useSubCategoryMetadata } from "../../hooks/useCatalogMetadata";
+import { useSubCategories } from "../../hooks/useSubCategories";
 import { queryClient } from "../../providers/QueryProvider";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
@@ -37,11 +37,12 @@ export const ProductsPage = () => {
 
   // Data via TanStack Query (cached, no double-fetch)
   const { data: products = [], isLoading } = useProducts();
-  const { data: categories = [] } = useCategories();
+  const { data: catalogMetadata } = useCatalogMetadata();
+  const categories = catalogMetadata?.categories || [];
   const { data: allSubCategories = [] } = useSubCategories();
   
   // Fetch subcategories only for the selected category filter
-  const { data: subCategoriesForFilter = [] } = useSubCategoriesByParent(
+  const { data: subCategoriesForFilter = [] } = useSubCategoryMetadata(
     categoryFilter !== "all" ? categoryFilter : undefined
   );
 

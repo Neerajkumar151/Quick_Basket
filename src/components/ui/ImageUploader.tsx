@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UploadCloud, Edit2, Trash2 } from "lucide-react";
+import { UploadCloud, Edit2 } from "lucide-react";
 import toast from 'react-hot-toast';
 import { useTranslation } from "react-i18next";
 import { resizeImage } from "../../utils/image";
@@ -84,10 +84,6 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   };
 
-  const removeImage = () => {
-    setPreviewUrl(null);
-    onFileSelect(null);
-  };
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
@@ -100,13 +96,6 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               <Edit2 size={18} />
               <input type="file" className="hidden" accept={acceptedFormats.join(',')} onChange={handleFileChange} />
             </label>
-            <button
-              type="button"
-              onClick={removeImage}
-              className="p-2.5 bg-error/80 hover:bg-error text-background rounded-full cursor-pointer transition-all hover:scale-105 backdrop-blur-md shadow-sm"
-            >
-              <Trash2 size={18} />
-            </button>
           </div>
         </div>
       ) : (

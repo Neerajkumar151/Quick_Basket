@@ -86,14 +86,6 @@ export const categoryService = {
     return categories[index] as Category;
   },
 
-  // DELETE /categories/:id
-  deleteCategory: async (id: string): Promise<void> => {
-    await delay();
-    const categories = getStoredCategories();
-    const filtered = categories.filter((c) => c.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-  },
-
   // PATCH /categories/:id/status
   toggleStatus: async (id: string): Promise<Category> => {
     await delay();

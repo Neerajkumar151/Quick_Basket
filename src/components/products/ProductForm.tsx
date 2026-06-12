@@ -8,13 +8,9 @@ import { Select } from "../ui/Select";
 import { MultiSelect } from "../ui/MultiSelect";
 import { MultipleImageUploader } from "./MultipleImageUploader";
 import { Button } from "../ui/Button";
-import { useCategories } from "../../hooks/useCategories";
-import { useTags } from "../../hooks/useTags";
-import { useSubCategoriesByParent } from "../../hooks/useSubCategories";
+import { useCatalogMetadata, useSubCategoryMetadata } from "../../hooks/useCatalogMetadata";
 import { useTranslation } from "react-i18next";
-import type { Category } from "../../types/category";
-import type { SubCategory } from "../../types/subCategory";
-import type { Tag } from "../../types/tag";
+import type { CatalogMetadata } from "../../services/catalogService";
 
 interface ProductFormProps {
   initialData?: ProductFormValues | null;
@@ -33,8 +29,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const defaultSubmitLabel = submitLabel || t("products.form.create");
-  const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
-  const { data: tags = [], isLoading: isLoadingTags } = useTags();
+  const { data: catalogMetadata, isLoading: isLoadingMetadata } = useCatalogMetadata();
+  const categories = catalogMetadata?.categories || [];
+  const tags = catalogMetadata?.tags || [];
 
   const {
     register,
@@ -67,10 +64,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   }, [initialData, reset]);
 
   const selectedCategoryId = watch("categoryId");
-  const { data: subCategories = [], isLoading: isLoadingSubCategories } = useSubCategoriesByParent(selectedCategoryId);
+  const { data: subCategories = [], isLoading: isLoadingSubCategories } = useSubCategoryMetadata(selectedCategoryId);
   
-  // Update isLoadingMetadata to include subCategories
-  const isFetchingMetadata = isLoadingCategories || isLoadingTags || isLoadingSubCategories;
+  // Update isFetchingMetadata to include subCategories
+  const isFetchingMetadata = isLoadingMetadata || isLoadingSubCategories;
 
   // Reset subCategory when category changes (but not on initial load)
   useEffect(() => {
@@ -128,7 +125,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             disabled={isFetchingMetadata}
           >
             <option value="">{t("products.form.categoryPlaceholder")}</option>
-            {categories.map((cat: Category) => (
+            {categories.map((cat: CatalogMetadata) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
@@ -142,7 +139,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             disabled={isFetchingMetadata || !selectedCategoryId || subCategories.length === 0}
           >
             <option value="">{t("products.form.subCategoryPlaceholder")}</option>
-            {subCategories.map((subCat: SubCategory) => (
+            {subCategories.map((subCat: CatalogMetadata) => (
               <option key={subCat.id} value={subCat.id}>
                 {subCat.name}
               </option>
@@ -165,7 +162,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           render={({ field }) => (
             <MultiSelect
               label={t("products.form.tags")}
-              options={tags.map((tg: Tag) => ({ value: tg.id, label: tg.name }))}
+              options={tags.map((tg: CatalogMetadata) => ({ value: tg.id, label: tg.name }))}
               value={field.value}
               onChange={field.onChange}
               error={errors.tagIds?.message}

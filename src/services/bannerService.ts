@@ -57,13 +57,6 @@ export const bannerService = {
     return banners[index] as Banner;
   },
 
-  deleteBanner: async (id: string): Promise<void> => {
-    await delay();
-    const banners = getStoredBanners();
-    const filtered = banners.filter((b) => b.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-  },
-
   toggleStatus: async (id: string): Promise<Banner> => {
     await delay();
     const banners = getStoredBanners();

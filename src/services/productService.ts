@@ -89,11 +89,4 @@ export const productService = {
     saveProducts(products);
     return updatedProduct as Product;
   },
-
-  deleteProduct: async (id: string): Promise<void> => {
-    await delay(600);
-    const products = getStoredProducts();
-    const updatedProducts = products.filter((p) => p.id !== id);
-    saveProducts(updatedProducts);
-  },
 };

@@ -61,14 +61,6 @@ export const tagService = {
     return newTag;
   },
 
-  // DELETE /tags/:id
-  deleteTag: async (id: string): Promise<void> => {
-    await delay();
-    const tags = getStoredTags();
-    const filtered = tags.filter((t) => t.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-  },
-
   // PATCH /tags/:id/status
   toggleStatus: async (id: string): Promise<Tag> => {
     await delay();

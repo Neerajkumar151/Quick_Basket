@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UploadCloud, Trash2, Edit2 } from "lucide-react";
+import { UploadCloud, Edit2 } from "lucide-react";
 import toast from 'react-hot-toast';
 import { useTranslation } from "react-i18next";
 import { resizeImage } from "../../utils/image";
@@ -131,11 +131,6 @@ export const MultipleImageUploader: React.FC<MultipleImageUploaderProps> = ({
     }
   };
 
-  const removeImage = (index: number) => {
-    const updated = [...images];
-    updated.splice(index, 1);
-    onChange(updated);
-  };
 
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -155,13 +150,6 @@ export const MultipleImageUploader: React.FC<MultipleImageUploaderProps> = ({
                   onChange={(e) => handleReplaceFileChange(e, index)} 
                 />
               </label>
-              <button
-                type="button"
-                onClick={() => removeImage(index)}
-                className="p-2 bg-error/80 hover:bg-error text-background rounded-full cursor-pointer transition-all hover:scale-105 backdrop-blur-md shadow-sm"
-              >
-                <Trash2 size={14} />
-              </button>
             </div>
           </div>
         ))}

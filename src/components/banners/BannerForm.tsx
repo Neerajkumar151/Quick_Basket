@@ -8,10 +8,10 @@ import { Select } from "../ui/Select";
 import { ImageUploader } from "../ui/ImageUploader";
 import { Button } from "../ui/Button";
 import { SearchableSelect } from "../ui/SearchableSelect";
-import { useCategories } from "../../hooks/useCategories";
+import { useCatalogMetadata } from "../../hooks/useCatalogMetadata";
 import { useTranslation } from "react-i18next";
 import type { Product } from "../../types/product";
-import type { Category } from "../../types/category";
+import type { CatalogMetadata } from "../../services/catalogService";
 import type { Banner } from "../../types/banner";
 import { useProducts } from "../../hooks/useProducts";
 interface BannerFormProps {
@@ -34,9 +34,9 @@ export const BannerForm: React.FC<BannerFormProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const { data: products = [], isLoading: isLoadingProducts } = useProducts();
-  const { data: categories = [], isLoading: isLoadingCategories } =
-    useCategories();
-  const isLoadingMetadata = isLoadingProducts || isLoadingCategories;
+  const { data: catalogMetadata, isLoading: isLoadingMetadataReq } = useCatalogMetadata();
+  const categories = catalogMetadata?.categories || [];
+  const isLoadingMetadata = isLoadingProducts || isLoadingMetadataReq;
 
   const {
     register,
@@ -90,7 +90,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({
       const p = products.find((prod: Product) => prod.id === data.redirectId);
       if (p) redirectName = p.name;
     } else {
-      const c = categories.find((cat: Category) => cat.id === data.redirectId);
+      const c = categories.find((cat: CatalogMetadata) => cat.id === data.redirectId);
       if (c) redirectName = c.name;
     }
 
@@ -170,7 +170,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({
             disabled={isLoadingMetadata}
           >
             <option value="">{t("banners.form.selectCategory")}</option>
-            {categories.map((c: Category) => (
+            {categories.map((c: CatalogMetadata) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
