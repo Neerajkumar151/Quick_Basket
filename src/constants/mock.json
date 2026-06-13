@@ -404,5 +404,79 @@
         "closingTime": "21:00"
       }
     ]
-  }
+  },
+  "salesKpis": [
+    {
+      "id": "totalOrders",
+      "title": "reports.sales.kpis.totalOrders",
+      "icon": "ShoppingBag",
+      "colorClass": "text-primary",
+      "bgClass": "bg-primary/10"
+    },
+    {
+      "id": "totalSales",
+      "title": "reports.sales.kpis.totalSales",
+      "icon": "Wallet",
+      "colorClass": "text-status-purple",
+      "bgClass": "bg-status-purple/10"
+    },
+    {
+      "id": "totalRevenue",
+      "title": "reports.sales.kpis.totalRevenue",
+      "icon": "Wallet",
+      "colorClass": "text-status-delivered",
+      "bgClass": "bg-status-delivered/10"
+    },
+    {
+      "id": "deliveredOrders",
+      "title": "reports.sales.kpis.deliveredOrders",
+      "icon": "CheckCircle2",
+      "colorClass": "text-status-delivered",
+      "bgClass": "bg-status-delivered/10"
+    },
+    {
+      "id": "cancelledOrders",
+      "title": "reports.sales.kpis.cancelledOrders",
+      "icon": "XCircle",
+      "colorClass": "text-status-cancelled",
+      "bgClass": "bg-status-cancelled/10"
+    },
+    {
+      "id": "aov",
+      "title": "reports.sales.kpis.aov",
+      "icon": "TrendingUp",
+      "colorClass": "text-orange-500",
+      "bgClass": "bg-orange-500/10"
+    }
+  ],
+  "revenueKpis": [
+    {
+      "id": "totalRevenue",
+      "title": "reports.revenue.kpis.totalRevenue",
+      "icon": "Wallet",
+      "colorClass": "text-status-delivered",
+      "bgClass": "bg-status-delivered/10"
+    },
+    {
+      "id": "grossRevenue",
+      "title": "reports.revenue.kpis.grossRevenue",
+      "icon": "Package",
+      "colorClass": "text-primary",
+      "bgClass": "bg-primary/10"
+    },
+    {
+      "id": "deliveredRevenue",
+      "title": "reports.revenue.kpis.deliveredRevenue",
+      "icon": "TrendingUp",
+      "colorClass": "text-status-purple",
+      "bgClass": "bg-status-purple/10"
+    },
+    {
+      "id": "totalOrders",
+      "title": "reports.revenue.kpis.totalOrders",
+      "icon": "ShoppingBag",
+      "colorClass": "text-orange-500",
+      "bgClass": "bg-orange-500/10"
+    }
+  ]
 }
