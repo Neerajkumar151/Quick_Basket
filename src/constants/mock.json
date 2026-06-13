@@ -465,11 +465,15 @@
       "name": "Fresh Organic Bananas",
       "description": "A bunch of 6 fresh organic bananas.",
       "sellingPrice": 2.5,
-      "mrp": 3.0,
+      "mrp": 3,
       "stockQuantity": 150,
       "categoryId": "cat-1",
-      "tagIds": ["tag-1"],
-      "images": ["https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&q=80&w=400"],
+      "tagIds": [
+        "tag-1"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&q=80&w=400"
+      ],
       "status": "Active"
     }
   ],
@@ -492,13 +496,122 @@
     "minimumOrderAmount": 20,
     "estimatedDeliveryTime": 30,
     "businessHours": [
-      { "day": "Monday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
-      { "day": "Tuesday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
-      { "day": "Wednesday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
-      { "day": "Thursday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
-      { "day": "Friday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
-      { "day": "Saturday", "enabled": true, "openingTime": "09:00", "closingTime": "21:00" },
-      { "day": "Sunday", "enabled": false, "openingTime": "09:00", "closingTime": "21:00" }
+      {
+        "day": "Monday",
+        "enabled": true,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      },
+      {
+        "day": "Tuesday",
+        "enabled": true,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      },
+      {
+        "day": "Wednesday",
+        "enabled": true,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      },
+      {
+        "day": "Thursday",
+        "enabled": true,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      },
+      {
+        "day": "Friday",
+        "enabled": true,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      },
+      {
+        "day": "Saturday",
+        "enabled": true,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      },
+      {
+        "day": "Sunday",
+        "enabled": false,
+        "openingTime": "09:00",
+        "closingTime": "21:00"
+      }
     ]
-  }
+  },
+  "salesKpis": [
+    {
+      "id": "totalOrders",
+      "title": "reports.sales.kpis.totalOrders",
+      "icon": "ShoppingBag",
+      "colorClass": "text-primary",
+      "bgClass": "bg-primary/10"
+    },
+    {
+      "id": "totalSales",
+      "title": "reports.sales.kpis.totalSales",
+      "icon": "Wallet",
+      "colorClass": "text-status-purple",
+      "bgClass": "bg-status-purple/10"
+    },
+    {
+      "id": "totalRevenue",
+      "title": "reports.sales.kpis.totalRevenue",
+      "icon": "Wallet",
+      "colorClass": "text-status-delivered",
+      "bgClass": "bg-status-delivered/10"
+    },
+    {
+      "id": "deliveredOrders",
+      "title": "reports.sales.kpis.deliveredOrders",
+      "icon": "CheckCircle2",
+      "colorClass": "text-status-delivered",
+      "bgClass": "bg-status-delivered/10"
+    },
+    {
+      "id": "cancelledOrders",
+      "title": "reports.sales.kpis.cancelledOrders",
+      "icon": "XCircle",
+      "colorClass": "text-status-cancelled",
+      "bgClass": "bg-status-cancelled/10"
+    },
+    {
+      "id": "aov",
+      "title": "reports.sales.kpis.aov",
+      "icon": "TrendingUp",
+      "colorClass": "text-orange-500",
+      "bgClass": "bg-orange-500/10"
+    }
+  ],
+  "revenueKpis": [
+    {
+      "id": "totalRevenue",
+      "title": "reports.revenue.kpis.totalRevenue",
+      "icon": "Wallet",
+      "colorClass": "text-status-delivered",
+      "bgClass": "bg-status-delivered/10"
+    },
+    {
+      "id": "grossRevenue",
+      "title": "reports.revenue.kpis.grossRevenue",
+      "icon": "Package",
+      "colorClass": "text-primary",
+      "bgClass": "bg-primary/10"
+    },
+    {
+      "id": "deliveredRevenue",
+      "title": "reports.revenue.kpis.deliveredRevenue",
+      "icon": "TrendingUp",
+      "colorClass": "text-status-purple",
+      "bgClass": "bg-status-purple/10"
+    },
+    {
+      "id": "totalOrders",
+      "title": "reports.revenue.kpis.totalOrders",
+      "icon": "ShoppingBag",
+      "colorClass": "text-orange-500",
+      "bgClass": "bg-orange-500/10"
+    }
+  ]
 }

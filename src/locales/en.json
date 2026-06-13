@@ -850,5 +850,46 @@
         }
       }
     }
+  },
+  "reports": {
+    "header": {
+      "title": "Reports",
+      "subtitle": "View your store's sales and revenue analytics."
+    },
+    "tabs": {
+      "sales": "Sales Dashboard",
+      "revenue": "Revenue Reports"
+    },
+    "sales": {
+      "kpis": {
+        "totalOrders": "Total Orders",
+        "totalSales": "Total Sales",
+        "totalRevenue": "Total Revenue",
+        "deliveredOrders": "Delivered Orders",
+        "cancelledOrders": "Cancelled Orders",
+        "aov": "Average Order Value"
+      },
+      "filters": {
+        "today": "Today",
+        "thisWeek": "This Week",
+        "thisMonth": "This Month"
+      },
+      "refresh": "Refresh Metrics"
+    },
+    "revenue": {
+      "kpis": {
+        "totalRevenue": "Total Revenue",
+        "grossRevenue": "Gross Revenue",
+        "totalOrders": "Total Orders",
+        "deliveredRevenue": "Delivered Order Revenue"
+      },
+      "filters": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly"
+      },
+      "export": "Export to CSV",
+      "trends": "Revenue Trends"
+    }
   }
 }
