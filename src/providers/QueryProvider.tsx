@@ -6,8 +6,10 @@ const queryClient = new QueryClient({
     queries: {
       // Data is considered fresh for 30 seconds — prevents redundant refetches
       staleTime: 30_000,
-      // Retry failed queries up to 2 times before showing an error
-      retry: 2,
+      // Disable automatic retries for failed queries to prevent network spam when backend is down
+      retry: false,
+      // Disable refetching every time the user switches tabs/focuses the window
+      refetchOnWindowFocus: false,
     },
   },
 });

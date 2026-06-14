@@ -22,6 +22,7 @@ import {
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { Header } from "./Header";
+import { useAuth } from "../../context/AuthContext";
 
 const getNavigation = (t: TFunction) => [
   {
@@ -139,8 +140,9 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const { pathname } = useLocation();
   const { t } = useTranslation();
+  const { logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   const navigation = useMemo(() => getNavigation(t), [t]);
   
   // State to track expanded groups by title. Initially all open.
@@ -233,13 +235,14 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                 <HelpCircle size={18} className="text-muted-foreground" />
                 {t("sidebar.footer.help")}
               </Link>
-              <Link
-                to="/login"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-md text-description font-medium text-error hover:bg-error/10 transition-colors"
+              {/* FIX 7: Proper logout — calls backend, clears token, then navigates */}
+              <button
+                onClick={logout}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-md text-description font-medium text-error hover:bg-error/10 transition-colors w-full text-left"
               >
                 <LogOut size={18} />
                 {t("sidebar.footer.logout")}
-              </Link>
+              </button>
             </div>
           </div>
         </aside>

@@ -1,101 +1,116 @@
 import { formatShortDate } from "../utils/date";
+import { resolveImageUrl } from "../utils/image";
+import { normalizeStatus } from "../utils/api-helpers";
 import { Category, CategoryInput } from "../types/category";
+import type { RawApiCategory } from "../types/api";
+import { apiClient } from "../utils/api-client";
+import { ENDPOINTS } from "../constants/endpoints";
 
 export type { Category, CategoryInput };
 
-import mockData from "../constants/mock.json";
-
-const STORAGE_KEY = "quickbasket_categories";
-
-const defaultCategories: Category[] = mockData.categories as Category[];
-
-// Helper to simulate network delay
-const delay = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const getStoredCategories = (): Category[] => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultCategories));
-    return defaultCategories;
-  }
-  const parsed = JSON.parse(stored);
-
-  // Force update if the stored mock data is older/smaller than the new mock data
-  if (parsed.length < defaultCategories.length) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultCategories));
-    return defaultCategories;
-  }
-
-  return parsed;
-};
+const mapCategory = (item: RawApiCategory): Category => ({
+  id: item.id,
+  name: item.name,
+  description: item.description || "",
+  image: resolveImageUrl(item.imageUrl ?? item.categoryImage ?? item.image),
+  productsCount: item.productsCount || 0,
+  status: normalizeStatus(item),
+  createdAt: formatShortDate(new Date(item.created_at ?? item.createdAt ?? Date.now())),
+});
 
 export const categoryService = {
-  // GET /categories
-  getCategories: async (): Promise<Category[]> => {
-    await delay();
-    return getStoredCategories();
+  // GET /admin/categories (paginated admin listing)
+  getCategories: async (
+    search?: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: Category[]; meta: any }> => {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (search) queryParams.append("search", search);
+
+    const url = `${ENDPOINTS.CATEGORIES.ADMIN}?${queryParams.toString()}`;
+    const response = await apiClient.get(url);
+    const raw: RawApiCategory[] = Array.isArray(response.data?.data)
+      ? response.data.data
+      : [];
+
+    return {
+      data: raw.map(mapCategory),
+      meta: response.data?.meta ?? { totalPages: 1, page: 1, total: raw.length },
+    };
   },
 
-  // POST /categories
-  createCategory: async (data: CategoryInput): Promise<Category> => {
-    await delay();
-    const categories = getStoredCategories();
 
-    // Check duplicate
-    if (categories.some((c) => c.name.toLowerCase() === data.name.toLowerCase())) {
-      throw new Error("Category already exists");
+
+  // POST /admin/categories
+  createCategory: async (
+    data: CategoryInput,
+    imageFile?: File | null
+  ): Promise<Category> => {
+    let uploadedImageUrl: string | undefined;
+
+    if (imageFile) {
+      const uploadData = new FormData();
+      uploadData.append("file", imageFile);
+      const uploadRes = await apiClient.post(`${ENDPOINTS.MEDIA.UPLOAD}?type=category`, uploadData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      uploadedImageUrl = uploadRes.data?.data?.imageUrl;
     }
 
-    const newCategory: Category = {
-      ...data,
-      id: `cat-${Date.now()}`,
-      productsCount: 0,
-      status: data.status || "Active",
-      createdAt: formatShortDate(new Date()),
+    const payload = {
+      name: data.name,
+      description: data.description || "",
+      parentId: "root",
+      isActive: data.status === "Active",
+      ...(uploadedImageUrl && { imageUrl: uploadedImageUrl }),
     };
 
-    categories.unshift(newCategory);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
-    return newCategory;
+    const response = await apiClient.post(ENDPOINTS.CATEGORIES.ADMIN, payload);
+    const raw: RawApiCategory = response.data?.category ?? response.data?.data ?? {};
+    
+    return {
+      ...data,
+      id: raw.id ?? `cat-${Date.now()}`,
+      productsCount: raw.productsCount ?? 0,
+      status: data.status ?? "Active",
+      createdAt: formatShortDate(new Date(raw.createdAt ?? Date.now())),
+    };
   },
 
-  // PUT /categories/:id
+  // PUT /admin/categories/:id
   updateCategory: async (
     id: string,
-    data: Partial<CategoryInput>
+    data: Partial<CategoryInput>,
+    imageFile?: File | null
   ): Promise<Category> => {
-    await delay();
-    const categories = getStoredCategories();
+    let uploadedImageUrl: string | undefined;
 
-    // Check duplicate
-    if (data.name) {
-      if (
-        categories.some(
-          (c) => c.id !== id && c.name.toLowerCase() === data.name!.toLowerCase()
-        )
-      ) {
-        throw new Error("Category already exists");
-      }
+    if (imageFile) {
+      const uploadData = new FormData();
+      uploadData.append("file", imageFile);
+      const uploadRes = await apiClient.post(`${ENDPOINTS.MEDIA.UPLOAD}?type=category`, uploadData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      uploadedImageUrl = uploadRes.data?.data?.imageUrl;
     }
 
-    const index = categories.findIndex((c) => c.id === id);
-    if (index === -1) throw new Error("Category not found");
+    const payload: any = {};
+    if (data.name !== undefined) payload.name = data.name;
+    if (data.description !== undefined) payload.description = data.description;
+    if (data.status !== undefined) payload.isActive = data.status === "Active";
+    if (uploadedImageUrl) payload.imageUrl = uploadedImageUrl;
 
-    categories[index] = { ...(categories[index] as Category), ...data };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
-    return categories[index] as Category;
+    const response = await apiClient.put(`${ENDPOINTS.CATEGORIES.ADMIN}/${id}`, payload);
+    const raw: RawApiCategory = response.data?.data ?? response.data?.category ?? {};
+    return mapCategory({ ...raw, id });
   },
 
-  // PATCH /categories/:id/status
-  toggleStatus: async (id: string): Promise<Category> => {
-    await delay();
-    const categories = getStoredCategories();
-    const index = categories.findIndex((c) => c.id === id);
-    if (index === -1) throw new Error("Category not found");
-
-    ((categories[index] as Category).status) =
-      ((categories[index] as Category).status) === "Active" ? "Inactive" : "Active";
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
-    return categories[index] as Category;
+  // PATCH /admin/categories/:id/status
+  toggleStatus: async (id: string, isActive: boolean): Promise<void> => {
+    await apiClient.patch(`${ENDPOINTS.CATEGORIES.ADMIN}/${id}/status`, { isActive });
   },
 };

@@ -45,7 +45,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={t("common.upload.cropImage", "Crop Image")} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title={t("common.upload.cropImage", "Crop Image")} maxWidth="lg">
       <div className="relative w-full h-[60vh] bg-muted rounded-lg overflow-hidden">
         <Cropper
           image={imageSrc}
@@ -74,8 +74,8 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
         <Button variant="outline" onClick={onClose} disabled={isProcessing}>
           {t("common.cancel", "Cancel")}
         </Button>
-        <Button onClick={handleSave} isLoading={isProcessing}>
-          {t("common.upload.cropAndSave", "Crop & Save")}
+        <Button onClick={handleSave} disabled={isProcessing}>
+          {isProcessing ? "Processing..." : t("common.upload.cropAndSave", "Crop & Save")}
         </Button>
       </div>
     </Modal>

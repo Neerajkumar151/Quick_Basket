@@ -1,92 +1,171 @@
 import { Product } from "../types/product";
-import mockData from "../constants/mock.json";
+import { apiClient } from "../utils/api-client";
+import { ENDPOINTS } from "../constants/endpoints";
+import { resolveImageUrl } from "../utils/image";
 
 export type { Product };
 
-const PRODUCTS_STORAGE_KEY = "qb_store_admin_products";
+// ─── Raw API → Domain mapper ──────────────────────────────────────────────────
+const mapProduct = (item: any): Product => {
+  const mappedTagIds = Array.isArray(item.tags)
+    ? item.tags.map((t: any) => (typeof t === "string" ? t : t.id))
+    : Array.isArray(item.tagIds)
+    ? item.tagIds
+    : [];
 
-const getStoredProducts = (): Product[] => {
-  try {
-    const data = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch (error) {
-    console.error("Failed to parse products from local storage", error);
-    return [];
-  }
+  const mappedImages =
+    Array.isArray(item.gallery) && item.gallery.length > 0
+      ? item.gallery.map((img: string) => resolveImageUrl(img))
+      : item.imageUrl
+      ? [resolveImageUrl(item.imageUrl)]
+      : [];
+
+  return {
+    id: item.id,
+    name: item.name ?? "Unknown Product",
+    description: item.description ?? "",
+    sellingPrice: parseFloat(item.price ?? item.sellingPrice) || 0,
+    mrp: parseFloat(item.compareAtPrice ?? item.mrp) || undefined,
+    stockQuantity: item.stockQuantity ?? 0,
+    categoryId: item.categoryId ?? "",
+    subCategoryId: item.subCategoryId ?? "",
+    brand: item.brand ?? undefined,
+    tagIds: mappedTagIds,
+    images: mappedImages,
+    status: item.isActive === false ? "Inactive" : "Active",
+    createdAt: item.created_at ?? item.createdAt ?? new Date().toISOString(),
+    updatedAt: item.updated_at ?? item.updatedAt ?? new Date().toISOString(),
+  };
 };
-
-const saveProducts = (products: Product[]) => {
-  try {
-    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
-  } catch (error) {
-    console.error("Failed to save products to local storage", error);
-    throw new Error("Storage limit exceeded. If you uploaded an image, it might be too large.");
-  }
-};
-
-// Seed from mock.json if localStorage is empty
-const initializeProducts = () => {
-  const current = getStoredProducts();
-  if (current.length === 0) {
-    const seedProducts: Product[] = (mockData.products as Omit<Product, "createdAt" | "updatedAt">[]).map(
-      (p) => ({
-        ...p,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      })
-    );
-    saveProducts(seedProducts);
-  }
-};
-
-initializeProducts();
-
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const productService = {
-  getProducts: async (): Promise<Product[]> => {
-    await delay(600);
-    return getStoredProducts();
+  getProducts: async (
+    search?: string,
+    categoryFilter?: string,
+    subCategoryFilter?: string,
+    statusFilter?: string,
+    sortBy?: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: Product[]; meta: any }> => {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (search) queryParams.append("search", search);
+    if (categoryFilter && categoryFilter !== "all")
+      queryParams.append("categoryId", categoryFilter);
+    if (subCategoryFilter && subCategoryFilter !== "all")
+      queryParams.append("subCategoryId", subCategoryFilter);
+    if (statusFilter && statusFilter !== "all") {
+      queryParams.append("isActive", statusFilter === "Active" ? "true" : "false");
+    }
+    if (sortBy) {
+      const sortMap: Record<string, { sortBy: string; sortOrder: string }> = {
+        newest: { sortBy: "createdAt", sortOrder: "desc" },
+        oldest: { sortBy: "createdAt", sortOrder: "asc" },
+        priceAsc: { sortBy: "price", sortOrder: "asc" },
+        priceDesc: { sortBy: "price", sortOrder: "desc" },
+        nameAsc: { sortBy: "name", sortOrder: "asc" },
+        nameDesc: { sortBy: "name", sortOrder: "desc" },
+      };
+      const mapped = sortMap[sortBy];
+      if (mapped) {
+        queryParams.append("sortBy", mapped.sortBy);
+        queryParams.append("sortOrder", mapped.sortOrder);
+      }
+    }
+
+    const response = await apiClient.get(
+      `${ENDPOINTS.PRODUCTS.BASE}?${queryParams.toString()}`
+    );
+
+    const rawProducts = Array.isArray(response.data?.data)
+      ? response.data.data
+      : [];
+    const data = rawProducts.map(mapProduct);
+
+    const pagination = response.data?.pagination ?? response.data?.meta ?? {};
+    const meta = {
+      totalPages: pagination.pages ?? pagination.totalPages ?? 1,
+      page,
+      total: pagination.total ?? data.length,
+    };
+
+    return { data, meta };
   },
 
   getProductById: async (id: string): Promise<Product | null> => {
-    await delay(300);
-    const products = getStoredProducts();
-    return products.find((p) => p.id === id) || null;
+    const response = await apiClient.get(ENDPOINTS.PRODUCTS.DETAILS(id));
+    const raw = response.data?.data ?? response.data?.product ?? response.data;
+    if (!raw?.id) return null;
+    return mapProduct(raw);
   },
 
-  createProduct: async (
-    data: Omit<Product, "id" | "createdAt" | "updatedAt">
-  ): Promise<Product> => {
-    await delay(600);
-    const products = getStoredProducts();
-    const newProduct: Product = {
-      ...data,
-      id: Math.random().toString(36).substring(2, 9),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+  createProduct: async (data: any): Promise<Product> => {
+    const base64ToFile = async (dataUrl: string, filename: string): Promise<File> => {
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      return new File([blob], filename, { type: blob.type });
     };
-    products.unshift(newProduct);
-    saveProducts(products);
-    return newProduct;
+
+    const formData = new FormData();
+    formData.append("categoryId", data.categoryId);
+    formData.append("name", data.name);
+    if (data.description) formData.append("description", data.description);
+    formData.append("price", data.sellingPrice.toString());
+    if (data.mrp) formData.append("compareAtPrice", data.mrp.toString());
+    formData.append("stockQuantity", data.stockQuantity?.toString() ?? "0");
+    if (data.tagIds?.length > 0) formData.append("tags", JSON.stringify(data.tagIds));
+    if (data.subCategoryId) formData.append("subCategoryId", data.subCategoryId);
+    if (data.brand) formData.append("brand", data.brand);
+    formData.append("isActive", data.status === "Active" ? "true" : "false");
+
+    const images = data.images ?? [];
+    if (images.length > 0 && images[0].startsWith("data:image")) {
+      const file = await base64ToFile(images[0], `product-image-${Date.now()}.jpg`);
+      formData.append("productImage", file);
+    }
+
+    const response = await apiClient.post(ENDPOINTS.PRODUCTS.ADMIN, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return mapProduct(response.data?.data ?? response.data);
   },
 
-  updateProduct: async (
-    id: string,
-    data: Partial<Omit<Product, "id" | "createdAt" | "updatedAt">>
-  ): Promise<Product> => {
-    await delay(600);
-    const products = getStoredProducts();
-    const index = products.findIndex((p) => p.id === id);
-    if (index === -1) throw new Error("Product not found");
-
-    const updatedProduct = {
-      ...products[index],
-      ...data,
-      updatedAt: new Date().toISOString(),
+  updateProduct: async (id: string, data: any): Promise<Product> => {
+    const base64ToFile = async (dataUrl: string, filename: string): Promise<File> => {
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      return new File([blob], filename, { type: blob.type });
     };
-    products[index] = updatedProduct as Product;
-    saveProducts(products);
-    return updatedProduct as Product;
+
+    const formData = new FormData();
+    if (data.categoryId !== undefined) formData.append("categoryId", data.categoryId);
+    if (data.name !== undefined) formData.append("name", data.name);
+    if (data.description !== undefined) formData.append("description", data.description);
+    if (data.sellingPrice !== undefined) formData.append("price", data.sellingPrice.toString());
+    if (data.mrp !== undefined) formData.append("compareAtPrice", data.mrp?.toString() ?? "");
+    if (data.stockQuantity !== undefined) formData.append("stockQuantity", data.stockQuantity.toString());
+    if (data.tagIds !== undefined) formData.append("tags", JSON.stringify(data.tagIds));
+    if (data.subCategoryId !== undefined) formData.append("subCategoryId", data.subCategoryId ?? "");
+    if (data.brand !== undefined) formData.append("brand", data.brand ?? "");
+    if (data.status !== undefined) formData.append("isActive", data.status === "Active" ? "true" : "false");
+
+    const images = data.images ?? [];
+    if (images.length > 0 && images[0].startsWith("data:image")) {
+      const file = await base64ToFile(images[0], `product-image-${Date.now()}.jpg`);
+      formData.append("productImage", file);
+    }
+
+    const response = await apiClient.put(`${ENDPOINTS.PRODUCTS.ADMIN}/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return mapProduct(response.data?.data ?? response.data);
+  },
+
+  toggleStatus: async (id: string): Promise<Product> => {
+    const response = await apiClient.patch(ENDPOINTS.PRODUCTS.STATUS(id));
+    return mapProduct(response.data?.data ?? response.data);
   },
 };

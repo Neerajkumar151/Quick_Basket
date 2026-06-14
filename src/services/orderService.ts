@@ -1,90 +1,131 @@
-import {
-  Order,
-  OrderStatus,
-  ORDER_FLOW,
-  TimelineEntry,
-} from "../types/order";
+import { Order, OrderStatus, ORDER_FLOW } from "../types/order";
+import { apiClient } from "../utils/api-client";
+import { ENDPOINTS } from "../constants/endpoints";
 
-const ORDERS_STORAGE_KEY = "qb_store_admin_orders";
+// ─── Raw API shape (adjust to your backend's actual response) ────────────────
+interface RawOrder {
+  id: string;
+  customer?: { name?: string; phone?: string; email?: string };
+  customerName?: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  orderDate?: string;
+  createdAt?: string;
+  status: string;
+  deliveryAddress?: {
+    flatNo?: string;
+    area?: string;
+    city?: string;
+    pincode?: string;
+    state?: string;
+  };
+  address?: {
+    flatNo?: string;
+    area?: string;
+    city?: string;
+    pincode?: string;
+    state?: string;
+  };
+  items?: Array<{
+    productId?: string;
+    product?: { id?: string; name?: string };
+    productName?: string;
+    quantity?: number;
+    unitPrice?: number;
+    price?: number;
+  }>;
+  payment?: { method?: string; status?: string; transactionId?: string };
+  timeline?: Array<{ status: string; timestamp: string; note?: string }>;
+  subtotal?: number;
+  deliveryFee?: number;
+  tax?: number;
+  total?: number;
+  grandTotal?: number;
+}
 
-import { SEED_ORDERS } from "../constants/mockSeedData";
-
-// ─── Storage Helpers ─────────────────────────────────────────────────────────
-const getStoredOrders = (): Order[] => {
-  try {
-    const data = localStorage.getItem(ORDERS_STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
-  }
-};
-
-const saveOrders = (orders: Order[]) => {
-  try {
-    localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
-  } catch (error) {
-    console.error("Failed to save orders", error);
-  }
-};
-
-const initializeOrders = () => {
-  const current = getStoredOrders();
-  if (current.length === 0) {
-    saveOrders(SEED_ORDERS);
-  }
-};
-
-initializeOrders();
-
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const mapOrder = (raw: RawOrder): Order => ({
+  id: raw.id,
+  customerName: raw.customer?.name ?? raw.customerName ?? "Unknown",
+  customerPhone: raw.customer?.phone ?? raw.customerPhone ?? "",
+  customerEmail: raw.customer?.email ?? raw.customerEmail ?? "",
+  orderDate: raw.orderDate ?? raw.createdAt ?? new Date().toISOString(),
+  status: raw.status as OrderStatus,
+  address: {
+    flatNo: raw.deliveryAddress?.flatNo ?? raw.address?.flatNo ?? "",
+    area: raw.deliveryAddress?.area ?? raw.address?.area ?? "",
+    city: raw.deliveryAddress?.city ?? raw.address?.city ?? "",
+    pincode: raw.deliveryAddress?.pincode ?? raw.address?.pincode ?? "",
+    state: raw.deliveryAddress?.state ?? raw.address?.state ?? "",
+  },
+  items: (raw.items ?? []).map((item) => ({
+    productId: item.productId ?? item.product?.id ?? "",
+    productName: item.productName ?? item.product?.name ?? "Unknown",
+    quantity: item.quantity ?? 1,
+    unitPrice: item.unitPrice ?? item.price ?? 0,
+  })),
+  payment: {
+    method: (raw.payment?.method ?? "UPI") as Order["payment"]["method"],
+    status: (raw.payment?.status ?? "Pending") as Order["payment"]["status"],
+    transactionId: raw.payment?.transactionId,
+  },
+  timeline: (raw.timeline ?? []).map((entry) => ({
+    status: entry.status as OrderStatus,
+    timestamp: entry.timestamp,
+    note: entry.note,
+  })),
+  subtotal: raw.subtotal ?? 0,
+  deliveryFee: raw.deliveryFee ?? 0,
+  tax: raw.tax ?? 0,
+  total: raw.total ?? raw.grandTotal ?? 0,
+});
 
 // ─── Order Service ────────────────────────────────────────────────────────────
 export const orderService = {
   getOrders: async (): Promise<Order[]> => {
-    await delay(600);
-    return getStoredOrders();
+    const response = await apiClient.get(ENDPOINTS.ORDERS.BASE);
+    const raw: RawOrder[] = Array.isArray(response.data?.data)
+      ? response.data.data
+      : Array.isArray(response.data)
+      ? response.data
+      : [];
+    return raw.map(mapOrder);
   },
 
   getOrderById: async (id: string): Promise<Order | null> => {
-    await delay(300);
-    const orders = getStoredOrders();
-    return orders.find((o) => o.id === id) || null;
+    const response = await apiClient.get(ENDPOINTS.ORDERS.DETAILS(id));
+    const raw: RawOrder | undefined =
+      response.data?.data ?? response.data?.order ?? response.data;
+    if (!raw) return null;
+    return mapOrder(raw);
   },
 
-  /** Updates order status and automatically appends a timeline entry */
+  /** Updates order status on the backend and returns the updated order */
   updateOrderStatus: async (id: string, newStatus: OrderStatus): Promise<Order> => {
-    await delay(600);
-    const orders = getStoredOrders();
-    const index = orders.findIndex((o) => o.id === id);
-    if (index === -1) throw new Error("Order not found");
-
-    const current = orders[index] as Order;
-
-    // Guard: enforce state machine
-    const allowed = ORDER_FLOW[current.status];
-    if (!allowed.includes(newStatus)) {
-      throw new Error(`Cannot transition from "${current.status}" to "${newStatus}"`);
+    // Guard: enforce state machine on the client side too
+    const current = await orderService.getOrderById(id);
+    if (current) {
+      const allowed = ORDER_FLOW[current.status];
+      if (!allowed.includes(newStatus)) {
+        throw new Error(`Cannot transition from "${current.status}" to "${newStatus}"`);
+      }
     }
 
-    const newEntry: TimelineEntry = {
+    const response = await apiClient.patch(ENDPOINTS.ORDERS.STATUS(id), {
       status: newStatus,
-      timestamp: new Date().toISOString(),
-    };
+    });
 
-    const updated: Order = {
-      ...current,
-      status: newStatus,
-      timeline: [...current.timeline, newEntry],
-    };
+    const raw: RawOrder | undefined =
+      response.data?.data ?? response.data?.order ?? response.data;
 
-    orders[index] = updated;
-    saveOrders(orders);
-    return updated;
+    // If backend echoes back the full updated order, map it; otherwise re-fetch
+    if (raw?.id) return mapOrder(raw);
+    const refreshed = await orderService.getOrderById(id);
+    if (!refreshed) throw new Error("Order not found after status update");
+    return refreshed;
   },
 
-  /** Convenience: re-fetch, used by Refresh button */
+  /** Re-fetches all orders (used by manual Refresh button) */
   refreshOrders: async (): Promise<Order[]> => {
-    await delay(400);
-    return getStoredOrders();
+    return orderService.getOrders();
   },
 };

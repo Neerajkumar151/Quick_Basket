@@ -11,6 +11,16 @@ export interface StoreProfile {
   logoUrl: string;
   bannerUrl: string;
   verificationStatus: "verified" | "pending" | "rejected";
+  businessType?: string;
+  gstNumber?: string;
+  panNumber?: string;
+  businessRegistrationDate?: string;
+  streetAddress?: string;
+  landmark?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
   lastUpdated: string;
 }
 

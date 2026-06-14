@@ -499,6 +499,8 @@
       "namePlaceholder": "e.g. Fresh Apples",
       "description": "Description",
       "descriptionPlaceholder": "Detailed description of the product",
+      "brand": "Brand",
+      "brandPlaceholder": "e.g. Amul, Nestle",
       "pricing": "Pricing",
       "sellingPrice": "Selling Price *",
       "mrp": "MRP",

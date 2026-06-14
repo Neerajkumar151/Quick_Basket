@@ -98,6 +98,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           {...register("description")}
         />
 
+        {/* Brand */}
+        <Input
+          label={t("products.form.brand") || "Brand"}
+          placeholder={t("products.form.brandPlaceholder") || "e.g. Amul, Nestle"}
+          error={errors.brand?.message}
+          {...register("brand")}
+        />
+
         {/* Pricing */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input

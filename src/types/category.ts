@@ -4,7 +4,6 @@ export interface Category {
   description?: string;
   image?: string; // base64 string or url
   productsCount: number;
-  subCategoriesCount?: number;
   status: "Active" | "Inactive";
   createdAt: string; // formatted date string e.g. "12 May"
 }

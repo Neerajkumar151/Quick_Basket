@@ -10,6 +10,7 @@ export interface Product {
   tagIds?: string[];
   images: string[];
   status: "Active" | "Inactive";
+  brand?: string;
   createdAt: string;
   updatedAt: string;
 }

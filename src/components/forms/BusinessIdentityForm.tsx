@@ -19,6 +19,8 @@ import {
   type BusinessIdentityFormValues,
 } from "../../validations/onboarding";
 import { useTranslation } from "react-i18next";
+import { apiClient } from "../../utils/api-client";
+import { ENDPOINTS } from "../../constants/endpoints";
 
 interface BusinessIdentityFormProps {
   onSubmit: (data: BusinessIdentityFormValues) => void;
@@ -110,9 +112,30 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
   };
 
   const handleFinalSubmit = async (data: BusinessIdentityFormValues) => {
-    // API call placeholder
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    onSubmit(data);
+    try {
+      const formData = new FormData();
+      formData.append("businessType", data.businessType);
+      formData.append("panNumber", data.pan);
+      formData.append("businessRegistrationDate", data.registrationDate);
+      if (data.gstin) {
+        formData.append("gstin", data.gstin);
+      }
+      if (data.registrationProof && data.registrationProof.length > 0) {
+        formData.append("registrationProof", data.registrationProof[0]);
+      }
+
+      await apiClient.patch(ENDPOINTS.ONBOARDING.IDENTITY, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      onSubmit(data);
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || t("onboarding.form.error", "Failed to submit. Please try again.");
+      toast.error(errorMessage);
+    }
   };
 
   return (

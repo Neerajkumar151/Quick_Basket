@@ -31,30 +31,10 @@ export const StoreProfilePage = () => {
     bannerFile: File | null
   ) => {
     try {
-      let logoUrl = profile?.logoUrl;
-      let bannerUrl = profile?.bannerUrl;
-      
-      // Simulate file upload logic by reading to data URL
-      if (logoFile) {
-        logoUrl = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(logoFile);
-        });
-      }
-      
-      if (bannerFile) {
-        bannerUrl = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(bannerFile);
-        });
-      }
-
       await updateProfile({
-        ...data,
-        logoUrl,
-        bannerUrl,
+        data,
+        logoFile,
+        bannerFile,
       });
 
       toast.success(t("storeProfile.messages.successUpdateProfile"));

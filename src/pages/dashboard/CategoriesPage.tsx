@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Plus, ImageIcon, Edit2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
@@ -19,60 +19,82 @@ import { Category } from "../../types/category";
 import { useCategories } from "../../hooks/useCategories";
 import { queryClient } from "../../providers/QueryProvider";
 import { CATEGORIES_QUERY_KEY } from "../../hooks/useCategories";
-import { useSubCategories } from "../../hooks/useSubCategories";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
+import { useDebounce } from "../../hooks/useDebounce";
+import { Pagination } from "../../components/ui/Pagination";
+import { CATEGORY_TREE_QUERY_KEY } from "../../hooks/useCategoryTree";
 
 export const CategoriesPage = () => {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
 
   // Drawer
-  const { isOpen, editingItem: editingCategory, openDrawer, closeDrawer } = useEntityDrawer<Category>();
+  const {
+    isOpen,
+    editingItem: editingCategory,
+    openDrawer,
+    closeDrawer,
+  } = useEntityDrawer<Category>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Debounce search query to prevent spamming the API
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   // Data via TanStack Query (cached)
-  const { data: categories = [], isLoading } = useCategories();
-  const { data: subCategories = [] } = useSubCategories();
+  const { data: responseData, isLoading } = useCategories(
+    debouncedSearchQuery,
+    currentPage,
+    itemsPerPage,
+  );
 
-
+  const categories = responseData?.data || [];
+  const meta = responseData?.meta || { totalPages: 1, page: 1, total: 0 };
 
   const handleSubmitForm = async (
     data: CategoryFormValues,
-    imageFile: File | null
+    imageFile: File | null,
   ) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = editingCategory?.image;
-      if (imageFile) {
-        imageUrl = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(imageFile);
-        });
-      }
-
       if (editingCategory) {
-        await categoryService.updateCategory(editingCategory.id, {
-          ...data,
-          status: data.status || "Active",
-          image: imageUrl,
-        });
+        await categoryService.updateCategory(
+          editingCategory.id,
+          {
+            name: data.name,
+            description: data.description,
+            status: data.status || "Active",
+          },
+          imageFile,
+        );
         toast.success(t("categories.messages.successUpdate"));
       } else {
-        await categoryService.createCategory({
-          ...data,
-          status: data.status || "Active",
-          image: imageUrl,
-        });
+        await categoryService.createCategory(
+          {
+            name: data.name,
+            description: data.description,
+            status: data.status || "Active",
+          },
+          imageFile,
+        );
         toast.success(t("categories.messages.successCreate"));
       }
 
-      await queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
+      // Invalidate both the admin listing and the tree cache (used by dropdowns)
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: CATEGORY_TREE_QUERY_KEY }),
+      ]);
       closeDrawer();
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : t("categories.messages.errorSave");
+        error instanceof Error
+          ? error.message
+          : t("categories.messages.errorSave");
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -81,24 +103,23 @@ export const CategoriesPage = () => {
 
   const toggleStatus = async (cat: Category) => {
     try {
-      await categoryService.toggleStatus(cat.id);
+      const newIsActive = cat.status === "Inactive";
+      await categoryService.toggleStatus(cat.id, newIsActive);
       toast.success(
-        t("categories.messages.successStatus") || "Status updated successfully"
+        t("categories.messages.successStatus") || "Status updated successfully",
       );
-      await queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: CATEGORY_TREE_QUERY_KEY }),
+      ]);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : t("categories.messages.errorStatus")
+        error instanceof Error
+          ? error.message
+          : t("categories.messages.errorStatus"),
       );
     }
   };
-
-  // Filter Logic
-  const filteredCategories = useMemo(() => {
-    return categories.filter((c: Category) =>
-      c.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [categories, searchQuery]);
 
   const columns: ColumnDef<Category>[] = [
     {
@@ -131,21 +152,6 @@ export const CategoriesPage = () => {
           {cat.description || "-"}
         </span>
       ),
-    },
-    {
-      header: t("subCategories.header.title") || "Sub-Categories",
-      cell: (cat: Category) => {
-        const count = subCategories.filter((sc: any) => sc.categoryId === cat.id).length;
-        return (
-          <Link
-            to={`/dashboard/sub-categories?category=${encodeURIComponent(cat.id)}`}
-            className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors"
-            title={t("subCategories.header.title")}
-          >
-            {count}
-          </Link>
-        );
-      },
     },
     {
       header: t("categories.table.products"),
@@ -216,13 +222,23 @@ export const CategoriesPage = () => {
 
       <div className="flex flex-col">
         <DataTable
-          data={filteredCategories}
+          data={categories}
           columns={columns}
           isLoading={isLoading}
           emptyTitle={t("categories.messages.emptyTitle")}
           emptyDescription={t("categories.messages.emptySubtitle")}
-          itemsPerPage={10}
+          pagination={false}
         />
+
+        {meta.totalPages > 1 && (
+          <div className="mt-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={meta.totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
       </div>
 
       <EntityDrawer

@@ -44,3 +44,15 @@ export const resizeImage = (file: File, maxWidth = 2048, maxHeight = 2048, quali
     reader.readAsDataURL(file);
   });
 };
+
+export const resolveImageUrl = (path?: string) => {
+  if (!path) return "";
+  if (path.startsWith("http") || path.startsWith("data:")) return path;
+  
+  if (import.meta.env.DEV) {
+    return `/${path.replace(/^\//, "")}`; // Local vite proxy will intercept and add ngrok bypass header
+  }
+
+  const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/api\/v1\/?$/, "") || "";
+  return `${baseUrl}/${path.replace(/^\//, "")}`;
+};

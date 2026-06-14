@@ -7,7 +7,10 @@ export const createStoreProfileSchema = (t: TFunction) => z.object({
   description: z.string().optional(),
   phoneNumber: z.string().min(1, t("storeProfile.messages.validationPhone")),
   email: z.string().email(t("storeProfile.messages.validationEmail")),
-  address: z.string().min(1, t("storeProfile.messages.validationAddress")),
+  address: z.string().optional(),
+  businessType: z.string().optional(),
+  gstNumber: z.string().optional(),
+  panNumber: z.string().optional(),
 });
 
 export type StoreProfileFormValues = z.infer<ReturnType<typeof createStoreProfileSchema>>;

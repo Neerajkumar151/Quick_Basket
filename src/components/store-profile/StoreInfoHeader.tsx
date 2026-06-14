@@ -79,13 +79,19 @@ export const StoreInfoHeader: React.FC<StoreInfoHeaderProps> = ({
             </div>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-description text-muted-foreground">
-              <div className={`flex items-center gap-1.5 font-medium ${operations.storeStatus ? "text-status-delivered" : "text-muted-foreground"}`}>
-                <span className={`w-2 h-2 rounded-full ${operations.storeStatus ? "bg-status-delivered animate-pulse" : "bg-muted-foreground"}`} />
+              <div className={`flex items-center gap-1.5 font-medium ${operations.storeStatus ? "text-status-delivered" : "text-status-cancelled"}`}>
+                <span className={`w-2 h-2 rounded-full ${operations.storeStatus ? "bg-status-delivered animate-pulse" : "bg-status-cancelled"}`} />
                 {operations.storeStatus ? t("storeProfile.operations.status.open") : t("storeProfile.operations.status.closed")}
               </div>
-              <div className="flex items-center gap-1.5">
-                <Clock size={14} />
-                {hoursText}
+              {todayHours?.enabled && (
+                <div className="flex items-center gap-1.5">
+                  <Clock size={14} />
+                  {hoursText}
+                </div>
+              )}
+              <div className="hidden md:block w-1 h-1 rounded-full bg-border" />
+              <div className={`flex items-center gap-1.5 font-medium ${operations.deliveryEnabled ? "text-status-delivered" : "text-status-cancelled"}`}>
+                {operations.deliveryEnabled ? "Delivery Enabled" : "Delivery Disabled"}
               </div>
               <div className="hidden md:block w-1 h-1 rounded-full bg-border" />
               <span className="hidden md:block">

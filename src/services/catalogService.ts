@@ -1,6 +1,6 @@
-import { getStoredCategories } from "./categoryService";
-import { getStoredTags } from "./tagService";
-import { getStoredSubCategories } from "./subCategoryService";
+import { categoryService } from "./categoryService";
+import { subCategoryService } from "./subCategoryService";
+import { tagService } from "./tagService";
 
 export interface CatalogMetadata {
   id: string;
@@ -8,29 +8,44 @@ export interface CatalogMetadata {
 }
 
 export const catalogService = {
-  // GET /api/v1/catalog/metadata
-  getMetadata: async (): Promise<{ categories: CatalogMetadata[], tags: CatalogMetadata[] }> => {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    
-    // In production, this would be a single DB query selecting only id and name where status is Active
-    const categories = getStoredCategories()
-      .filter(c => c.status === "Active")
-      .map(c => ({ id: c.id, name: c.name }));
-      
-    const tags = getStoredTags()
-      .filter(t => t.status === "Active")
-      .map(t => ({ id: t.id, name: t.name }));
+  // Returns a flat list of active parent-categories and tags for dropdowns.
+  getMetadata: async (): Promise<{
+    categories: CatalogMetadata[];
+    tags: CatalogMetadata[];
+  }> => {
+    try {
+      const catsRes = await categoryService.getCategories("", 1, 500);
+      const categories = catsRes.data
+        .filter((c) => c.status === "Active")
+        .map((c) => ({ id: c.id, name: c.name }));
 
-    return { categories, tags };
+      const fetchedTags = await tagService.getTags();
+      const tags = fetchedTags
+        .filter((t) => t.status === "Active")
+        .map((t) => ({ id: t.id, name: t.name }));
+
+      return { categories, tags };
+    } catch (error) {
+      console.error("Failed to fetch catalog metadata:", error);
+      return { categories: [], tags: [] };
+    }
   },
 
-  // GET /api/v1/categories/:categoryId/sub-categories
-  getSubCategoryMetadata: async (categoryId: string): Promise<CatalogMetadata[]> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
+  // Returns active sub-categories for a given parent category.
+  getSubCategoryMetadata: async (
+    categoryId: string
+  ): Promise<CatalogMetadata[]> => {
+    if (!categoryId) return [];
     
-    return getStoredSubCategories()
-      .filter(s => s.status === "Active" && s.categoryId === categoryId)
-      .map(s => ({ id: s.id, name: s.name }));
-  }
+    try {
+      const subCats = await subCategoryService.getSubCategoriesByParent(categoryId);
+      return subCats
+        .filter((s) => s.status === "Active")
+        .map((s) => ({ id: s.id, name: s.name }));
+    } catch (error) {
+      console.error("Failed to fetch subcategory metadata:", error);
+      return [];
+    }
+  },
 };
+

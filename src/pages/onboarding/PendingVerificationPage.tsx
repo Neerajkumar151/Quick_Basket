@@ -1,11 +1,41 @@
 import { Header } from "../../components/layout/Header";
 import { Footer } from "../../components/layout/Footer";
-import { Hourglass } from "lucide-react";
+import { Hourglass, RefreshCw } from "lucide-react";
 import VerificationImage from "../../assets/verification.png";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../../components/ui/Button";
+import { apiClient } from "../../utils/api-client";
+import { ENDPOINTS } from "../../constants/endpoints";
+import toast from "react-hot-toast";
 
 export const PendingVerificationPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      const response = await apiClient.get(ENDPOINTS.ONBOARDING.ME, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      if (response.data?.onboarding?.status === "APPROVED") {
+        toast.success(t("onboarding.pending.approved", "Your store has been approved! Please log in."));
+        navigate("/login");
+      } else {
+        toast(t("onboarding.pending.stillPending", "Your application is still under review."), { icon: "ℹ️" });
+      }
+    } catch (error) {
+      toast.error(t("onboarding.pending.refreshError", "Failed to refresh status."));
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
       <Header />
@@ -38,6 +68,16 @@ export const PendingVerificationPage = () => {
                 {t("onboarding.pending.statusValue")}
               </span>
             </div>
+            
+            <Button 
+              variant="outline" 
+              onClick={handleRefresh} 
+              disabled={isRefreshing}
+              className="mt-2 w-full"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              {t("onboarding.pending.refreshButton", "Refresh Status")}
+            </Button>
           </div>
         </div>
       </main>

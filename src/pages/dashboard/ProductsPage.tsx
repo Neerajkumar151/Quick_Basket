@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Plus, ImageIcon, Edit2 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -21,6 +21,8 @@ import { useSubCategories } from "../../hooks/useSubCategories";
 import { queryClient } from "../../providers/QueryProvider";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
+import { useDebounce } from "../../hooks/useDebounce";
+import { Pagination } from "../../components/ui/Pagination";
 
 export const ProductsPage = () => {
   const { t } = useTranslation();
@@ -35,17 +37,35 @@ export const ProductsPage = () => {
   const { isOpen, editingItem: editingProduct, openDrawer, closeDrawer } = useEntityDrawer<Product>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Data via TanStack Query (cached, no double-fetch)
-  const { data: products = [], isLoading } = useProducts();
+  // Pagination & Debounce
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+
+  // Data via TanStack Query (cached, server-side filtered/paginated)
+  const { data: responseData, isLoading } = useProducts(
+    debouncedSearchQuery,
+    categoryFilter !== "all" ? categoryFilter : undefined,
+    subCategoryFilter !== "all" ? subCategoryFilter : undefined,
+    statusFilter !== "all" ? statusFilter : undefined,
+    sortBy !== "newest" ? sortBy : undefined,
+    currentPage,
+    itemsPerPage
+  );
+
+  const products = responseData?.data || [];
+  const meta = responseData?.meta || { totalPages: 1, page: 1, total: 0 };
   const { data: catalogMetadata } = useCatalogMetadata();
   const categories = catalogMetadata?.categories || [];
-  const { data: allSubCategories = [] } = useSubCategories();
+  const { data: allSubCategoriesResponse } = useSubCategories();
+  const allSubCategories = allSubCategoriesResponse?.data || [];
   
   // Fetch subcategories only for the selected category filter
   const { data: subCategoriesForFilter = [] } = useSubCategoryMetadata(
     categoryFilter !== "all" ? categoryFilter : undefined
   );
 
+  const displayedSubCategories = categoryFilter === "all" ? allSubCategories : subCategoriesForFilter;
 
 
   const handleSubmitForm = async (data: ProductFormValues) => {
@@ -71,8 +91,7 @@ export const ProductsPage = () => {
 
   const toggleStatus = async (prod: Product) => {
     try {
-      const newStatus = prod.status === "Active" ? "Inactive" : "Active";
-      await productService.updateProduct(prod.id, { status: newStatus });
+      await productService.toggleStatus(prod.id);
       toast.success(t("products.messages.successStatus"));
       await queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
     } catch {
@@ -80,45 +99,7 @@ export const ProductsPage = () => {
     }
   };
 
-  // Processing Data (Filter -> Sort)
-  const processedProducts = useMemo(() => {
-    let filtered = products.filter((p: Product) => {
-      const matchesSearch = p.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const matchesCategory =
-        categoryFilter === "all" || p.categoryId === categoryFilter;
-      const matchesSubCategory =
-        subCategoryFilter === "all" || p.subCategoryId === subCategoryFilter;
-      const matchesStatus =
-        statusFilter === "all" || p.status === statusFilter;
-      return matchesSearch && matchesCategory && matchesSubCategory && matchesStatus;
-    });
-
-    filtered.sort((a: Product, b: Product) => {
-      switch (sortBy) {
-        case "nameAsc":
-          return a.name.localeCompare(b.name);
-        case "nameDesc":
-          return b.name.localeCompare(a.name);
-        case "priceAsc":
-          return a.sellingPrice - b.sellingPrice;
-        case "priceDesc":
-          return b.sellingPrice - a.sellingPrice;
-        case "oldest":
-          return (
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
-        case "newest":
-        default:
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-      }
-    });
-
-    return filtered;
-  }, [products, searchQuery, categoryFilter, subCategoryFilter, statusFilter, sortBy]);
+  // Wait, no need to filter on frontend anymore since the backend handles it.
 
   const columns: ColumnDef<Product>[] = [
     {
@@ -160,14 +141,29 @@ export const ProductsPage = () => {
         const subCatName = allSubCategories.find((sc: any) => sc.id === prod.subCategoryId)?.name;
         
         return (
-          <div className="flex flex-col">
-            <span className="font-bold text-foreground">{prod.name}</span>
-            <span className="text-caption text-muted-foreground truncate max-w-40">
+          <div className="flex flex-col max-w-[250px]">
+            <span className="font-bold text-foreground truncate" title={prod.name}>
+              {prod.name}
+            </span>
+            <span className="text-caption text-muted-foreground truncate" title={subCatName ? `${catName} > ${subCatName}` : catName}>
               {subCatName ? `${catName} > ${subCatName}` : catName}
             </span>
+            {prod.description && (
+              <span className="text-description text-muted-foreground/80 truncate mt-1" title={prod.description}>
+                {prod.description}
+              </span>
+            )}
           </div>
         );
       },
+    },
+    {
+      header: t("products.form.brand", "Brand"),
+      cell: (prod: Product) => (
+        <span className="text-foreground">
+          {prod.brand || <span className="text-muted-foreground italic">-</span>}
+        </span>
+      ),
     },
     {
       header: t("products.table.price"),
@@ -244,6 +240,7 @@ export const ProductsPage = () => {
             onChange={(e) => {
               setCategoryFilter(e.target.value);
               setSubCategoryFilter("all");
+              setCurrentPage(1);
             }}
           >
             <option value="all">{t("products.filters.categoryAll")}</option>
@@ -254,26 +251,26 @@ export const ProductsPage = () => {
             ))}
           </Select>
           
-          {categoryFilter !== "all" && (
-            <Select
-              value={subCategoryFilter}
-              onChange={(e) => {
-                setSubCategoryFilter(e.target.value);
-              }}
-            >
-              <option value="all">{t("products.filters.subCategoryAll")}</option>
-              {subCategoriesForFilter.map((sc: any) => (
-                <option key={sc.id} value={sc.id}>
-                  {sc.name}
-                </option>
-              ))}
-            </Select>
-          )}
+          <Select
+            value={subCategoryFilter}
+            onChange={(e) => {
+              setSubCategoryFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+          >
+            <option value="all">{t("products.filters.subCategoryAll")}</option>
+            {displayedSubCategories.map((sc: any) => (
+              <option key={sc.id} value={sc.id}>
+                {sc.name}
+              </option>
+            ))}
+          </Select>
 
           <Select
             value={statusFilter}
             onChange={(e) => {
               setStatusFilter(e.target.value);
+              setCurrentPage(1);
             }}
           >
             <option value="all">{t("products.filters.statusAll")}</option>
@@ -284,6 +281,7 @@ export const ProductsPage = () => {
             value={sortBy}
             onChange={(e) => {
               setSortBy(e.target.value);
+              setCurrentPage(1);
             }}
           >
             <option value="newest">{t("products.filters.sortOptions.newest")}</option>
@@ -298,13 +296,23 @@ export const ProductsPage = () => {
 
       <div className="flex flex-col">
         <DataTable
-          data={processedProducts}
+          data={products}
           columns={columns}
           isLoading={isLoading}
           emptyTitle={t("products.messages.emptyTitle")}
           emptyDescription={t("products.messages.emptySubtitle")}
-          itemsPerPage={10}
+          pagination={false}
         />
+
+        {meta.totalPages > 1 && (
+          <div className="mt-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={meta.totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
       </div>
 
       {/* EntityDrawer has no onSubmit — ProductForm manages its own submit button */}

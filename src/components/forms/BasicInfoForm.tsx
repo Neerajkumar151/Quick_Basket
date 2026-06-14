@@ -7,6 +7,10 @@ import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { basicInfoSchema, type BasicInfoFormValues } from "../../validations/onboarding";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
+import { apiClient } from "../../utils/api-client";
+import { ENDPOINTS } from "../../constants/endpoints";
+import { storage } from "../../utils/storage";
 
 interface BasicInfoFormProps {
   onNext: () => void;
@@ -24,10 +28,23 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({ onNext }) => {
     resolver: zodResolver(basicInfoSchema),
   });
 
-  const onSubmit = async (_data: BasicInfoFormValues) => {
-    // API call placeholder
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    onNext();
+  const onSubmit = async (data: BasicInfoFormValues) => {
+    try {
+      const response = await apiClient.post(ENDPOINTS.AUTH.REGISTER, data);
+      
+      // Store tokens immediately upon registration
+      if (response.data?.accessToken) {
+        storage.set("accessToken", response.data.accessToken);
+      }
+      if (response.data?.refreshToken) {
+        storage.set("refreshToken", response.data.refreshToken);
+      }
+      
+      onNext();
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || t("onboarding.form.error", "Failed to submit. Please try again.");
+      toast.error(errorMessage);
+    }
   };
 
   return (

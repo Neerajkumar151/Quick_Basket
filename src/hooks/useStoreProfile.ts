@@ -17,7 +17,8 @@ export const useUpdateStoreProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: StoreProfileUpdateInput) => storeProfileService.updateStoreProfile(data),
+    mutationFn: ({ data, logoFile, bannerFile }: { data: StoreProfileUpdateInput; logoFile: File | null; bannerFile: File | null }) => 
+      storeProfileService.updateStoreProfile(data, logoFile, bannerFile),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: STORE_PROFILE_QUERY_KEY });
     },

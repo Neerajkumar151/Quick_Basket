@@ -9,8 +9,11 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
+import { DashboardMetrics } from "../../types/dashboard";
 
-import mockData from "../../constants/mock.json";
+interface KPICardsProps {
+  metrics?: DashboardMetrics;
+}
 
 // Map string icon names from JSON to actual React Lucide components
 const IconMap: Record<string, any> = {
@@ -45,11 +48,60 @@ export interface KPIItem {
 export interface KPICardsProps {
   items?: KPIItem[];
 }
-
-export const KPICards: React.FC<KPICardsProps> = ({ items }) => {
+export const KPICards: React.FC<KPICardsProps> = ({ metrics }) => {
   const { t } = useTranslation();
-  const primaryKpiData = resolveKpiData(mockData.primaryKpis, t);
-  const orderStatusKpi = resolveKpiData(mockData.orderStatusKpis, t);
+
+  // Construct KPI arrays from real metrics
+  const primaryKpiData = resolveKpiData([
+    {
+      title: "dashboard.kpis.primary.revenue",
+      value: `₹${metrics?.totalRevenue?.toLocaleString() || "0"}`,
+      icon: "Wallet",
+      colorClass: "text-status-delivered",
+      bgClass: "bg-status-delivered/10"
+    },
+    {
+      title: "dashboard.kpis.primary.orders",
+      value: `${metrics?.totalOrders?.toLocaleString() || "0"}`,
+      icon: "ShoppingBag",
+      colorClass: "text-primary",
+      bgClass: "bg-primary/10"
+    },
+    {
+      title: "dashboard.kpis.primary.products",
+      value: `${metrics?.totalProducts?.toLocaleString() || "0"}`,
+      icon: "Package",
+      colorClass: "text-status-purple",
+      bgClass: "bg-status-purple/10"
+    }
+  ], t);
+
+  const orderStatusKpi = resolveKpiData([
+    {
+      title: "dashboard.kpis.orderStatus.pending",
+      value: `${metrics?.pendingOrders?.toLocaleString() || "0"}`,
+      icon: "Clock",
+      colorClass: "text-status-pending",
+      bgClass: "bg-status-pending/10",
+      borderClass: "hover:border-status-pending/50"
+    },
+    {
+      title: "dashboard.kpis.orderStatus.delivered",
+      value: `${metrics?.deliveredOrders?.toLocaleString() || "0"}`,
+      icon: "CheckCircle2",
+      colorClass: "text-status-delivered",
+      bgClass: "bg-status-delivered/10",
+      borderClass: "hover:border-status-delivered/50"
+    },
+    {
+      title: "dashboard.kpis.orderStatus.cancelled",
+      value: `${metrics?.cancelledOrders?.toLocaleString() || "0"}`,
+      icon: "XCircle",
+      colorClass: "text-status-cancelled",
+      bgClass: "bg-status-cancelled/10",
+      borderClass: "hover:border-status-cancelled/50"
+    }
+  ], t);
 
   if (items) {
     return (

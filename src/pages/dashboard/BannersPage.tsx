@@ -38,28 +38,17 @@ export const BannersPage = () => {
   ) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = editingBanner?.image;
-      if (imageFile) {
-        imageUrl = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(imageFile);
-        });
-      }
-
       if (editingBanner) {
         await bannerService.updateBanner(editingBanner.id, {
           ...data,
           redirectName: data.redirectName || "",
-          image: imageUrl,
-        });
+        }, imageFile);
         toast.success(t("banners.messages.successUpdate"));
       } else {
         await bannerService.createBanner({
           ...data,
           redirectName: data.redirectName || "",
-          image: imageUrl,
-        });
+        }, imageFile);
         toast.success(t("banners.messages.successCreate"));
       }
 

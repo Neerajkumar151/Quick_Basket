@@ -8,9 +8,8 @@ export const LoginPage = () => {
 
   const { t } = useTranslation();
 
-  const handleLoginSuccess = () => {
-    navigate("/dashboard");
-    // API call placeholder
+  const handleLoginSuccess = (redirectUrl: string = "/dashboard") => {
+    navigate(redirectUrl);
   };
 
   return (
