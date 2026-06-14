@@ -15,6 +15,7 @@ import { BannersPage } from "./pages/dashboard/BannersPage";
 import { OrdersPage } from "./pages/dashboard/OrdersPage";
 import { StoreProfilePage } from "./pages/dashboard/StoreProfilePage";
 import { HelpPage } from "./pages/dashboard/HelpPage";
+import { PaymentAccountSetupPage } from "./pages/dashboard/PaymentAccountSetupPage";
 import { Toaster } from "react-hot-toast";
 import { AuthGuard } from "./components/auth/AuthGuard";
 import { AuthProvider } from "./context/AuthContext";

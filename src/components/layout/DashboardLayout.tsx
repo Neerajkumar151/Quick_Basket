@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Clock,
   Network,
+  ShieldCheck,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
@@ -98,15 +99,9 @@ const getNavigation = (t: TFunction) => [
         icon: ShoppingBag,
       },
       {
-        id: "customers",
-        name: t("sidebar.items.customers"),
-        path: "/dashboard/customers",
-        icon: Users,
-      },
-      {
-        id: "payments",
-        name: t("sidebar.items.payments"),
-        path: "/dashboard/payments",
+        id: "paymentSetup",
+        name: t("sidebar.items.paymentSetup"),
+        path: "/dashboard/payment-setup",
         icon: CreditCard,
       },
     ],
