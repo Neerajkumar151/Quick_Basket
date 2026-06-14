@@ -8,6 +8,7 @@ import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { OverviewPage } from "./pages/dashboard/OverviewPage";
 import { ProductsPage } from "./pages/dashboard/ProductsPage";
 import { CategoriesPage } from "./pages/dashboard/CategoriesPage";
+import { ReportsPage } from "./pages/dashboard/reports/ReportsPage";
 import { SubCategoriesPage } from "./pages/dashboard/SubCategoriesPage";
 import { TagsPage } from "./pages/dashboard/TagsPage";
 import { BannersPage } from "./pages/dashboard/BannersPage";
@@ -43,6 +44,7 @@ function App() {
           <Route path="/dashboard/tags" element={<AuthGuard><DashboardLayout><TagsPage /></DashboardLayout></AuthGuard>} />
           <Route path="/dashboard/banners" element={<AuthGuard><DashboardLayout><BannersPage /></DashboardLayout></AuthGuard>} />
           <Route path="/dashboard/orders" element={<AuthGuard><DashboardLayout><OrdersPage /></DashboardLayout></AuthGuard>} />
+          <Route path="/dashboard/reports" element={<AuthGuard><DashboardLayout><ReportsPage /></DashboardLayout></AuthGuard>} />
           <Route path="/dashboard/store-profile" element={<AuthGuard><DashboardLayout><StoreProfilePage /></DashboardLayout></AuthGuard>} />
           <Route path="/dashboard/help" element={<AuthGuard><DashboardLayout><HelpPage /></DashboardLayout></AuthGuard>} />
 

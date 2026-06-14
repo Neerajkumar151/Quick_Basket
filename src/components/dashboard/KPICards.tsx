@@ -35,6 +35,19 @@ const resolveKpiData = (kpiArray: { title: string, icon: string, bgClass: string
   });
 };
 
+export interface KPIItem {
+  id?: string;
+  title: string;
+  value?: string | number;
+  icon: any;
+  bgClass: string;
+  colorClass: string;
+  borderClass?: string;
+}
+
+export interface KPICardsProps {
+  items?: KPIItem[];
+}
 export const KPICards: React.FC<KPICardsProps> = ({ metrics }) => {
   const { t } = useTranslation();
 
@@ -89,6 +102,33 @@ export const KPICards: React.FC<KPICardsProps> = ({ metrics }) => {
       borderClass: "hover:border-status-cancelled/50"
     }
   ], t);
+
+  if (items) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {items.map((kpi, idx) => (
+          <div
+            key={`kpi-${kpi.id || idx}`}
+            className={`bg-card border border-border rounded-xl p-5 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.1)] hover:shadow-md hover:border-border/80 transition-all group flex flex-col justify-between min-h-[110px] ${kpi.borderClass || ''}`}
+          >
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="text-caption font-bold text-muted-foreground uppercase tracking-wider">
+                {kpi.title}
+              </h3>
+              <div className={`p-2 rounded-lg ${kpi.bgClass} ${kpi.colorClass}`}>
+                <kpi.icon size={20} />
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-h1 font-extrabold text-foreground tracking-tight">
+                {kpi.value ?? '-'}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
