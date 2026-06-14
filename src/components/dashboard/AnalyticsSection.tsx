@@ -15,7 +15,20 @@ interface AnalyticsSectionProps {
 const getOrderStatusData = (t: TFunction, distribution: any[] = []) => {
   // If API provides distribution, map it. Otherwise fallback to empty.
   return distribution.map(item => {
-    return { ...item, name: t(item.name as any) || item.name };
+    let color = item.color;
+    if (!color) {
+      const lowerName = item.name.toLowerCase();
+      if (lowerName.includes('cancel') || lowerName.includes('reject')) {
+        color = 'hsl(var(--status-cancelled))';
+      } else if (lowerName.includes('deliver') || lowerName.includes('complet')) {
+        color = 'hsl(var(--status-delivered))';
+      } else if (lowerName.includes('pend') || lowerName.includes('progress') || lowerName.includes('place')) {
+        color = 'hsl(var(--status-pending))';
+      } else {
+        color = 'hsl(var(--primary))';
+      }
+    }
+    return { ...item, name: t(item.name as any) || item.name, color };
   });
 };
 
