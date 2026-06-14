@@ -72,23 +72,7 @@ const getNavigation = (t: TFunction) => [
       },
     ],
   },
-  {
-    group: t("sidebar.groups.inventory"),
-    items: [
-      {
-        id: "stock",
-        name: t("sidebar.items.inventory"),
-        path: "/dashboard/inventory",
-        icon: Box,
-      },
-      {
-        id: "history",
-        name: t("sidebar.items.history"),
-        path: "/dashboard/inventory/history",
-        icon: Clock,
-      },
-    ],
-  },
+
   {
     group: t("sidebar.groups.sales"),
     items: [
@@ -97,12 +81,6 @@ const getNavigation = (t: TFunction) => [
         name: t("sidebar.items.orders"),
         path: "/dashboard/orders",
         icon: ShoppingBag,
-      },
-      {
-        id: "paymentSetup",
-        name: t("sidebar.items.paymentSetup"),
-        path: "/dashboard/payment-setup",
-        icon: CreditCard,
       },
     ],
   },
@@ -194,6 +172,20 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                       {group.items.map((item: any) => {
                         const isActive = pathname === item.path;
                         const Icon = item.icon;
+                        
+                        if (item.disabled) {
+                          return (
+                            <div
+                              key={item.path}
+                              className="flex items-center gap-3 px-3 py-2.5 rounded-md text-description font-medium text-muted-foreground/50 cursor-not-allowed"
+                              title="Currently disabled"
+                            >
+                              <Icon size={18} className="text-muted-foreground/50" />
+                              {item.name}
+                            </div>
+                          );
+                        }
+
                         return (
                           <Link
                             key={item.path}
