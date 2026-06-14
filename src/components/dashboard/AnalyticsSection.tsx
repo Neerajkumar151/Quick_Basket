@@ -6,13 +6,18 @@ import {
 } from "recharts";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
-import mockData from "../../constants/mock.json";
+import { DashboardAnalytics } from "../../types/dashboard";
 
-const REVENUE_DATA = mockData.revenueData;
-const ORDERS_DATA = mockData.ordersData;
-const getOrderStatusData = (t: TFunction) => mockData.orderStatusData.map(item => {
-  return { ...item, name: t(item.name as any) };
-});
+interface AnalyticsSectionProps {
+  analytics?: DashboardAnalytics;
+}
+
+const getOrderStatusData = (t: TFunction, distribution: any[] = []) => {
+  // If API provides distribution, map it. Otherwise fallback to empty.
+  return distribution.map(item => {
+    return { ...item, name: t(item.name as any) || item.name };
+  });
+};
 
 const renderActiveShape = (props: any) => {
   const RADIAN = Math.PI / 180;
@@ -56,14 +61,14 @@ const renderActiveShape = (props: any) => {
   );
 };
 
-export const AnalyticsSection: React.FC = () => {
+export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ analytics }) => {
   const { t } = useTranslation();
   const [revenueFilter, setRevenueFilter] = useState<'Daily' | 'Weekly' | 'Monthly'>('Monthly');
   const [ordersFilter, setOrdersFilter] = useState<'Daily' | 'Weekly' | 'Monthly'>('Monthly');
   const [activePieIndex, setActivePieIndex] = useState<number | undefined>(undefined);
   
-  const orderStatusData = getOrderStatusData(t);
-  const totalOrders = orderStatusData.reduce((acc, curr) => acc + curr.value, 0);
+  const orderStatusData = getOrderStatusData(t, analytics?.orderStatusDistribution || []);
+  const totalOrders = orderStatusData.reduce((acc: any, curr: any) => acc + curr.value, 0);
 
   return (
     <div className="flex flex-col gap-6 mb-6">
@@ -92,7 +97,7 @@ export const AnalyticsSection: React.FC = () => {
           </div>
           <div className="flex-1 w-full relative">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={REVENUE_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={analytics?.revenueTrend || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
@@ -154,7 +159,7 @@ export const AnalyticsSection: React.FC = () => {
           </div>
           <div className="flex-1 w-full relative">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={ORDERS_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={analytics?.orderTrend || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <XAxis 
                   dataKey="name" 
                   axisLine={false} 

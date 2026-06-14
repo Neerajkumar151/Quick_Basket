@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { SectionCard } from "../ui/SectionCard";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
+import { Select } from "../ui/Select";
 import { TextArea } from "../ui/TextArea";
 import { ImageUploader } from "../ui/ImageUploader";
 import { Phone, Mail, MapPin, FileText, Save, X, User, Clock } from "lucide-react";
@@ -52,10 +53,13 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
     defaultValues: {
       storeName: profile.storeName,
       ownerName: profile.ownerName,
-      description: profile.description,
+      description: profile.description || "",
       phoneNumber: profile.phoneNumber,
       email: profile.email,
       address: profile.address,
+      businessType: profile.businessType || "",
+      gstNumber: profile.gstNumber || "",
+      panNumber: profile.panNumber || "",
     },
   });
 
@@ -63,10 +67,13 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
     reset({
       storeName: profile.storeName,
       ownerName: profile.ownerName,
-      description: profile.description,
+      description: profile.description || "",
       phoneNumber: profile.phoneNumber,
       email: profile.email,
       address: profile.address,
+      businessType: profile.businessType || "",
+      gstNumber: profile.gstNumber || "",
+      panNumber: profile.panNumber || "",
     });
     setLogoFile(null);
     setBannerFile(null);
@@ -99,9 +106,9 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
             emptyClassName="w-full h-full rounded-none border-0 bg-transparent hover:bg-muted/50 transition-colors"
             className="absolute inset-0 z-0 h-full !gap-0"
             aspectRatio={3}
-            maxWidth={2048}
-            maxHeight={1024}
-            quality={0.9}
+            maxWidth={1200}
+            maxHeight={400}
+            quality={0.8}
           />
         </div>
 
@@ -136,13 +143,19 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
               </div>
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-description text-muted-foreground ml-1">
-                <div className={`flex items-center gap-1.5 font-medium ${operations.storeStatus ? "text-status-delivered" : "text-muted-foreground"}`}>
-                  <span className={`w-2 h-2 rounded-full ${operations.storeStatus ? "bg-status-delivered animate-pulse" : "bg-muted-foreground"}`} />
-                  {operations.storeStatus ? t("storeProfile.operations.status.open") : t("storeProfile.operations.status.closed")}
-                </div>
+                <div className={`flex items-center gap-1.5 font-medium ${operations.storeStatus ? "text-status-delivered" : "text-status-cancelled"}`}>
+                <span className={`w-2 h-2 rounded-full ${operations.storeStatus ? "bg-status-delivered animate-pulse" : "bg-status-cancelled"}`} />
+                {operations.storeStatus ? t("storeProfile.operations.status.open") : t("storeProfile.operations.status.closed")}
+              </div>
+              {todayHours?.enabled && (
                 <div className="flex items-center gap-1.5">
                   <Clock size={14} />
                   {hoursText}
+                </div>
+              )}
+                <div className="hidden md:block w-1 h-1 rounded-full bg-border" />
+                <div className={`flex items-center gap-1.5 font-medium ${operations.deliveryEnabled ? "text-status-delivered" : "text-status-cancelled"}`}>
+                  {operations.deliveryEnabled ? "Delivery Enabled" : "Delivery Disabled"}
                 </div>
                 <div className="hidden md:block w-1 h-1 rounded-full bg-border" />
                 <span className="hidden md:block">
@@ -178,17 +191,58 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Description Section */}
+        {/* Details Section */}
         <SectionCard
-          title={t("storeProfile.description.title")}
+          title={"Store Details"}
           icon={<FileText size={20} />}
           className="h-full"
         >
-          <TextArea
-            {...register("description")}
-            error={errors.description?.message}
-            rows={6}
-          />
+          <div className="flex flex-col gap-4">
+            <div>
+              <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">Store Type</p>
+              <Select
+                {...register("businessType")}
+                error={errors.businessType?.message}
+              >
+                <option value="" disabled>Select Business Type</option>
+                <option value="individual">Individual</option>
+                <option value="proprietorship">Proprietorship</option>
+                <option value="partnership">Partnership</option>
+                <option value="pvtLtd">Private Limited</option>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">GST Number</p>
+                <Input
+                  {...register("gstNumber")}
+                  error={errors.gstNumber?.message}
+                  placeholder="Optional"
+                  className="uppercase"
+                />
+              </div>
+              <div>
+                <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">PAN Number</p>
+                <Input
+                  {...register("panNumber")}
+                  error={errors.panNumber?.message}
+                  placeholder="PAN"
+                  className="uppercase"
+                />
+              </div>
+            </div>
+
+            <div>
+              <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">Description</p>
+              <TextArea
+                {...register("description")}
+                error={errors.description?.message}
+                rows={3}
+                placeholder="Describe your store"
+              />
+            </div>
+          </div>
         </SectionCard>
 
         <div className="flex flex-col gap-6">

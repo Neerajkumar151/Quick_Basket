@@ -1,127 +1,140 @@
 import { SubCategory, SubCategoryInput } from "../types/subCategory";
-import mockData from "../constants/mock.json";
+import { apiClient } from "../utils/api-client";
+import { ENDPOINTS } from "../constants/endpoints";
+import { formatShortDate } from "../utils/date";
+import { resolveImageUrl } from "../utils/image";
+import { normalizeStatus } from "../utils/api-helpers";
+import type { RawApiSubCategory } from "../types/api";
 
-const STORAGE_KEY = "quickbasket_subCategories";
-
-const getStoredSubCategories = (): SubCategory[] => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) return [];
-  return JSON.parse(stored);
-};
-
-const saveSubCategories = (subCategories: SubCategory[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(subCategories));
-};
-
-// Seed some initial data if empty
-const initializeSubCategories = () => {
-  const current = getStoredSubCategories();
-  if (current.length === 0) {
-    const mockSubCategories: SubCategory[] = (mockData.subCategories as Omit<SubCategory, "updatedAt">[]).map(
-      (sc) => ({
-        ...sc,
-        updatedAt: new Date().toISOString(),
-      })
-    );
-    saveSubCategories(mockSubCategories);
-  }
-};
-
-initializeSubCategories();
-
-// Simulate API delay
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const mapSubCategory = (item: RawApiSubCategory): SubCategory => ({
+  id: item.id,
+  categoryId: item.categoryId ?? "",
+  name: item.name ?? "",
+  description: item.description ?? "",
+  image: resolveImageUrl(item.image ?? item.imageUrl),
+  status: normalizeStatus(item),
+  productsCount: item.productsCount ?? 0,
+  createdAt: formatShortDate(new Date(item.createdAt ?? Date.now())),
+  updatedAt: formatShortDate(new Date(item.updatedAt ?? Date.now())),
+});
 
 export const subCategoryService = {
-  getSubCategories: async (): Promise<SubCategory[]> => {
-    await delay(600);
-    const subCategories = getStoredSubCategories();
-    // Sort by newest first based on createdAt (or id as fallback if dates aren't parsed well)
-    // As in mock.json createdAt is "17 May", let's assume we sort based on ID generation order or keep reversing
-    // We'll rely on string comparison for simple dates or just return reversed so newest added is first
-    return [...subCategories].reverse();
+  // GET /sub-categories (paginated)
+  getSubCategories: async (
+    search?: string,
+    categoryId?: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: SubCategory[]; meta: any }> => {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (search) queryParams.append("search", search);
+    if (categoryId) queryParams.append("categoryId", categoryId);
+
+    const response = await apiClient.get(
+      `${ENDPOINTS.SUB_CATEGORIES.BASE}?${queryParams.toString()}`
+    );
+    const raw: RawApiSubCategory[] = Array.isArray(response.data?.data)
+      ? response.data.data
+      : [];
+
+    return {
+      data: raw.map(mapSubCategory),
+      meta: response.data?.meta ?? { totalPages: 1, page: 1, total: raw.length },
+    };
   },
 
+  // GET /sub-categories?categoryId=:id&limit=100
   getSubCategoriesByParent: async (categoryId: string): Promise<SubCategory[]> => {
-    await delay(300);
-    const subCategories = getStoredSubCategories();
-    return [...subCategories]
-      .filter((sc) => sc.categoryId === categoryId)
-      .reverse(); // Newest first
+    const res = await subCategoryService.getSubCategories("", categoryId, 1, 100);
+    return res.data;
   },
 
+  // GET /sub-categories/:id
   getSubCategoryById: async (id: string): Promise<SubCategory | null> => {
-    await delay(300);
-    const subCategories = getStoredSubCategories();
-    return subCategories.find((c) => c.id === id) || null;
+    const response = await apiClient.get(`${ENDPOINTS.SUB_CATEGORIES.BASE}/${id}`);
+    const item: RawApiSubCategory | undefined =
+      response.data?.data ?? response.data?.subCategory;
+    if (!item) return null;
+    return mapSubCategory(item);
   },
 
-  createSubCategory: async (data: SubCategoryInput): Promise<SubCategory> => {
-    await delay(600);
-    const subCategories = getStoredSubCategories();
+  // POST /sub-categories
+  createSubCategory: async (
+    data: SubCategoryInput,
+    imageFile?: File | null
+  ): Promise<SubCategory> => {
+    let uploadedImageUrl: string | undefined;
 
-    const newSubCategory: SubCategory = {
-      ...data,
-      id: `subcat-${Date.now()}`,
-      productsCount: 0,
-      createdAt: new Date().toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short",
-      }),
-      updatedAt: new Date().toISOString(),
+    if (imageFile) {
+      const uploadData = new FormData();
+      uploadData.append("file", imageFile);
+      const uploadRes = await apiClient.post(`${ENDPOINTS.MEDIA.UPLOAD}?type=subcategory`, uploadData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      uploadedImageUrl = uploadRes.data?.data?.imageUrl;
+    }
+
+    const payload = {
+      categoryId: data.categoryId,
+      name: data.name,
+      description: data.description || "",
+      isActive: data.status === "Active",
+      status: data.status,
+      ...(uploadedImageUrl && { imageUrl: uploadedImageUrl }),
     };
 
-    // Push appends to the end, but since we reverse on get, it will show at the top
-    subCategories.push(newSubCategory);
-    saveSubCategories(subCategories);
-
-    return newSubCategory;
+    const response = await apiClient.post(ENDPOINTS.SUB_CATEGORIES.BASE, payload);
+    const raw: RawApiSubCategory = response.data?.id ? response.data : (response.data?.data ?? response.data?.subCategory ?? { id: `subcat-${Date.now()}` });
+    return mapSubCategory({
+      ...raw,
+      categoryId: raw.categoryId ?? data.categoryId,
+      name: raw.name ?? data.name,
+      description: raw.description ?? data.description,
+      image: raw.image ?? raw.imageUrl ?? data.image,
+    });
   },
 
+  // PUT /sub-categories/:id
   updateSubCategory: async (
     id: string,
-    data: Partial<SubCategoryInput>
+    data: Partial<SubCategoryInput>,
+    imageFile?: File | null
   ): Promise<SubCategory> => {
-    await delay(600);
-    const subCategories = getStoredSubCategories();
-    const index = subCategories.findIndex((c) => c.id === id);
+    let uploadedImageUrl: string | undefined;
 
-    if (index === -1) {
-      throw new Error("Sub-Category not found");
+    if (imageFile) {
+      const uploadData = new FormData();
+      uploadData.append("file", imageFile);
+      const uploadRes = await apiClient.post(`${ENDPOINTS.MEDIA.UPLOAD}?type=subcategory`, uploadData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      uploadedImageUrl = uploadRes.data?.data?.imageUrl;
     }
 
-    const updatedSubCategory = {
-      ...subCategories[index],
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
+    const payload: any = {};
+    if (data.categoryId !== undefined) payload.categoryId = data.categoryId;
+    if (data.name !== undefined) payload.name = data.name;
+    if (data.description !== undefined) payload.description = data.description;
+    if (data.status !== undefined) {
+      payload.isActive = data.status === "Active";
+    }
+    if (uploadedImageUrl) payload.imageUrl = uploadedImageUrl;
 
-    subCategories[index] = updatedSubCategory as SubCategory;
-    saveSubCategories(subCategories);
-
-    return updatedSubCategory as SubCategory;
+    const response = await apiClient.put(`${ENDPOINTS.SUB_CATEGORIES.BASE}/${id}`, payload);
+    const raw: RawApiSubCategory = response.data?.id ? response.data : (response.data?.data ?? response.data?.subCategory ?? { id });
+    return mapSubCategory({
+      ...raw,
+      categoryId: raw.categoryId ?? data.categoryId,
+      name: raw.name ?? data.name,
+      description: raw.description ?? data.description,
+    });
   },
 
-  toggleStatus: async (id: string): Promise<SubCategory> => {
-    await delay(400);
-    const subCategories = getStoredSubCategories();
-    const index = subCategories.findIndex((c) => c.id === id);
-
-    if (index === -1) {
-      throw new Error("Sub-Category not found");
-    }
-
-    const newStatus =
-      ((subCategories[index] as SubCategory).status) === "Active" ? "Inactive" : "Active";
-    const updatedSubCategory = {
-      ...subCategories[index],
-      status: newStatus as "Active" | "Inactive",
-      updatedAt: new Date().toISOString(),
-    };
-
-    subCategories[index] = updatedSubCategory as SubCategory;
-    saveSubCategories(subCategories);
-
-    return updatedSubCategory as SubCategory;
+  // PATCH /sub-categories/:id/status
+  toggleStatus: async (id: string): Promise<void> => {
+    await apiClient.patch(ENDPOINTS.SUB_CATEGORIES.STATUS(id));
   },
 };

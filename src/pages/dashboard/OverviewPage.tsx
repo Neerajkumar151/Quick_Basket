@@ -9,12 +9,23 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { StoreInfoHeader } from "../../components/store-profile/StoreInfoHeader";
 import { useStoreProfile, useStoreOperations } from "../../hooks/useStoreProfile";
+import { useDashboard } from "../../hooks/useDashboard";
+import { Loader2 } from "lucide-react";
 
 export const OverviewPage: React.FC = () => {
   const Navigate = useNavigate();
   const { t } = useTranslation();
   const { data: profile, isLoading: isLoadingProfile } = useStoreProfile();
   const { data: operations, isLoading: isLoadingOperations } = useStoreOperations();
+  const { data: dashboard, isLoading: isLoadingDashboard } = useDashboard();
+
+  if (isLoadingDashboard) {
+    return (
+      <div className="flex h-full min-h-[400px] items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-500">
@@ -56,9 +67,9 @@ export const OverviewPage: React.FC = () => {
         </div>
       </div>
 
-      <KPICards />
-      <AnalyticsSection />
-      <OperationalInsights />
+      <KPICards metrics={dashboard?.metrics} />
+      <AnalyticsSection analytics={dashboard?.analytics} />
+      <OperationalInsights recentOrders={dashboard?.recentOrders} />
     </div>
   );
 };

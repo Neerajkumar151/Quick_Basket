@@ -4,15 +4,16 @@ import { useTranslation } from "react-i18next";
 import { DataTable, ColumnDef } from "../ui/DataTable";
 import { StatusBadge } from "../ui/StatusBadge";
 import { RowActions } from "../ui/RowActions";
+import { RecentOrder } from "../../types/dashboard";
 
-import mockData from "../../constants/mock.json";
+interface OperationalInsightsProps {
+  recentOrders?: RecentOrder[];
+}
 
-const RECENT_ORDERS = mockData.recentOrders;
-
-export const OperationalInsights: React.FC = () => {
+export const OperationalInsights: React.FC<OperationalInsightsProps> = ({ recentOrders }) => {
   const { t } = useTranslation();
 
-  const columns: ColumnDef<typeof RECENT_ORDERS[0]>[] = [
+  const columns: ColumnDef<RecentOrder>[] = [
     {
       header: t("dashboard.operational.recentOrders.columns.orderId"),
       accessorKey: 'id',
@@ -58,7 +59,7 @@ export const OperationalInsights: React.FC = () => {
           </button>
         </div>
         
-        <DataTable data={RECENT_ORDERS} columns={columns} />
+        <DataTable data={recentOrders || []} columns={columns} />
       </div>
     </div>
   );

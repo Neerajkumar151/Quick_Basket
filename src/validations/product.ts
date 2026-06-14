@@ -5,6 +5,7 @@ export const createProductSchema = (t: TFunction) => z
   .object({
     name: z.string().min(1, t("products.validation.nameRequired")),
     description: z.string().optional(),
+    brand: z.string().optional(),
     sellingPrice: z.coerce.number().min(0, t("products.validation.sellingPriceMin")),
     mrp: z.coerce.number().optional(),
     stockQuantity: z.coerce.number().min(0, t("products.validation.stockQuantityMin")).default(0),
@@ -30,6 +31,7 @@ export const createProductSchema = (t: TFunction) => z
 export interface ProductFormValues {
   name: string;
   description?: string;
+  brand?: string;
   sellingPrice: number;
   mrp?: number;
   stockQuantity: number;

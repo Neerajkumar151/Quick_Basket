@@ -33,7 +33,8 @@ export const BannerForm: React.FC<BannerFormProps> = ({
   const defaultSubmitLabel = submitLabel || t("banners.form.create");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const { data: products = [], isLoading: isLoadingProducts } = useProducts();
+  const { data: productsResponse, isLoading: isLoadingProducts } = useProducts();
+  const products = productsResponse?.data || [];
   const { data: catalogMetadata, isLoading: isLoadingMetadataReq } = useCatalogMetadata();
   const categories = catalogMetadata?.categories || [];
   const isLoadingMetadata = isLoadingProducts || isLoadingMetadataReq;

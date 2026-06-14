@@ -41,6 +41,7 @@ export const MultipleImageUploader: React.FC<MultipleImageUploaderProps> = ({
   useEffect(() => {
     if (cropperQueue.length > 0 && !isCropperOpen && replaceIndex === null) {
       const file = cropperQueue[0];
+      if (!file) return;
       const reader = new FileReader();
       reader.onload = () => {
         setRawImageSrc(reader.result?.toString() || null);

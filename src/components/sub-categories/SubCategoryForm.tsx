@@ -38,8 +38,11 @@ export const SubCategoryForm: React.FC<SubCategoryFormProps> = ({
   const { t } = useTranslation();
   const defaultSubmitLabel = submitLabel || t("subCategories.form.create");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const { data: categories = [], isLoading: isLoadingCategories } =
-    useCategories();
+  const {
+    data: categoriesResponse,
+    isLoading: isLoadingCategories,
+  } = useCategories();
+  const categories = categoriesResponse?.data || [];
 
   const {
     register,

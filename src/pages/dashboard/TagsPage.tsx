@@ -9,6 +9,7 @@ import { SearchInput } from "../../components/ui/SearchInput";
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
 import { StatusBadge } from "../../components/ui/StatusBadge";
+import { DateTimeDisplay } from "../../components/ui/DateTimeDisplay";
 
 import { TagForm, TagFormValues } from "../../components/tags/TagForm";
 import { tagService } from "../../services/tagService";
@@ -62,7 +63,7 @@ export const TagsPage = () => {
 
   const toggleStatus = async (tag: Tag) => {
     try {
-      await tagService.toggleStatus(tag.id);
+      await tagService.toggleStatus(tag);
       toast.success(
         t("tags.messages.successStatus") || "Status updated successfully"
       );
@@ -108,8 +109,13 @@ export const TagsPage = () => {
     },
     {
       header: t("tags.table.createdOn"),
-      accessorKey: "createdAt",
-      className: "text-muted-foreground",
+      cell: (tag: Tag) => (
+        <DateTimeDisplay 
+          date={tag.createdAt} 
+          format="datetime" 
+          className="text-muted-foreground" 
+        />
+      ),
     },
     {
       header: t("tags.table.status") || "Status",

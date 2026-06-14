@@ -1,102 +1,64 @@
 import { formatShortDate } from "../utils/date";
 import { Tag } from "../types/tag";
+import { apiClient } from "../utils/api-client";
+import { ENDPOINTS } from "../constants/endpoints";
 
 export type { Tag };
 
-import mockData from "../constants/mock.json";
+const mapTag = (t: any): Tag => ({
+  id: t.id,
+  name: t.name,
+  status: t.isActive === false ? "Inactive" : "Active",
+  productsCount: parseInt(t.productCount ?? t.productsCount ?? "0") || 0,
+  createdAt: formatShortDate(new Date(t.createdAt ?? t.created_at ?? Date.now())),
+});
 
-const STORAGE_KEY = "quickbasket_tags";
-
-const defaultTags: Tag[] = mockData.tags as Tag[];
-
-// Helper to simulate network delay
-const delay = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const getStoredTags = (): Tag[] => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTags));
-    return defaultTags;
-  }
-  const parsed = JSON.parse(stored);
-
-  // Force update if the stored mock data is older/smaller than the new mock data
-  if (parsed.length < defaultTags.length) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTags));
-    return defaultTags;
-  }
-
-  return parsed;
+// Exported so catalogService and others can call it for dropdown metadata
+export const getStoredTags = async (): Promise<Tag[]> => {
+  return tagService.getTags();
 };
 
 export const tagService = {
   // GET /tags
   getTags: async (): Promise<Tag[]> => {
-    await delay();
-    return getStoredTags();
+    const response = await apiClient.get(ENDPOINTS.TAGS.BASE);
+    const rawTags = Array.isArray(response.data?.data)
+      ? response.data.data
+      : Array.isArray(response.data)
+      ? response.data
+      : [];
+    return rawTags.map(mapTag);
   },
 
-  // POST /tags
+  // POST /admin/tags
   createTag: async (
     data: Omit<Tag, "id" | "createdAt" | "productsCount">
   ): Promise<Tag> => {
-    await delay();
-    const tags = getStoredTags();
-
-    // Check duplicate
-    if (tags.some((t) => t.name.toLowerCase() === data.name.toLowerCase())) {
-      throw new Error("Tag already exists");
-    }
-
-    const newTag: Tag = {
-      ...data,
-      id: `tag-${Date.now()}`,
-      productsCount: 0,
-      status: data.status || "Active",
-      createdAt: formatShortDate(new Date()),
-    };
-
-    tags.unshift(newTag);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tags));
-    return newTag;
+    const payload = { name: data.name };
+    const response = await apiClient.post(ENDPOINTS.TAGS.ADMIN, payload);
+    const t = response.data?.data ?? response.data;
+    return mapTag(t);
   },
 
-  // PATCH /tags/:id/status
-  toggleStatus: async (id: string): Promise<Tag> => {
-    await delay();
-    const tags = getStoredTags();
-    const index = tags.findIndex((t) => t.id === id);
-    if (index === -1) throw new Error("Tag not found");
-
-    ((tags[index] as Tag).status) = ((tags[index] as Tag).status) === "Active" ? "Inactive" : "Active";
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tags));
-    return tags[index] as Tag;
-  },
-
-  // PUT /tags/:id
+  // PUT /admin/tags/:id
   updateTag: async (
     id: string,
     data: Partial<Omit<Tag, "id" | "createdAt" | "productsCount">>
   ): Promise<Tag> => {
-    await delay();
-    const tags = getStoredTags();
+    const payload: Record<string, unknown> = {};
+    if (data.name !== undefined) payload.name = data.name;
+    if (data.status !== undefined) payload.isActive = data.status === "Active";
 
-    // Check duplicate
-    if (data.name) {
-      if (
-        tags.some(
-          (t) => t.id !== id && t.name.toLowerCase() === data.name!.toLowerCase()
-        )
-      ) {
-        throw new Error("Tag already exists");
-      }
-    }
+    const response = await apiClient.put(`${ENDPOINTS.TAGS.ADMIN}/${id}`, payload);
+    const t = response.data?.data ?? response.data;
+    return mapTag({ ...t, id });
+  },
 
-    const index = tags.findIndex((t) => t.id === id);
-    if (index === -1) throw new Error("Tag not found");
-
-    tags[index] = { ...(tags[index] as Tag), ...data };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tags));
-    return tags[index] as Tag;
+  // Convenience: toggles status via updateTag
+  toggleStatus: async (tag: Tag): Promise<Tag> => {
+    return tagService.updateTag(tag.id, {
+      name: tag.name,
+      status: tag.status === "Active" ? "Inactive" : "Active",
+    });
   },
 };

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Plus, Edit2, ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
@@ -22,6 +22,9 @@ import { useCategories } from "../../hooks/useCategories";
 import { queryClient } from "../../providers/QueryProvider";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
+import { useDebounce } from "../../hooks/useDebounce";
+import { Pagination } from "../../components/ui/Pagination";
+import { CATEGORY_TREE_QUERY_KEY } from "../../hooks/useCategoryTree";
 
 export const SubCategoriesPage = () => {
   const { t } = useTranslation();
@@ -29,47 +32,46 @@ export const SubCategoriesPage = () => {
   const initialCategoryFilter = searchParams.get("category") || "";
 
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
   const [categoryFilter, setCategoryFilter] = useState(initialCategoryFilter);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Drawer
   const { isOpen, editingItem: editingSubCategory, openDrawer, closeDrawer } = useEntityDrawer<SubCategory>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Data via TanStack Query (cached)
-  const { data: subCategories = [], isLoading } = useSubCategories();
-  const { data: categories = [] } = useCategories();
+  const { data: subCategoriesResponse, isLoading } = useSubCategories(debouncedSearchQuery, categoryFilter, currentPage, itemsPerPage);
+  const subCategories = subCategoriesResponse?.data || [];
+  const totalPages = subCategoriesResponse?.meta?.totalPages || 1;
+
+  const { data: responseData } = useCategories();
+  const categories = responseData?.data || [];
 
 
 
   const handleSubmitForm = async (data: SubCategoryFormValues, imageFile: File | null) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = editingSubCategory?.image;
-      if (imageFile) {
-        imageUrl = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(imageFile);
-        });
-      }
-
       if (editingSubCategory) {
         await subCategoryService.updateSubCategory(editingSubCategory.id, {
           ...data,
           status: data.status || "Active",
-          image: imageUrl,
-        });
+        }, imageFile);
         toast.success(t("subCategories.messages.successUpdate"));
       } else {
         await subCategoryService.createSubCategory({
           ...data,
           status: data.status || "Active",
-          image: imageUrl,
-        });
+        }, imageFile);
         toast.success(t("subCategories.messages.successCreate"));
       }
 
-      await queryClient.invalidateQueries({ queryKey: SUB_CATEGORIES_QUERY_KEY });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: SUB_CATEGORIES_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: CATEGORY_TREE_QUERY_KEY }),
+      ]);
       closeDrawer();
     } catch (error: unknown) {
       const message =
@@ -86,7 +88,10 @@ export const SubCategoriesPage = () => {
       toast.success(
         t("subCategories.messages.successStatus") || "Status updated successfully"
       );
-      await queryClient.invalidateQueries({ queryKey: SUB_CATEGORIES_QUERY_KEY });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: SUB_CATEGORIES_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: CATEGORY_TREE_QUERY_KEY }),
+      ]);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("subCategories.messages.errorStatus")
@@ -94,14 +99,8 @@ export const SubCategoriesPage = () => {
     }
   };
 
-  // Filter Logic
-  const filteredSubCategories = useMemo(() => {
-    return subCategories.filter((sc: SubCategory) => {
-      const matchesSearch = sc.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = categoryFilter ? sc.categoryId === categoryFilter : true;
-      return matchesSearch && matchesCategory;
-    });
-  }, [subCategories, searchQuery, categoryFilter]);
+  // Filter Logic (Now handled on the server, we just pass down `subCategories`)
+  const filteredSubCategories = subCategories;
 
   const columns: ColumnDef<SubCategory>[] = [
     {
@@ -237,8 +236,18 @@ export const SubCategoriesPage = () => {
           isLoading={isLoading}
           emptyTitle={t("subCategories.messages.emptyTitle")}
           emptyDescription={t("subCategories.messages.emptySubtitle")}
-          itemsPerPage={10}
+          pagination={false}
         />
+        
+        {totalPages > 1 && (
+          <div className="mt-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
       </div>
 
       <EntityDrawer

@@ -27,6 +27,9 @@ import {
 } from "../../validations/onboarding";
 import { INDIAN_STATES } from "../../constants/locations";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
+import { apiClient } from "../../utils/api-client";
+import { ENDPOINTS } from "../../constants/endpoints";
 
 // Fix Leaflet's default marker icon issue in React
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -110,6 +113,12 @@ export const LocationForm: React.FC<LocationFormProps> = ({
           if (matchedState) {
             setValue("state", matchedState.value);
           }
+        } else if (data.address["ISO3166-2-lvl4"]) {
+          const code = data.address["ISO3166-2-lvl4"].replace("IN-", "");
+          const matchedState = INDIAN_STATES.find((s) => s.value === code);
+          if (matchedState) {
+            setValue("state", matchedState.value);
+          }
         }
 
         if (data.address.postcode) {
@@ -144,10 +153,14 @@ export const LocationForm: React.FC<LocationFormProps> = ({
     );
   };
 
-  const onSubmit = async () => {
-    // API call placeholder
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    onNext();
+  const onSubmit = async (data: LocationDetailsFormValues) => {
+    try {
+      await apiClient.patch(ENDPOINTS.ONBOARDING.LOCATION, data);
+      onNext();
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || t("onboarding.form.error", "Failed to submit. Please try again.");
+      toast.error(errorMessage);
+    }
   };
 
   // Map Click Handler Component

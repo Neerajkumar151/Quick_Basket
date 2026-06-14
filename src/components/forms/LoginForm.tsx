@@ -8,13 +8,18 @@ import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { loginSchema, type LoginFormValues } from "../../validations/auth";
 import { useTranslation } from "react-i18next";
+import { apiClient } from "../../utils/api-client";
+import { ENDPOINTS } from "../../constants/endpoints";
+import { storage } from "../../utils/storage";
+import { useAuth } from "../../context/AuthContext";
 
 interface LoginFormProps {
-  onSuccess: () => void;
+  onSuccess: (redirectUrl?: string) => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const { t } = useTranslation();
+  const { setIsAuthenticated } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -25,16 +30,49 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (_data: LoginFormValues) => {
+  const onSubmit = async (data: LoginFormValues) => {
     try {
-      // API call placeholder
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      localStorage.setItem("qb_admin_auth_token", "dummy-token");
-      toast.success(t("common.success" as any) || "Welcome back!", { icon: "👋" });
-      onSuccess();
+      const response = await apiClient.post(ENDPOINTS.AUTH.LOGIN, {
+        email: data.email,
+        password: data.password,
+      });
+      
+      const payload = response.data?.data || response.data;
+      
+      // Store the real access token
+      const token = payload?.accessToken;
+      if (token) {
+        storage.set("accessToken", token);
+        setIsAuthenticated(true); // Sync AuthContext state immediately
+      } else {
+        console.warn("Login successful but no accessToken found in response!");
+      }
+      
+      const onboarding = payload?.onboarding;
+      
+      if (onboarding && onboarding.status !== "APPROVED" && onboarding.status !== "COMPLETED") {
+        toast.error("Please complete your store registration to access the dashboard.");
+        
+        let redirectUrl = "/onboarding/basic-info";
+        if (onboarding.status === "PENDING" || onboarding.status === "UNDER_REVIEW") {
+          redirectUrl = "/onboarding/pending";
+        } else {
+          switch (onboarding.currentStep) {
+            case 1: redirectUrl = "/onboarding/basic-info"; break;
+            case 2: redirectUrl = "/onboarding/location"; break;
+            case 3: redirectUrl = "/onboarding/identity"; break;
+            case 4: redirectUrl = "/onboarding/pending"; break;
+            default: redirectUrl = "/onboarding/basic-info";
+          }
+        }
+        onSuccess(redirectUrl);
+      } else {
+        toast.success(t("auth.login.success", "Welcome back!"), { icon: "👋" });
+        onSuccess("/dashboard");
+      }
     } catch (err) {
       toast.error(t("auth.messages.invalidCredentials", "Invalid credentials."));
-    } finally { };
+    }
   };
 
   return (
