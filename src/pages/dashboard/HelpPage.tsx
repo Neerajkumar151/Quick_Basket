@@ -36,10 +36,10 @@ export const HelpPage = () => {
     resolver: zodResolver(issueSchema),
   });
 
-  const handleReportIssue = async (data: IssueFormValues) => {
+  const handleReportIssue = async (_data: IssueFormValues) => {
     // Mock API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Issue reported locally:", data);
+    // Simulating API call...
     toast.success(t("help.reportIssue.success" as any) || "Issue reported successfully");
     reset();
     setIsReportDrawerOpen(false);

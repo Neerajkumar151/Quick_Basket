@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { RefreshCw, Eye, ShoppingCart, PackageCheck, Truck, XCircle, Clock } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -9,8 +9,10 @@ import { Select } from "../../components/ui/Select";
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { Button } from "../../components/ui/Button";
+import { ErrorState } from "../../components/ui/ErrorState";
 import { OrderDetailsModal } from "../../components/orders/OrderDetailsModal";
-import { orderService } from "../../services/orderService";
+import { useOrders } from "../../hooks/useOrders";
+import { useDebounce } from "../../hooks/useDebounce";
 import { Order, ORDER_STATUS } from "../../types/order";
 import { formatCurrency } from "../../utils/number";
 import { formatDateTime } from "../../utils/date";
@@ -18,9 +20,8 @@ import { useTranslation } from "react-i18next";
 
 export const OrdersPage = () => {
   const { t } = useTranslation();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { data: fetchedOrders, isLoading, isError, refetch, isRefetching } = useOrders();
+  const orders = fetchedOrders || [];
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,37 +32,15 @@ export const OrdersPage = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchOrders = async (showLoader = true) => {
-    try {
-      if (showLoader) setIsLoading(true);
-      const data = await orderService.getOrders();
-      setOrders(data);
-    } catch {
-      toast.error(t("orders.messages.errorFetch"));
-    } finally {
-      if (showLoader) setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { fetchOrders(); }, []);
-
   const handleRefresh = async () => {
-    setIsRefreshing(true);
-    try {
-      const data = await orderService.refreshOrders();
-      setOrders(data);
-      toast.success(t("orders.messages.refreshed"));
-    } catch {
-      toast.error(t("orders.messages.errorFetch"));
-    } finally {
-      setIsRefreshing(false);
-    }
+    await refetch();
+    toast.success(t("orders.messages.refreshed"));
   };
 
   const handleViewOrder = async (order: Order) => {
     const toastId = toast.loading(t("orders.messages.loadingDetails", "Loading order details..."));
     try {
-      const fullOrder = await orderService.getOrderById(order.id);
+      const fullOrder = orders.find((o) => o.id === order.id) || order;
       if (fullOrder) {
         setSelectedOrder(fullOrder);
         setIsModalOpen(true);
@@ -76,7 +55,6 @@ export const OrdersPage = () => {
   };
 
   const handleStatusUpdated = (updated: Order) => {
-    setOrders((prev) => prev.map((o: Order) => (o.id === updated.id ? updated : o)));
     setSelectedOrder(updated);
   };
 
@@ -90,10 +68,12 @@ export const OrdersPage = () => {
   }), [orders]);
 
   // ── Filter + Sort + Paginate ───────────────────────────────────────────────
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   const processedOrders = useMemo(() => {
     let result = orders.filter((o: Order) => {
-      const matchesSearch = o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        o.customerName.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = o.id.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        o.customerName.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
       const matchesStatus = statusFilter === "all" || o.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -116,7 +96,7 @@ export const OrdersPage = () => {
       header: t("orders.table.orderId"),
       cell: (o: Order) => (
         <span className="font-mono font-bold text-primary text-description" title={o.id}>
-          #{o.id.split('-')[0].toUpperCase()}
+          #{o.id.split('-')[0]?.toUpperCase()}
         </span>
       ),
     },
@@ -236,25 +216,30 @@ export const OrdersPage = () => {
           <Button
             variant="outline"
             onClick={handleRefresh}
-            disabled={isRefreshing}
+            disabled={isRefetching}
             className="flex items-center gap-2"
           >
-            <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
-            {isRefreshing ? t("orders.filters.refreshing") : t("orders.filters.refresh")}
+            <RefreshCw size={16} className={isRefetching ? "animate-spin" : ""} />
+            {isRefetching ? t("orders.filters.refreshing") : t("orders.filters.refresh")}
           </Button>
         </div>
       </FilterBar>
 
       {/* ── Table ────────────────────────────────────────────────────────── */}
       <div className="flex flex-col">
-        <DataTable
-          data={processedOrders}
-          columns={columns}
-          isLoading={isLoading}
-          emptyTitle={t("orders.messages.emptyTitle")}
-          emptyDescription={t("orders.messages.emptySubtitle")}
-          itemsPerPage={10}
-        />
+        {isError ? (
+          <ErrorState onRetry={refetch} />
+        ) : (
+          <DataTable
+            data={processedOrders}
+            columns={columns}
+            isLoading={isLoading}
+            keyExtractor={(item) => item.id}
+            emptyTitle={t("orders.messages.emptyTitle")}
+            emptyDescription={t("orders.messages.emptySubtitle")}
+            itemsPerPage={10}
+          />
+        )}
       </div>
 
       {/* ── Modal ────────────────────────────────────────────────────────── */}

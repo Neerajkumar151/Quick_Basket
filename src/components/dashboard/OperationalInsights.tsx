@@ -59,7 +59,7 @@ export const OperationalInsights: React.FC<OperationalInsightsProps> = ({ recent
           </button>
         </div>
         
-        <DataTable data={recentOrders || []} columns={columns} />
+        <DataTable data={recentOrders || []} columns={columns} keyExtractor={(order) => order.id} />
       </div>
     </div>
   );

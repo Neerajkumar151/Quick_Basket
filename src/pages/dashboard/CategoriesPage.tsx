@@ -9,6 +9,7 @@ import { SearchInput } from "../../components/ui/SearchInput";
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
 import { StatusBadge } from "../../components/ui/StatusBadge";
+import { ErrorState } from "../../components/ui/ErrorState";
 
 import {
   CategoryForm,
@@ -17,17 +18,21 @@ import {
 import { categoryService } from "../../services/categoryService";
 import { Category } from "../../types/category";
 import { useCategories } from "../../hooks/useCategories";
-import { queryClient } from "../../providers/QueryProvider";
+import { useQueryClient } from "@tanstack/react-query";
+import { useDebounce } from "../../hooks/useDebounce";
 import { CATEGORIES_QUERY_KEY } from "../../hooks/useCategories";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
 
 import { Pagination } from "../../components/ui/Pagination";
 import { CATEGORY_TREE_QUERY_KEY } from "../../hooks/useCategoryTree";
+import { CATALOG_METADATA_QUERY_KEY } from "../../hooks/useCatalogMetadata";
 
 export const CategoriesPage = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Drawer
   const {
@@ -45,8 +50,8 @@ export const CategoriesPage = () => {
   const itemsPerPage = 10;
 
   // Data via TanStack Query (cached)
-  const { data: responseData, isLoading } = useCategories(
-    searchQuery,
+  const { data: responseData, isLoading, isError, refetch } = useCategories(
+    debouncedSearchQuery,
     currentPage,
     itemsPerPage,
   );
@@ -83,10 +88,11 @@ export const CategoriesPage = () => {
         toast.success(t("categories.messages.successCreate"));
       }
 
-      // Invalidate both the admin listing and the tree cache (used by dropdowns)
+      // Invalidate both the admin listing, the tree cache, and the catalog metadata (used by dropdowns)
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY }),
         queryClient.invalidateQueries({ queryKey: CATEGORY_TREE_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: [CATALOG_METADATA_QUERY_KEY] }),
       ]);
       closeDrawer();
     } catch (error: unknown) {
@@ -110,6 +116,7 @@ export const CategoriesPage = () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY }),
         queryClient.invalidateQueries({ queryKey: CATEGORY_TREE_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: [CATALOG_METADATA_QUERY_KEY] }),
       ]);
     } catch (error) {
       toast.error(
@@ -220,14 +227,19 @@ export const CategoriesPage = () => {
       </FilterBar>
 
       <div className="flex flex-col">
-        <DataTable
-          data={categories}
-          columns={columns}
-          isLoading={isLoading}
-          emptyTitle={t("categories.messages.emptyTitle")}
-          emptyDescription={t("categories.messages.emptySubtitle")}
-          pagination={false}
-        />
+        {isError ? (
+          <ErrorState onRetry={refetch} />
+        ) : (
+          <DataTable
+            data={categories}
+            columns={columns}
+            isLoading={isLoading}
+            keyExtractor={(item) => item.id}
+            emptyTitle={t("categories.messages.emptyTitle")}
+            emptyDescription={t("categories.messages.emptySubtitle")}
+            pagination={false}
+          />
+        )}
 
         {meta.totalPages > 1 && (
           <div className="mt-4">

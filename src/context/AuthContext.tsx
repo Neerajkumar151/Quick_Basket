@@ -14,6 +14,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -65,9 +66,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
    */
   useEffect(() => {
     const handleGlobalLogout = () => {
-      console.log(
-        "AuthContext: Received auth-logout event. Cleaning session..."
-      );
       cleanLocalSession("Your session has expired. Please log in again.");
     };
 
@@ -92,8 +90,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [cleanLocalSession]);
 
+  const value = useMemo(
+    () => ({ isAuthenticated, setIsAuthenticated, logout }),
+    [isAuthenticated, logout]
+  );
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

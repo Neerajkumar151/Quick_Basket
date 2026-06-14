@@ -193,19 +193,19 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Details Section */}
         <SectionCard
-          title={"Store Details"}
+          title={t("storeProfile.details.title", "Store Details")}
           icon={<FileText size={20} />}
           className="h-full"
         >
           <div className="flex flex-col gap-4">
             <div>
-              <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">Store Type</p>
+              <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">{t("storeProfile.details.storeType", "Store Type")}</p>
               <Select
                 {...register("businessType")}
                 error={errors.businessType?.message}
               >
-                <option value="" disabled>Select Business Type</option>
-                <option value="individual">Individual</option>
+                <option value="" disabled>{t("storeProfile.details.selectBusinessType", "Select Business Type")}</option>
+                <option value="individual">{t("storeProfile.details.individual", "Individual")}</option>
                 <option value="proprietorship">Proprietorship</option>
                 <option value="partnership">Partnership</option>
                 <option value="pvtLtd">Private Limited</option>
@@ -214,16 +214,16 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">GST Number</p>
+                <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">{t("storeProfile.details.gstNumber", "GST Number")}</p>
                 <Input
                   {...register("gstNumber")}
                   error={errors.gstNumber?.message}
-                  placeholder="Optional"
+                  placeholder={t("common.optional", "Optional")}
                   className="uppercase"
                 />
               </div>
               <div>
-                <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">PAN Number</p>
+                <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">{t("storeProfile.details.panNumber", "PAN Number")}</p>
                 <Input
                   {...register("panNumber")}
                   error={errors.panNumber?.message}
@@ -234,12 +234,12 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
             </div>
 
             <div>
-              <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">Description</p>
+              <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">{t("storeProfile.details.description", "Description")}</p>
               <TextArea
                 {...register("description")}
                 error={errors.description?.message}
                 rows={3}
-                placeholder="Describe your store"
+                placeholder={t("storeProfile.details.descriptionPlaceholder", "Describe your store")}
               />
             </div>
           </div>

@@ -10,18 +10,22 @@ import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { DateTimeDisplay } from "../../components/ui/DateTimeDisplay";
+import { ErrorState } from "../../components/ui/ErrorState";
 
 import { TagForm, TagFormValues } from "../../components/tags/TagForm";
 import { tagService } from "../../services/tagService";
 import { Tag } from "../../types/tag";
 import { useTags } from "../../hooks/useTags";
-import { queryClient } from "../../providers/QueryProvider";
+import { useQueryClient } from "@tanstack/react-query";
+import { useDebounce } from "../../hooks/useDebounce";
 import { TAGS_QUERY_KEY } from "../../hooks/useTags";
+import { CATALOG_METADATA_QUERY_KEY } from "../../hooks/useCatalogMetadata";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
 
 export const TagsPage = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
 
   // Drawer
@@ -29,7 +33,7 @@ export const TagsPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Data via TanStack Query (cached)
-  const { data: tags = [], isLoading } = useTags();
+  const { data: tags = [], isLoading, isError, refetch } = useTags();
 
 
 
@@ -50,7 +54,10 @@ export const TagsPage = () => {
         toast.success(t("tags.messages.successCreate"));
       }
 
-      await queryClient.invalidateQueries({ queryKey: TAGS_QUERY_KEY });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: TAGS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: [CATALOG_METADATA_QUERY_KEY] })
+      ]);
       closeDrawer();
     } catch (error: unknown) {
       const message =
@@ -67,7 +74,10 @@ export const TagsPage = () => {
       toast.success(
         t("tags.messages.successStatus") || "Status updated successfully"
       );
-      await queryClient.invalidateQueries({ queryKey: TAGS_QUERY_KEY });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: TAGS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: [CATALOG_METADATA_QUERY_KEY] })
+      ]);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("tags.messages.errorStatus")
@@ -76,11 +86,13 @@ export const TagsPage = () => {
   };
 
   // Filter Logic
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   const filteredTags = useMemo(() => {
-    return tags.filter((t: Tag) =>
-      t.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [tags, searchQuery]);
+    return tags.filter((t: Tag) => {
+      return t.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+    });
+  }, [tags, debouncedSearchQuery]);
 
   const columns: ColumnDef<Tag>[] = [
     {
@@ -168,14 +180,19 @@ export const TagsPage = () => {
       </FilterBar>
 
       <div className="flex flex-col">
-        <DataTable
-          data={filteredTags}
-          columns={columns}
-          isLoading={isLoading}
-          emptyTitle={t("tags.messages.emptyTitle")}
-          emptyDescription={t("tags.messages.emptySubtitle")}
-          itemsPerPage={10}
-        />
+        {isError ? (
+          <ErrorState onRetry={refetch} />
+        ) : (
+          <DataTable
+            data={filteredTags}
+            columns={columns}
+            isLoading={isLoading}
+            keyExtractor={(item) => item.id}
+            emptyTitle={t("tags.messages.emptyTitle")}
+            emptyDescription={t("tags.messages.emptySubtitle")}
+            itemsPerPage={10}
+          />
+        )}
       </div>
 
       <EntityDrawer

@@ -40,11 +40,35 @@ export interface KPIItem {
   id?: string;
   title: string;
   value?: string | number;
-  icon: any;
+  icon: React.ComponentType<{ size?: number }>;
   bgClass: string;
   colorClass: string;
   borderClass?: string;
 }
+
+const KPICard: React.FC<{ kpi: KPIItem; isStatus?: boolean }> = ({ kpi, isStatus }) => (
+  <div
+    className={`border border-border rounded-xl p-5 transition-all flex flex-col justify-between min-h-[110px] group ${
+      isStatus 
+        ? "bg-card/50 shadow-sm cursor-pointer" 
+        : "bg-card shadow-[0_2px_10px_-3px_rgba(0,0,0,0.1)] hover:shadow-md hover:border-border/80"
+    } ${kpi.borderClass || ''}`}
+  >
+    <div className="flex justify-between items-start mb-2">
+      <h3 className="text-caption font-bold text-muted-foreground uppercase tracking-wider">
+        {kpi.title}
+      </h3>
+      <div className={`p-2 rounded-lg ${kpi.bgClass} ${kpi.colorClass}`}>
+        <kpi.icon size={20} />
+      </div>
+    </div>
+    <div className="flex flex-col">
+      <span className="text-h1 font-extrabold text-foreground tracking-tight">
+        {kpi.value ?? '-'}
+      </span>
+    </div>
+  </div>
+);
 
 export const KPICards: React.FC<KPICardsProps> = ({ metrics, items }) => {
   const { t } = useTranslation();
@@ -105,24 +129,7 @@ export const KPICards: React.FC<KPICardsProps> = ({ metrics, items }) => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {items.map((kpi, idx) => (
-          <div
-            key={`kpi-${kpi.id || idx}`}
-            className={`bg-card border border-border rounded-xl p-5 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.1)] hover:shadow-md hover:border-border/80 transition-all group flex flex-col justify-between min-h-[110px] ${kpi.borderClass || ''}`}
-          >
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-caption font-bold text-muted-foreground uppercase tracking-wider">
-                {kpi.title}
-              </h3>
-              <div className={`p-2 rounded-lg ${kpi.bgClass} ${kpi.colorClass}`}>
-                <kpi.icon size={20} />
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-h1 font-extrabold text-foreground tracking-tight">
-                {kpi.value ?? '-'}
-              </span>
-            </div>
-          </div>
+          <KPICard key={`kpi-${kpi.id || idx}`} kpi={kpi} />
         ))}
       </div>
     );
@@ -132,46 +139,12 @@ export const KPICards: React.FC<KPICardsProps> = ({ metrics, items }) => {
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
       {/* Primary Metrics */}
       {primaryKpiData.map((kpi, idx) => (
-        <div
-          key={`primary-${idx}`}
-          className="bg-card border border-border rounded-xl p-5 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.1)] hover:shadow-md hover:border-border/80 transition-all group flex flex-col justify-between min-h-[110px]"
-        >
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-caption font-bold text-muted-foreground uppercase tracking-wider">
-              {kpi.title}
-            </h3>
-            <div className={`p-2 rounded-lg ${kpi.bgClass} ${kpi.colorClass}`}>
-              <kpi.icon size={20} />
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-h1 font-extrabold text-foreground tracking-tight">
-              {kpi.value}
-            </span>
-          </div>
-        </div>
+        <KPICard key={`primary-${idx}`} kpi={kpi} />
       ))}
 
       {/* Order Status Metrics */}
       {orderStatusKpi.map((kpi, idx) => (
-        <div
-          key={`status-${idx}`}
-          className={`bg-card/50 border border-border rounded-xl p-5 shadow-sm transition-all flex flex-col justify-between cursor-pointer group min-h-[110px] ${kpi.borderClass}`}
-        >
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-caption font-bold text-muted-foreground uppercase tracking-wider">
-              {kpi.title}
-            </h3>
-            <div className={`p-2 rounded-lg ${kpi.bgClass} ${kpi.colorClass}`}>
-              <kpi.icon size={20} />
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-h1 font-extrabold text-foreground tracking-tight">
-              {kpi.value}
-            </span>
-          </div>
-        </div>
+        <KPICard key={`status-${idx}`} kpi={kpi} isStatus />
       ))}
     </div>
   );

@@ -8,19 +8,22 @@ import { SearchInput } from "../../components/ui/SearchInput";
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
 import { StatusBadge } from "../../components/ui/StatusBadge";
+import { ErrorState } from "../../components/ui/ErrorState";
 
 import { BannerForm } from "../../components/banners/BannerForm";
 import { BannerFormValues } from "../../validations/banner";
 import { bannerService } from "../../services/bannerService";
 import { Banner } from "../../types/banner";
 import { useBanners } from "../../hooks/useBanners";
-import { queryClient } from "../../providers/QueryProvider";
+import { useQueryClient } from "@tanstack/react-query";
+import { useDebounce } from "../../hooks/useDebounce";
 import { BANNERS_QUERY_KEY } from "../../hooks/useBanners";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
 
 export const BannersPage = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
 
   // Drawer
@@ -28,7 +31,7 @@ export const BannersPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Data via TanStack Query (cached)
-  const { data: banners = [], isLoading } = useBanners();
+  const { data: banners = [], isLoading, isError, refetch } = useBanners();
 
 
 
@@ -76,11 +79,13 @@ export const BannersPage = () => {
   };
 
   // Filter Logic
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   const processedBanners = useMemo(() => {
     let result = [...banners];
 
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
+    if (debouncedSearchQuery) {
+      const q = debouncedSearchQuery.toLowerCase();
       result = result.filter((b: Banner) => b.title.toLowerCase().includes(q));
     }
 
@@ -192,14 +197,19 @@ export const BannersPage = () => {
       </FilterBar>
 
       <div className="flex flex-col">
-        <DataTable
-          data={processedBanners}
-          columns={columns}
-          isLoading={isLoading}
-          emptyTitle={t("banners.messages.emptyTitle")}
-          emptyDescription={t("banners.messages.emptySubtitle")}
-          itemsPerPage={10}
-        />
+        {isError ? (
+          <ErrorState onRetry={refetch} />
+        ) : (
+          <DataTable
+            data={processedBanners}
+            columns={columns}
+            isLoading={isLoading}
+            keyExtractor={(item) => item.id}
+            emptyTitle={t("banners.messages.emptyTitle")}
+            emptyDescription={t("banners.messages.emptySubtitle")}
+            itemsPerPage={10}
+          />
+        )}
       </div>
 
       <EntityDrawer

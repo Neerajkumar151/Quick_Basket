@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus, ImageIcon, Edit2 } from "lucide-react";
-import toast from "react-hot-toast";
+
 
 import { PageHeader } from "../../components/ui/PageHeader";
 import { FilterBar } from "../../components/ui/FilterBar";
@@ -9,16 +9,18 @@ import { Select } from "../../components/ui/Select";
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
 import { StatusBadge } from "../../components/ui/StatusBadge";
+import { ErrorState } from "../../components/ui/ErrorState";
 import { formatCurrency } from "../../utils/number";
 
 import { ProductForm } from "../../components/products/ProductForm";
 import { ProductFormValues } from "../../validations/product";
-import { productService } from "../../services/productService";
+
 import { Product } from "../../types/product";
-import { useProducts, PRODUCTS_QUERY_KEY } from "../../hooks/useProducts";
+import { useProducts } from "../../hooks/useProducts";
+import { useCreateProduct, useUpdateProduct, useToggleProductStatus } from "../../hooks/useProductMutations";
+import { useDebounce } from "../../hooks/useDebounce";
 import { useCatalogMetadata, useSubCategoryMetadata } from "../../hooks/useCatalogMetadata";
 import { useSubCategories } from "../../hooks/useSubCategories";
-import { queryClient } from "../../providers/QueryProvider";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
 
@@ -41,10 +43,16 @@ export const ProductsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const { mutateAsync: createProduct } = useCreateProduct();
+  const { mutateAsync: updateProduct } = useUpdateProduct();
+  const { mutateAsync: toggleProductStatus } = useToggleProductStatus();
+
+
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Data via TanStack Query (cached, server-side filtered/paginated)
-  const { data: responseData, isLoading } = useProducts(
-    searchQuery,
+  const { data: responseData, isLoading, isError, refetch } = useProducts(
+    debouncedSearchQuery,
     categoryFilter !== "all" ? categoryFilter : undefined,
     subCategoryFilter !== "all" ? subCategoryFilter : undefined,
     statusFilter !== "all" ? statusFilter : undefined,
@@ -72,18 +80,13 @@ export const ProductsPage = () => {
     setIsSubmitting(true);
     try {
       if (editingProduct) {
-        await productService.updateProduct(editingProduct.id, data);
-        toast.success(t("products.messages.successUpdate"));
+        await updateProduct({ id: editingProduct.id, data });
       } else {
-        await productService.createProduct(data);
-        toast.success(t("products.messages.successCreate"));
+        await createProduct(data);
       }
-      // Invalidate cache so both ProductsPage and any other consumer refresh
-      await queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
       closeDrawer();
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : t("products.messages.errorSave");
-      toast.error(message);
+      // Error handled by hook
     } finally {
       setIsSubmitting(false);
     }
@@ -91,11 +94,9 @@ export const ProductsPage = () => {
 
   const toggleStatus = async (prod: Product) => {
     try {
-      await productService.toggleStatus(prod.id);
-      toast.success(t("products.messages.successStatus"));
-      await queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
+      await toggleProductStatus(prod.id);
     } catch {
-      toast.error(t("products.messages.errorStatus"));
+      // Error handled by hook
     }
   };
 
@@ -295,14 +296,19 @@ export const ProductsPage = () => {
       </FilterBar>
 
       <div className="flex flex-col">
-        <DataTable
-          data={products}
-          columns={columns}
-          isLoading={isLoading}
-          emptyTitle={t("products.messages.emptyTitle")}
-          emptyDescription={t("products.messages.emptySubtitle")}
-          pagination={false}
-        />
+        {isError ? (
+          <ErrorState onRetry={refetch} />
+        ) : (
+          <DataTable
+            data={products}
+            columns={columns}
+            isLoading={isLoading}
+            keyExtractor={(item) => item.id}
+            emptyTitle={t("products.messages.emptyTitle")}
+            emptyDescription={t("products.messages.emptySubtitle")}
+            pagination={false}
+          />
+        )}
 
         {meta.totalPages > 1 && (
           <div className="mt-4">

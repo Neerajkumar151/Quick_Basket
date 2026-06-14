@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   User, Phone, Mail, MapPin, Package,
   CreditCard, ReceiptText, CheckCircle2, X
 } from "lucide-react";
-import toast from "react-hot-toast";
+
 
 import { Modal } from "../ui/Modal";
 import { OrderTimeline } from "./OrderTimeline";
 import { StatusBadge } from "../ui/StatusBadge";
 import { Button } from "../ui/Button";
 import { Order, ORDER_STATUS, ORDER_FLOW, OrderStatus } from "../../types/order";
-import { orderService } from "../../services/orderService";
+import { useUpdateOrderStatus } from "../../hooks/useOrderMutations";
 import { formatCurrency } from "../../utils/number";
 import { formatDateTime } from "../../utils/date";
 import { useTranslation } from "react-i18next";
@@ -31,7 +31,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   onStatusUpdated,
 }) => {
   const { t } = useTranslation();
-  const [isUpdating, setIsUpdating] = useState(false);
+  const { mutateAsync: updateOrderStatus, isPending: isUpdating } = useUpdateOrderStatus();
 
   if (!order) return null;
 
@@ -45,15 +45,13 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const allowedTransitions = ORDER_FLOW[order.status] || [];
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
-    setIsUpdating(true);
     try {
-      const updated = await orderService.updateOrderStatus(order.id, newStatus);
-      toast.success(t("orders.messages.statusUpdated", `Order ${order.id} updated to "${newStatus}"`, { id: order.id, status: newStatus }));
-      onStatusUpdated(updated);
+      await updateOrderStatus({ id: order.id, status: newStatus });
+      // The hook will invalidate orders, but we might want to update the local selectedOrder immediately
+      onStatusUpdated({ ...order, status: newStatus });
+      onClose(); // Optional: close modal or just let it update
     } catch (err: any) {
-      toast.error(err.message || t("orders.messages.updateFailed", "Failed to update status"));
-    } finally {
-      setIsUpdating(false);
+      // Error handled by hook's toast
     }
   };
 
@@ -61,7 +59,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t("orders.modal.title", `Order #${order.id.split('-')[0].toUpperCase()}`, { id: `#${order.id.split('-')[0].toUpperCase()}` })}
+      title={t("orders.modal.title", `Order #${order.id.split('-')[0]?.toUpperCase()}`, { id: `#${order.id.split('-')[0]?.toUpperCase()}` })}
       maxWidth="4xl"
     >
       <div className="flex flex-col gap-6">

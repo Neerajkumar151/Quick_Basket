@@ -38,6 +38,12 @@ const mapProduct = (item: any): Product => {
   };
 };
 
+const base64ToFile = async (dataUrl: string, filename: string): Promise<File> => {
+  const res = await fetch(dataUrl);
+  const blob = await res.blob();
+  return new File([blob], filename, { type: blob.type });
+};
+
 export const productService = {
   getProducts: async (
     search?: string,
@@ -103,11 +109,7 @@ export const productService = {
   },
 
   createProduct: async (data: any): Promise<Product> => {
-    const base64ToFile = async (dataUrl: string, filename: string): Promise<File> => {
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      return new File([blob], filename, { type: blob.type });
-    };
+
 
     const formData = new FormData();
     formData.append("categoryId", data.categoryId);
@@ -134,11 +136,7 @@ export const productService = {
   },
 
   updateProduct: async (id: string, data: any): Promise<Product> => {
-    const base64ToFile = async (dataUrl: string, filename: string): Promise<File> => {
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      return new File([blob], filename, { type: blob.type });
-    };
+
 
     const formData = new FormData();
     if (data.categoryId !== undefined) formData.append("categoryId", data.categoryId);

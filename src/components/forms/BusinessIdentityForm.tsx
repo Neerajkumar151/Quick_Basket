@@ -13,7 +13,8 @@ import toast from "react-hot-toast";
 
 import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
-import { Button, cn } from "../ui/Button";
+import { Button } from "../ui/Button";
+import { cn } from "../../utils/cn";
 import {
   businessIdentitySchema,
   type BusinessIdentityFormValues,

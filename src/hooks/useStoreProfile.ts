@@ -4,12 +4,12 @@ import { StoreProfileUpdateInput, StoreOperationsUpdateInput } from "../types/st
 import { apiClient } from "../utils/api-client";
 import { ENDPOINTS } from "../constants/endpoints";
 
-export const STORE_DATA_MASTER_KEY = ["storeDataMaster"];
+import { queryKeys } from "../constants/queryKeys";
 
 // Master fetcher that hits the network exactly once
 export const useStoreData = () => {
   return useQuery({
-    queryKey: STORE_DATA_MASTER_KEY,
+    queryKey: queryKeys.storeProfile,
     queryFn: async (): Promise<RawStoreProfile> => {
       const response = await apiClient.get(ENDPOINTS.STORE.PROFILE);
       return response.data?.data ?? response.data ?? {};
@@ -34,7 +34,7 @@ export const useUpdateStoreProfile = () => {
     mutationFn: ({ data, logoFile, bannerFile }: { data: StoreProfileUpdateInput; logoFile: File | null; bannerFile: File | null }) => 
       storeProfileService.updateStoreProfile(data, logoFile, bannerFile),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: STORE_DATA_MASTER_KEY });
+      queryClient.invalidateQueries({ queryKey: queryKeys.storeProfile });
     },
   });
 };
@@ -54,7 +54,7 @@ export const useUpdateStoreOperations = () => {
   return useMutation({
     mutationFn: (data: StoreOperationsUpdateInput) => storeProfileService.updateStoreOperations(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: STORE_DATA_MASTER_KEY });
+      queryClient.invalidateQueries({ queryKey: queryKeys.storeProfile });
     },
   });
 };

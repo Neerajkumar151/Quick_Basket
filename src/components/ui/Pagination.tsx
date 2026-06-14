@@ -44,7 +44,7 @@ export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages,
               disabled={currentPage === 1}
               className="relative inline-flex items-center rounded-l-md px-2 py-2 text-muted-foreground ring-1 ring-inset ring-border hover:bg-input focus:z-20 focus:outline-offset-0 disabled:opacity-50"
             >
-              <span className="sr-only">Previous</span>
+              <span className="sr-only">{t("common.previous", "Previous")}</span>
               <ChevronLeft className="h-5 w-5" aria-hidden="true" />
             </button>
             
@@ -69,7 +69,7 @@ export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages,
               disabled={currentPage === totalPages}
               className="relative inline-flex items-center rounded-r-md px-2 py-2 text-muted-foreground ring-1 ring-inset ring-border hover:bg-input focus:z-20 focus:outline-offset-0 disabled:opacity-50"
             >
-              <span className="sr-only">Next</span>
+              <span className="sr-only">{t("common.next", "Next")}</span>
               <ChevronRight className="h-5 w-5" aria-hidden="true" />
             </button>
           </nav>

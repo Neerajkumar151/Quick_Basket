@@ -6,13 +6,13 @@ import {
 } from "recharts";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
-import { DashboardAnalytics } from "../../types/dashboard";
+import { DashboardAnalytics, OrderStatusDistributionItem } from "../../types/dashboard";
 
 interface AnalyticsSectionProps {
   analytics?: DashboardAnalytics;
 }
 
-const getOrderStatusData = (t: TFunction, distribution: any[] = []) => {
+const getOrderStatusData = (t: TFunction, distribution: OrderStatusDistributionItem[] = []) => {
   // If API provides distribution, map it. Otherwise fallback to empty.
   return distribution.map(item => {
     let color = item.color;
@@ -67,14 +67,14 @@ const renderActiveShape = (props: any) => {
       />
       <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#fff" fontSize={12} fontWeight="bold">
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="hsl(var(--foreground))" fontSize={12} fontWeight="bold">
         {`${payload.name} ${(percent * 100).toFixed(1)}%`}
       </text>
     </g>
   );
 };
 
-export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ analytics }) => {
+export const AnalyticsSection: React.FC<AnalyticsSectionProps> = React.memo(({ analytics }) => {
   const { t } = useTranslation();
   const [revenueFilter, setRevenueFilter] = useState<'Daily' | 'Weekly' | 'Monthly'>('Monthly');
   const [ordersFilter, setOrdersFilter] = useState<'Daily' | 'Weekly' | 'Monthly'>('Monthly');
@@ -121,19 +121,19 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ analytics })
                   dataKey="name" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: '#64748b', fontSize: 12 }}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   dy={10}
                 />
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: '#64748b', fontSize: 12 }}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   tickFormatter={(value) => `₹${value}`}
                 />
                 <RechartsTooltip 
-                  cursor={{ stroke: 'rgba(255, 255, 255, 0.1)', strokeWidth: 1, strokeDasharray: '4 4' }}
-                  contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(8px)', border: '1px solid #1e293b', borderRadius: '8px' }}
-                  itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                  cursor={{ stroke: 'hsl(var(--muted-foreground) / 0.1)', strokeWidth: 1, strokeDasharray: '4 4' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', backdropFilter: 'blur(8px)', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                  itemStyle={{ color: 'hsl(var(--card-foreground))', fontWeight: 'bold' }}
                   formatter={(value: any) => [`₹${value.toLocaleString()}`, t("dashboard.analytics.tabs.revenue")]}
                 />
                 <Area 
@@ -177,18 +177,18 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ analytics })
                   dataKey="name" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: '#64748b', fontSize: 12 }}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   dy={10}
                 />
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: '#64748b', fontSize: 12 }}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                 />
                 <RechartsTooltip 
-                  cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
-                  contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(8px)', border: '1px solid #1e293b', borderRadius: '8px' }}
-                  itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                  cursor={{ fill: 'hsl(var(--muted-foreground) / 0.03)' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', backdropFilter: 'blur(8px)', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                  itemStyle={{ color: 'hsl(var(--card-foreground))', fontWeight: 'bold' }}
                   formatter={(value: any) => [value.toLocaleString(), t("dashboard.analytics.tabs.orders")]}
                 />
                 <Bar 
@@ -281,4 +281,5 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ analytics })
       </div>
     </div>
   );
-};
+});
+AnalyticsSection.displayName = "AnalyticsSection";

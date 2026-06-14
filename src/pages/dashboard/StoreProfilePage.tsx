@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Tabs, Tab } from "../../components/ui/Tabs";
 import { CardSkeleton } from "../../components/ui/LoadingSkeletons";
+import { ErrorState } from "../../components/ui/ErrorState";
 
 import { ProfileInformationTab } from "../../components/store-profile/ProfileInformationTab";
 import { StoreOperationsTab } from "../../components/store-profile/StoreOperationsTab";
@@ -19,8 +20,8 @@ import { useTranslation } from "react-i18next";
 
 export const StoreProfilePage = () => {
   const { t } = useTranslation();
-  const { data: profile, isLoading: isLoadingProfile } = useStoreProfile();
-  const { data: operations, isLoading: isLoadingOperations } = useStoreOperations();
+  const { data: profile, isLoading: isLoadingProfile, isError: isErrorProfile, refetch: refetchProfile } = useStoreProfile();
+  const { data: operations, isLoading: isLoadingOperations, isError: isErrorOperations, refetch: refetchOperations } = useStoreOperations();
   
   const { mutateAsync: updateProfile, isPending: isUpdatingProfile } = useUpdateStoreProfile();
   const { mutateAsync: updateOperations, isPending: isUpdatingOperations } = useUpdateStoreOperations();
@@ -51,6 +52,14 @@ export const StoreProfilePage = () => {
         <CardSkeleton />
         <CardSkeleton />
         <CardSkeleton />
+      </div>
+    );
+  }
+
+  if (isErrorProfile || isErrorOperations) {
+    return (
+      <div className="p-6">
+        <ErrorState onRetry={() => { refetchProfile(); refetchOperations(); }} />
       </div>
     );
   }

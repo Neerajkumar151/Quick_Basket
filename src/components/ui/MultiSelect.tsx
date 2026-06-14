@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { cn } from "./Button";
+import { cn } from "../../utils/cn";
 import { ChevronDown, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
