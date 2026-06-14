@@ -18,13 +18,12 @@ import {
 import { subCategoryService } from "../../services/subCategoryService";
 import { SubCategory } from "../../types/subCategory";
 import { useSubCategories, SUB_CATEGORIES_QUERY_KEY } from "../../hooks/useSubCategories";
-import { useCategories } from "../../hooks/useCategories";
+import { useCategoryTree, CATEGORY_TREE_QUERY_KEY } from "../../hooks/useCategoryTree";
 import { queryClient } from "../../providers/QueryProvider";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
-import { useDebounce } from "../../hooks/useDebounce";
+
 import { Pagination } from "../../components/ui/Pagination";
-import { CATEGORY_TREE_QUERY_KEY } from "../../hooks/useCategoryTree";
 
 export const SubCategoriesPage = () => {
   const { t } = useTranslation();
@@ -32,7 +31,7 @@ export const SubCategoriesPage = () => {
   const initialCategoryFilter = searchParams.get("category") || "";
 
   const [searchQuery, setSearchQuery] = useState("");
-  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+
   const [categoryFilter, setCategoryFilter] = useState(initialCategoryFilter);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -42,12 +41,11 @@ export const SubCategoriesPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Data via TanStack Query (cached)
-  const { data: subCategoriesResponse, isLoading } = useSubCategories(debouncedSearchQuery, categoryFilter, currentPage, itemsPerPage);
+  const { data: subCategoriesResponse, isLoading } = useSubCategories(searchQuery, categoryFilter, currentPage, itemsPerPage);
   const subCategories = subCategoriesResponse?.data || [];
   const totalPages = subCategoriesResponse?.meta?.totalPages || 1;
 
-  const { data: responseData } = useCategories();
-  const categories = responseData?.data || [];
+  const { data: categories = [] } = useCategoryTree();
 
 
 

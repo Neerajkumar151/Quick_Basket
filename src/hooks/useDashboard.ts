@@ -7,5 +7,6 @@ export const useDashboard = () => {
   return useQuery({
     queryKey: DASHBOARD_QUERY_KEY,
     queryFn: dashboardService.getDashboard,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

@@ -32,12 +32,18 @@ const IconMap: Record<string, any> = {
 export const RevenueReports: React.FC = () => {
   const { t } = useTranslation();
   const [dateRange, setDateRange] = useState<DateRange>('monthly');
+  
+  // UI State for inputs
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
+  
+  // Applied state for API calls
+  const [appliedStartDate, setAppliedStartDate] = useState('');
+  const [appliedEndDate, setAppliedEndDate] = useState('');
 
-  const { data: metrics, isLoading: isMetricsLoading } = useRevenueMetrics(dateRange, customStartDate, customEndDate);
-  const { data: trends, isLoading: isTrendsLoading } = useRevenueTrends(dateRange, customStartDate, customEndDate);
-  const { data: breakdown, isLoading: isBreakdownLoading } = useRevenueBreakdown(dateRange, customStartDate, customEndDate);
+  const { data: metrics, isLoading: isMetricsLoading } = useRevenueMetrics(dateRange, appliedStartDate, appliedEndDate);
+  const { data: trends, isLoading: isTrendsLoading } = useRevenueTrends(dateRange, appliedStartDate, appliedEndDate);
+  const { data: breakdown, isLoading: isBreakdownLoading } = useRevenueBreakdown(dateRange, appliedStartDate, appliedEndDate);
 
   const breakdownColumns: ColumnDef<any>[] = useMemo(() => [
     { header: t('dashboard.operational.recentOrders.columns.orderId') || 'Order ID', accessorKey: 'id' },
@@ -77,6 +83,19 @@ export const RevenueReports: React.FC = () => {
     document.body.removeChild(link);
   };
 
+  const handleApplyCustomDate = () => {
+    setAppliedStartDate(customStartDate);
+    setAppliedEndDate(customEndDate);
+  };
+
+  const handleDateRangeChange = (val: string) => {
+    setDateRange(val as DateRange);
+    if (val !== 'custom') {
+      setAppliedStartDate('');
+      setAppliedEndDate('');
+    }
+  };
+
   const kpiItems: KPIItem[] = useMemo(() => {
     return mockData.revenueKpis.map((kpi: any) => {
       let value: string | number = '-';
@@ -112,15 +131,15 @@ export const RevenueReports: React.FC = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card p-4 rounded-xl border border-border shadow-sm">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 bg-card p-4 rounded-xl border border-border shadow-sm">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 w-full xl:w-auto">
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-muted-foreground whitespace-nowrap">
               View By:
             </label>
             <Select 
               value={dateRange}
-              onChange={(e) => setDateRange(e.target.value as DateRange)}
+              onChange={(e) => handleDateRangeChange(e.target.value)}
               className="w-32"
             >
               <option value="daily">{t('reports.revenue.filters.daily') || 'Daily'}</option>
@@ -131,20 +150,29 @@ export const RevenueReports: React.FC = () => {
           </div>
 
           {dateRange === 'custom' && (
-            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
+            <div className="flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-left-4 p-1 rounded-lg bg-input/50 border border-border/50">
               <Input 
                 type="date" 
                 value={customStartDate} 
                 onChange={(e) => setCustomStartDate(e.target.value)} 
-                className="w-auto h-10"
+                className="w-auto h-9 text-sm"
               />
               <span className="text-muted-foreground text-sm font-medium px-1">to</span>
               <Input 
                 type="date" 
                 value={customEndDate} 
                 onChange={(e) => setCustomEndDate(e.target.value)} 
-                className="w-auto h-10"
+                className="w-auto h-9 text-sm"
               />
+              <Button 
+                variant="primary" 
+                size="sm"
+                onClick={handleApplyCustomDate}
+                disabled={!customStartDate || !customEndDate}
+                className="h-9 px-4 ml-1"
+              >
+                Apply
+              </Button>
             </div>
           )}
         </div>

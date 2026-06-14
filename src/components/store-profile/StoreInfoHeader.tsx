@@ -47,7 +47,7 @@ export const StoreInfoHeader: React.FC<StoreInfoHeaderProps> = ({
       {/* Store Banner */}
       <div className="w-full h-32 md:h-48 bg-muted relative">
         {profile.bannerUrl ? (
-          <img src={profile.bannerUrl} alt="Store Banner" className="w-full h-full object-cover" />
+          <img src={profile.bannerUrl} alt="Store Banner" className="w-full h-full object-cover transition-opacity duration-300" loading="lazy" decoding="async" />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-50">
             <ImageIcon size={32} className="mb-2" />
@@ -63,7 +63,7 @@ export const StoreInfoHeader: React.FC<StoreInfoHeaderProps> = ({
           {/* Logo */}
           <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-card border-4 border-card shadow-sm flex items-center justify-center overflow-hidden shrink-0 relative z-10 -mt-10 md:-mt-12">
             {profile.logoUrl ? (
-              <img src={profile.logoUrl} alt="Store Logo" className="w-full h-full object-cover bg-muted" />
+              <img src={profile.logoUrl} alt="Store Logo" className="w-full h-full object-cover bg-muted transition-opacity duration-300" loading="lazy" decoding="async" />
             ) : (
               <div className="w-full h-full bg-muted flex items-center justify-center">
                 <StoreIcon size={32} className="text-muted-foreground opacity-50" />

@@ -2,7 +2,7 @@ import { StoreProfile, StoreOperations, StoreProfileUpdateInput, StoreOperations
 import { apiClient } from "../utils/api-client";
 import { ENDPOINTS } from "../constants/endpoints";
 import { resolveImageUrl } from "../utils/image";
-interface RawStoreProfile {
+export interface RawStoreProfile {
   id?: string;
   name?: string;
   address?: string;
@@ -49,7 +49,7 @@ interface RawStoreProfile {
   deleted_at?: string | null;
 }
 
-const mapStoreProfile = (raw: RawStoreProfile): StoreProfile => {
+export const mapStoreProfile = (raw: RawStoreProfile): StoreProfile => {
   let verificationStatus: "verified" | "pending" | "rejected" = "pending";
   if (raw.verificationStatus === "approved" || raw.verificationStatus === "verified") {
     verificationStatus = "verified";
@@ -91,7 +91,7 @@ const mapStoreProfile = (raw: RawStoreProfile): StoreProfile => {
 
 const ALL_DAYS: WeekDay[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-const mapStoreOperations = (raw: RawStoreProfile): StoreOperations => {
+export const mapStoreOperations = (raw: RawStoreProfile): StoreOperations => {
   const activeDays = raw.workingDays ? raw.workingDays.split(",").map(d => d.trim()) : [];
   const openTime = raw.openingTime || "09:00";
   const closeTime = raw.closingTime || "21:00";

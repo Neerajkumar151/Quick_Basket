@@ -11,5 +11,6 @@ export function useTags() {
   return useQuery({
     queryKey: TAGS_QUERY_KEY,
     queryFn: tagService.getTags,
+    staleTime: 5 * 60 * 1000,
   });
 }

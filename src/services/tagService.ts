@@ -21,7 +21,7 @@ export const getStoredTags = async (): Promise<Tag[]> => {
 export const tagService = {
   // GET /tags
   getTags: async (): Promise<Tag[]> => {
-    const response = await apiClient.get(ENDPOINTS.TAGS.BASE);
+    const response = await apiClient.get(`${ENDPOINTS.TAGS.BASE}?limit=500`);
     const rawTags = Array.isArray(response.data?.data)
       ? response.data.data
       : Array.isArray(response.data)

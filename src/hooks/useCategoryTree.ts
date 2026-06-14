@@ -17,6 +17,6 @@ export function useCategoryTree() {
       const result = await categoryService.getCategories("", 1, 500);
       return result.data;
     },
-    staleTime: 30 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 }

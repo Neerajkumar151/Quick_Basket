@@ -99,7 +99,9 @@ export const BannersPage = () => {
             <img
               src={banner.image}
               alt={banner.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-opacity duration-300"
+              loading="lazy"
+              decoding="async"
             />
           ) : (
             <ImageIcon size={20} className="text-muted-foreground" />

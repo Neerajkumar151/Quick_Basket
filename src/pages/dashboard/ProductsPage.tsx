@@ -21,7 +21,7 @@ import { useSubCategories } from "../../hooks/useSubCategories";
 import { queryClient } from "../../providers/QueryProvider";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
-import { useDebounce } from "../../hooks/useDebounce";
+
 import { Pagination } from "../../components/ui/Pagination";
 
 export const ProductsPage = () => {
@@ -40,11 +40,11 @@ export const ProductsPage = () => {
   // Pagination & Debounce
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+
 
   // Data via TanStack Query (cached, server-side filtered/paginated)
   const { data: responseData, isLoading } = useProducts(
-    debouncedSearchQuery,
+    searchQuery,
     categoryFilter !== "all" ? categoryFilter : undefined,
     subCategoryFilter !== "all" ? subCategoryFilter : undefined,
     statusFilter !== "all" ? statusFilter : undefined,
@@ -57,7 +57,7 @@ export const ProductsPage = () => {
   const meta = responseData?.meta || { totalPages: 1, page: 1, total: 0 };
   const { data: catalogMetadata } = useCatalogMetadata();
   const categories = catalogMetadata?.categories || [];
-  const { data: allSubCategoriesResponse } = useSubCategories();
+  const { data: allSubCategoriesResponse } = useSubCategories("", "", 1, 500);
   const allSubCategories = allSubCategoriesResponse?.data || [];
   
   // Fetch subcategories only for the selected category filter

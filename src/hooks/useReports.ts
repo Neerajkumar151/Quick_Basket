@@ -19,6 +19,7 @@ export const useRevenueMetrics = (period: DateRange, startDate?: string, endDate
   return useQuery({
     queryKey: REPORTS_QUERY_KEYS.revenue(period, startDate, endDate),
     queryFn: () => reportsService.getRevenueMetrics(period, startDate, endDate),
+    enabled: period !== 'custom' || (!!startDate && !!endDate),
   });
 };
 
@@ -26,6 +27,7 @@ export const useRevenueTrends = (period: DateRange, startDate?: string, endDate?
   return useQuery({
     queryKey: REPORTS_QUERY_KEYS.trends(period, startDate, endDate),
     queryFn: () => reportsService.getRevenueTrends(period, startDate, endDate),
+    enabled: period !== 'custom' || (!!startDate && !!endDate),
   });
 };
 
@@ -33,5 +35,6 @@ export const useRevenueBreakdown = (period: DateRange, startDate?: string, endDa
   return useQuery({
     queryKey: REPORTS_QUERY_KEYS.breakdown(period, startDate, endDate),
     queryFn: () => reportsService.getRevenueBreakdown(period, startDate, endDate),
+    enabled: period !== 'custom' || (!!startDate && !!endDate),
   });
 };

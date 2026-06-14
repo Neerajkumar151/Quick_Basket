@@ -19,6 +19,7 @@ export function useProducts(
   return useQuery({
     queryKey: [...PRODUCTS_QUERY_KEY, searchQuery, categoryFilter, subCategoryFilter, statusFilter, sortBy, page, limit],
     queryFn: () => productService.getProducts(searchQuery, categoryFilter, subCategoryFilter, statusFilter, sortBy, page, limit),
+    staleTime: 5 * 60 * 1000,
   });
 }
 

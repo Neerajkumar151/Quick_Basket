@@ -9,8 +9,8 @@ interface OrderTimelineProps {
 }
 
 const ALL_STEPS: OrderStatus[] = [
-  ORDER_STATUS.NEW,
-  ORDER_STATUS.ACCEPTED,
+  ORDER_STATUS.PENDING,
+  ORDER_STATUS.PROCESSING,
   ORDER_STATUS.OUT_FOR_DELIVERY,
   ORDER_STATUS.DELIVERED,
 ];
@@ -24,6 +24,8 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
   const getEntry = (status: OrderStatus) =>
     timeline.find((t: any) => t.status === status);
 
+  const getStepIndex = (status: OrderStatus) => ALL_STEPS.indexOf(status);
+
   const cancelEntry = timeline.find((t: any) => t.status === ORDER_STATUS.CANCELLED);
 
   return (
@@ -31,15 +33,13 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
       {isCancelled ? (
         // ── Cancelled flow ─────────────────────────────────────────────
         <>
-          {/* Order Placed */}
           <TimelineRow
             icon={<CheckCircle2 size={18} className="text-success" />}
-            label={ORDER_STATUS.NEW}
-            timestamp={getEntry(ORDER_STATUS.NEW)?.timestamp}
+            label={ORDER_STATUS.PENDING}
+            timestamp={getEntry(ORDER_STATUS.PENDING)?.timestamp}
             isCompleted
             isLast={false}
           />
-          {/* Cancelled */}
           <TimelineRow
             icon={<XCircle size={18} className="text-error" />}
             label={ORDER_STATUS.CANCELLED}
@@ -129,7 +129,7 @@ const TimelineRow: React.FC<TimelineRowProps> = ({
           isCompleted ? (isCancelled ? "text-error" : "text-foreground") : "text-muted-foreground/50"
         }`}
       >
-        {label === ORDER_STATUS.NEW ? "Order Placed" : label}
+        {label === ORDER_STATUS.PENDING ? "Order Placed" : label}
       </span>
       {timestamp && (
         <span className="text-caption text-muted-foreground mt-0.5">

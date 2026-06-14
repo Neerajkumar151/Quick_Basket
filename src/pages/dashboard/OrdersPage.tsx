@@ -58,9 +58,21 @@ export const OrdersPage = () => {
     }
   };
 
-  const handleViewOrder = (order: Order) => {
-    setSelectedOrder(order);
-    setIsModalOpen(true);
+  const handleViewOrder = async (order: Order) => {
+    const toastId = toast.loading(t("orders.messages.loadingDetails", "Loading order details..."));
+    try {
+      const fullOrder = await orderService.getOrderById(order.id);
+      if (fullOrder) {
+        setSelectedOrder(fullOrder);
+        setIsModalOpen(true);
+      } else {
+        toast.error(t("orders.messages.errorFetchDetails", "Failed to load order details."));
+      }
+    } catch {
+      toast.error(t("orders.messages.errorFetchDetails", "Failed to load order details."));
+    } finally {
+      toast.dismiss(toastId);
+    }
   };
 
   const handleStatusUpdated = (updated: Order) => {
@@ -71,7 +83,7 @@ export const OrdersPage = () => {
   // ── Stats cards ────────────────────────────────────────────────────────────
   const stats = useMemo(() => ({
     total: orders.length,
-    new: orders.filter((o: Order) => o.status === ORDER_STATUS.NEW).length,
+    new: orders.filter((o: Order) => o.status === ORDER_STATUS.PENDING).length,
     outForDelivery: orders.filter((o: Order) => o.status === ORDER_STATUS.OUT_FOR_DELIVERY).length,
     delivered: orders.filter((o: Order) => o.status === ORDER_STATUS.DELIVERED).length,
     cancelled: orders.filter((o: Order) => o.status === ORDER_STATUS.CANCELLED).length,
@@ -103,7 +115,9 @@ export const OrdersPage = () => {
     {
       header: t("orders.table.orderId"),
       cell: (o: Order) => (
-        <span className="font-mono font-bold text-primary text-description">{o.id}</span>
+        <span className="font-mono font-bold text-primary text-description" title={o.id}>
+          #{o.id.split('-')[0].toUpperCase()}
+        </span>
       ),
     },
     {
@@ -204,8 +218,8 @@ export const OrdersPage = () => {
             onChange={(e) => { setStatusFilter(e.target.value); }}
           >
             <option value="all">{t("orders.filters.statusAll")}</option>
-            <option value={ORDER_STATUS.NEW}>{ORDER_STATUS.NEW}</option>
-            <option value={ORDER_STATUS.ACCEPTED}>{ORDER_STATUS.ACCEPTED}</option>
+            <option value={ORDER_STATUS.PENDING}>{ORDER_STATUS.PENDING}</option>
+            <option value={ORDER_STATUS.PROCESSING}>{ORDER_STATUS.PROCESSING}</option>
             <option value={ORDER_STATUS.OUT_FOR_DELIVERY}>{ORDER_STATUS.OUT_FOR_DELIVERY}</option>
             <option value={ORDER_STATUS.DELIVERED}>{ORDER_STATUS.DELIVERED}</option>
             <option value={ORDER_STATUS.CANCELLED}>{ORDER_STATUS.CANCELLED}</option>

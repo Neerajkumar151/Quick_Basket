@@ -11,8 +11,9 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { DashboardMetrics } from "../../types/dashboard";
 
-interface KPICardsProps {
+export interface KPICardsProps {
   metrics?: DashboardMetrics;
+  items?: KPIItem[];
 }
 
 // Map string icon names from JSON to actual React Lucide components
@@ -45,10 +46,7 @@ export interface KPIItem {
   borderClass?: string;
 }
 
-export interface KPICardsProps {
-  items?: KPIItem[];
-}
-export const KPICards: React.FC<KPICardsProps> = ({ metrics }) => {
+export const KPICards: React.FC<KPICardsProps> = ({ metrics, items }) => {
   const { t } = useTranslation();
 
   // Construct KPI arrays from real metrics

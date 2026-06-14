@@ -21,7 +21,7 @@ import { queryClient } from "../../providers/QueryProvider";
 import { CATEGORIES_QUERY_KEY } from "../../hooks/useCategories";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
-import { useDebounce } from "../../hooks/useDebounce";
+
 import { Pagination } from "../../components/ui/Pagination";
 import { CATEGORY_TREE_QUERY_KEY } from "../../hooks/useCategoryTree";
 
@@ -38,8 +38,7 @@ export const CategoriesPage = () => {
   } = useEntityDrawer<Category>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Debounce search query to prevent spamming the API
-  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,7 +46,7 @@ export const CategoriesPage = () => {
 
   // Data via TanStack Query (cached)
   const { data: responseData, isLoading } = useCategories(
-    debouncedSearchQuery,
+    searchQuery,
     currentPage,
     itemsPerPage,
   );

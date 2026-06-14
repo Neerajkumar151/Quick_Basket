@@ -10,5 +10,6 @@ export function useBanners() {
   return useQuery({
     queryKey: BANNERS_QUERY_KEY,
     queryFn: bannerService.getBanners,
+    staleTime: 5 * 60 * 1000,
   });
 }

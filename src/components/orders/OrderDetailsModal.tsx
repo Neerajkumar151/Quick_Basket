@@ -36,13 +36,13 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   if (!order) return null;
 
   const ACTION_LABELS: Partial<Record<OrderStatus, string>> = {
-    [ORDER_STATUS.ACCEPTED]: t("orders.actions.accept", "Accept Order"),
+    [ORDER_STATUS.PROCESSING]: t("orders.actions.accept", "Accept Order"),
     [ORDER_STATUS.OUT_FOR_DELIVERY]: t("orders.actions.outForDelivery", "Mark Out for Delivery"),
     [ORDER_STATUS.DELIVERED]: t("orders.actions.delivered", "Mark Delivered"),
     [ORDER_STATUS.CANCELLED]: t("orders.actions.cancel", "Cancel Order"),
   };
 
-  const allowedTransitions = ORDER_FLOW[order.status];
+  const allowedTransitions = ORDER_FLOW[order.status] || [];
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
     setIsUpdating(true);
@@ -61,7 +61,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t("orders.modal.title", `Order ${order.id}`, { id: order.id })}
+      title={t("orders.modal.title", `Order #${order.id.split('-')[0].toUpperCase()}`, { id: `#${order.id.split('-')[0].toUpperCase()}` })}
       maxWidth="4xl"
     >
       <div className="flex flex-col gap-6">

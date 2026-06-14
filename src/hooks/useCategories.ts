@@ -11,5 +11,6 @@ export function useCategories(searchQuery: string = "", page: number = 1, limit:
   return useQuery({
     queryKey: [...CATEGORIES_QUERY_KEY, searchQuery, page, limit],
     queryFn: () => categoryService.getCategories(searchQuery, page, limit),
+    staleTime: 5 * 60 * 1000,
   });
 }

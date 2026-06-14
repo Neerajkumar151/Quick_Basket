@@ -7,7 +7,7 @@ export function useSubCategories(searchQuery: string = "", categoryId: string = 
   return useQuery({
     queryKey: [...SUB_CATEGORIES_QUERY_KEY, searchQuery, categoryId, page, limit],
     queryFn: () => subCategoryService.getSubCategories(searchQuery, categoryId, page, limit),
-    staleTime: 30 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -16,6 +16,6 @@ export function useSubCategoriesByParent(categoryId: string | undefined) {
     queryKey: [...SUB_CATEGORIES_QUERY_KEY, categoryId],
     queryFn: () => (categoryId ? subCategoryService.getSubCategoriesByParent(categoryId) : Promise.resolve([])),
     enabled: !!categoryId,
-    staleTime: 30 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 }

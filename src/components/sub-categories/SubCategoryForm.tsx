@@ -6,7 +6,7 @@ import { Select } from "../ui/Select";
 import { ImageUploader } from "../ui/ImageUploader";
 import { BaseCategoryForm } from "../common/forms/BaseCategoryForm";
 import { SubCategoryInput } from "../../types/subCategory";
-import { useCategories } from "../../hooks/useCategories";
+import { useCategoryTree } from "../../hooks/useCategoryTree";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import type { Category } from "../../types/category";
@@ -39,10 +39,9 @@ export const SubCategoryForm: React.FC<SubCategoryFormProps> = ({
   const defaultSubmitLabel = submitLabel || t("subCategories.form.create");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const {
-    data: categoriesResponse,
+    data: categories = [],
     isLoading: isLoadingCategories,
-  } = useCategories();
-  const categories = categoriesResponse?.data || [];
+  } = useCategoryTree();
 
   const {
     register,

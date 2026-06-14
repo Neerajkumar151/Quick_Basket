@@ -64,8 +64,8 @@ const mapOrder = (raw: RawOrder): Order => ({
     unitPrice: item.unitPrice ?? item.price ?? 0,
   })),
   payment: {
-    method: (raw.payment?.method ?? "UPI") as Order["payment"]["method"],
-    status: (raw.payment?.status ?? "Pending") as Order["payment"]["status"],
+    method: ((raw as any).paymentMethod ?? raw.payment?.method ?? "UPI") as Order["payment"]["method"],
+    status: ((raw as any).paymentStatus ?? raw.payment?.status ?? "Pending") as Order["payment"]["status"],
     transactionId: raw.payment?.transactionId,
   },
   timeline: (raw.timeline ?? []).map((entry) => ({
@@ -76,7 +76,7 @@ const mapOrder = (raw: RawOrder): Order => ({
   subtotal: raw.subtotal ?? 0,
   deliveryFee: raw.deliveryFee ?? 0,
   tax: raw.tax ?? 0,
-  total: raw.total ?? raw.grandTotal ?? 0,
+  total: (raw as any).totalAmount ?? raw.total ?? raw.grandTotal ?? 0,
 });
 
 // ─── Order Service ────────────────────────────────────────────────────────────

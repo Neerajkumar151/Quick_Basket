@@ -1,4 +1,3 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
 import "./index.css";
@@ -10,13 +9,11 @@ import { QueryProvider } from "./providers/QueryProvider.tsx";
 import { ErrorFallback } from "./components/ui/ErrorFallback.tsx";
 
 createRoot(document.getElementById("root") as HTMLElement).render(
-  <StrictMode>
-    <ThemeProvider defaultTheme="light" storageKey="quickbasket-theme">
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <QueryProvider>
-          <App />
-        </QueryProvider>
-      </ErrorBoundary>
-    </ThemeProvider>
-  </StrictMode>,
+  <ThemeProvider defaultTheme="light" storageKey="quickbasket-theme">
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <QueryProvider>
+        <App />
+      </QueryProvider>
+    </ErrorBoundary>
+  </ThemeProvider>,
 );

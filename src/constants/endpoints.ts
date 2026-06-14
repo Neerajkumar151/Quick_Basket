@@ -64,4 +64,10 @@ export const ENDPOINTS = {
     ADMIN_BASE: "/admin/banners",
     STATUS: (id: string) => `/admin/banners/${id}/status`,
   },
+  REPORTS: {
+    SALES_METRICS: "/reports/sales-metrics",
+    REVENUE_METRICS: "/reports/revenue-metrics",
+    TRENDS: "/reports/trends",
+    REVENUE_BREAKDOWN: "/reports/revenue-breakdown",
+  },
 } as const;
