@@ -43,6 +43,7 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
     setValue,
     setError,
     clearErrors,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<BusinessIdentityFormValues>({
     resolver: zodResolver(businessIdentitySchema),
@@ -159,6 +160,7 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
             error={errors.businessType?.message}
             required
             {...register("businessType")}
+            value={watch("businessType")}
           >
             <option value="">
               {t("onboarding.identity.fields.businessType.placeholder")}

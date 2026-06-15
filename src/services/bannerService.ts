@@ -53,7 +53,7 @@ export const bannerService = {
     const isInternal = ["product", "category", "store"].includes(data.redirectType.toLowerCase());
 
     const payload: Record<string, any> = {
-      title: data.title,
+      title: data.title || "",
       description: data.description || "",
       redirectType: data.redirectType.toLowerCase(),
       priority: data.displayOrder,
@@ -85,7 +85,7 @@ export const bannerService = {
   // PATCH /admin/banners/:id
   updateBanner: async (id: string, data: Partial<BannerInput>, imageFile?: File | null): Promise<Banner> => {
     const formData = new FormData();
-    if (data.title !== undefined) formData.append("title", data.title);
+    if (data.title !== undefined) formData.append("title", data.title || "");
     if (data.description !== undefined) formData.append("description", data.description);
     if (data.redirectType !== undefined) formData.append("redirectType", data.redirectType.toLowerCase());
     if (data.redirectId !== undefined) formData.append("redirectId", data.redirectId);

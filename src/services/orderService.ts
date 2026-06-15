@@ -81,14 +81,29 @@ const mapOrder = (raw: RawOrder): Order => ({
 
 // ─── Order Service ────────────────────────────────────────────────────────────
 export const orderService = {
-  getOrders: async (): Promise<Order[]> => {
-    const response = await apiClient.get(ENDPOINTS.ORDERS.BASE);
+  getOrders: async (params?: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: string;
+    status?: string;
+    search?: string;
+  }): Promise<{ data: Order[]; meta: any }> => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append("page", params.page.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+    if (params?.sortBy) queryParams.append("sortBy", params.sortBy);
+    if (params?.sortOrder) queryParams.append("sortOrder", params.sortOrder);
+    if (params?.status && params.status !== "all") queryParams.append("status", params.status);
+    if (params?.search) queryParams.append("search", params.search);
+
+    const response = await apiClient.get(`${ENDPOINTS.ORDERS.BASE}?${queryParams.toString()}`);
     const raw: RawOrder[] = Array.isArray(response.data?.data)
       ? response.data.data
       : Array.isArray(response.data)
       ? response.data
       : [];
-    return raw.map(mapOrder);
+    return { data: raw.map(mapOrder), meta: response.data?.meta || { total: raw.length, page: 1, totalPages: 1 } };
   },
 
   getOrderById: async (id: string): Promise<Order | null> => {
@@ -125,7 +140,7 @@ export const orderService = {
   },
 
   /** Re-fetches all orders (used by manual Refresh button) */
-  refreshOrders: async (): Promise<Order[]> => {
+  refreshOrders: async (): Promise<{ data: Order[]; meta: any }> => {
     return orderService.getOrders();
   },
 };

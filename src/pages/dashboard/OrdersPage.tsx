@@ -11,7 +11,9 @@ import { StatusBadge } from "../../components/ui/StatusBadge";
 import { Button } from "../../components/ui/Button";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { OrderDetailsModal } from "../../components/orders/OrderDetailsModal";
+import { Pagination } from "../../components/ui/Pagination";
 import { useOrders } from "../../hooks/useOrders";
+import { useDashboard } from "../../hooks/useDashboard";
 import { useDebounce } from "../../hooks/useDebounce";
 import { Order, ORDER_STATUS } from "../../types/order";
 import { formatCurrency } from "../../utils/number";
@@ -20,13 +22,41 @@ import { useTranslation } from "react-i18next";
 
 export const OrdersPage = () => {
   const { t } = useTranslation();
-  const { data: fetchedOrders, isLoading, isError, refetch, isRefetching } = useOrders();
-  const orders = fetchedOrders || [];
-
-  // Filters
+  // Filters & Pagination
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  const { data: dashboardData } = useDashboard();
+  const metrics = dashboardData?.metrics;
+
+  let apiSortBy = "createdAt";
+  let apiSortOrder = "desc";
+  if (sortBy === "oldest") {
+    apiSortOrder = "asc";
+  } else if (sortBy === "amountHigh") {
+    apiSortBy = "total";
+    apiSortOrder = "desc";
+  } else if (sortBy === "amountLow") {
+    apiSortBy = "total";
+    apiSortOrder = "asc";
+  }
+
+  const { data: ordersResponse, isLoading, isError, refetch, isRefetching } = useOrders({
+    page: currentPage,
+    limit: itemsPerPage,
+    search: debouncedSearchQuery,
+    status: statusFilter,
+    sortBy: apiSortBy,
+    sortOrder: apiSortOrder,
+  });
+
+  const orders = ordersResponse?.data || [];
+  const totalPages = ordersResponse?.meta?.totalPages || 1;
+  const totalItems = ordersResponse?.meta?.total || 0;
 
   // Drawer
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -59,37 +89,25 @@ export const OrdersPage = () => {
   };
 
   // ── Stats cards ────────────────────────────────────────────────────────────
-  const stats = useMemo(() => ({
-    total: orders.length,
-    new: orders.filter((o: Order) => o.status === ORDER_STATUS.PENDING).length,
-    outForDelivery: orders.filter((o: Order) => o.status === ORDER_STATUS.OUT_FOR_DELIVERY).length,
-    delivered: orders.filter((o: Order) => o.status === ORDER_STATUS.DELIVERED).length,
-    cancelled: orders.filter((o: Order) => o.status === ORDER_STATUS.CANCELLED).length,
-  }), [orders]);
-
-  // ── Filter + Sort + Paginate ───────────────────────────────────────────────
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
-
-  const processedOrders = useMemo(() => {
-    let result = orders.filter((o: Order) => {
-      const matchesSearch = o.id.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        o.customerName.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
-      const matchesStatus = statusFilter === "all" || o.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-
-    result.sort((a: Order, b: Order) => {
-      switch (sortBy) {
-        case "oldest": return new Date(a.orderDate).getTime() - new Date(b.orderDate).getTime();
-        case "amountHigh": return b.total - a.total;
-        case "amountLow": return a.total - b.total;
-        case "newest":
-        default: return new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime();
-      }
-    });
-
-    return result;
-  }, [orders, searchQuery, statusFilter, sortBy]);
+  const stats = useMemo(() => {
+    // If dashboard metrics are available, use them. Otherwise, fallback to the current page's orders to avoid 0s (though this isn't a true total)
+    if (metrics) {
+      return {
+        total: metrics.totalOrders || 0,
+        new: metrics.pendingOrders || 0,
+        outForDelivery: 0, // Not provided by dashboard by default
+        delivered: metrics.deliveredOrders || 0,
+        cancelled: metrics.cancelledOrders || 0,
+      };
+    }
+    return {
+      total: totalItems || orders.length,
+      new: orders.filter((o: Order) => o.status === ORDER_STATUS.PENDING).length,
+      outForDelivery: orders.filter((o: Order) => o.status === ORDER_STATUS.OUT_FOR_DELIVERY).length,
+      delivered: orders.filter((o: Order) => o.status === ORDER_STATUS.DELIVERED).length,
+      cancelled: orders.filter((o: Order) => o.status === ORDER_STATUS.CANCELLED).length,
+    };
+  }, [metrics, orders, totalItems]);
 
   const columns: ColumnDef<Order>[] = [
     {
@@ -152,7 +170,7 @@ export const OrdersPage = () => {
       />
 
       {/* ── Stats Cards ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         <StatCard
           label={t("orders.stats.total")}
           value={stats.total}
@@ -226,19 +244,28 @@ export const OrdersPage = () => {
       </FilterBar>
 
       {/* ── Table ────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-4">
         {isError ? (
           <ErrorState onRetry={refetch} />
         ) : (
-          <DataTable
-            data={processedOrders}
-            columns={columns}
-            isLoading={isLoading}
-            keyExtractor={(item) => item.id}
-            emptyTitle={t("orders.messages.emptyTitle")}
-            emptyDescription={t("orders.messages.emptySubtitle")}
-            itemsPerPage={10}
-          />
+          <>
+            <DataTable
+              data={orders}
+              columns={columns}
+              isLoading={isLoading}
+              keyExtractor={(item) => item.id}
+              emptyTitle={t("orders.messages.emptyTitle")}
+              emptyDescription={t("orders.messages.emptySubtitle")}
+              pagination={false}
+            />
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            )}
+          </>
         )}
       </div>
 
@@ -257,13 +284,13 @@ export const OrdersPage = () => {
 const StatCard = ({
   label, value, icon, color,
 }: { label: string; value: number; icon: React.ReactNode; color: string }) => (
-  <div className="flex items-center gap-3 bg-card border border-border rounded-xl p-4 shadow-sm">
-    <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
+  <div className="flex items-center gap-4 bg-card border border-border rounded-xl p-5 shadow-sm">
+    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
       {icon}
     </div>
-    <div className="flex flex-col">
-      <span className="text-h3 font-bold text-foreground">{value}</span>
-      <span className="text-caption text-muted-foreground">{label}</span>
+    <div className="flex flex-col flex-1 min-w-0">
+      <span className="text-h2 font-bold text-foreground truncate">{value}</span>
+      <span className="text-caption font-medium text-muted-foreground leading-tight mt-0.5 break-words line-clamp-2" title={label}>{label}</span>
     </div>
   </div>
 );

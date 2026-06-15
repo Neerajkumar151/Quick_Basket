@@ -286,9 +286,7 @@ export const ProductsPage = () => {
             }}
           >
             <option value="newest">{t("products.filters.sortOptions.newest")}</option>
-            <option value="oldest">{t("products.filters.sortOptions.oldest")}</option>
-            <option value="nameAsc">{t("products.filters.sortOptions.nameAsc")}</option>
-            <option value="nameDesc">{t("products.filters.sortOptions.nameDesc")}</option>
+            <option value="popularity">Popularity</option>
             <option value="priceAsc">{t("products.filters.sortOptions.priceAsc")}</option>
             <option value="priceDesc">{t("products.filters.sortOptions.priceDesc")}</option>
           </Select>

@@ -42,6 +42,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<CategoryFormValues>({
     resolver: zodResolver(createCategorySchema(t)),
     defaultValues: {
@@ -68,6 +69,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   return (
     <BaseCategoryForm<CategoryFormValues>
       register={register}
+      watch={watch}
       errors={errors}
       isSubmitting={isSubmitting}
       submitLabel={defaultSubmitLabel}

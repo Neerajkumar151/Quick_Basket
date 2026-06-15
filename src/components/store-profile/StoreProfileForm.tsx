@@ -46,6 +46,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
     reset,
   } = useForm<StoreProfileFormValues>({
@@ -203,6 +204,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
               <Select
                 {...register("businessType")}
                 error={errors.businessType?.message}
+                value={watch("businessType")}
               >
                 <option value="" disabled>{t("storeProfile.details.selectBusinessType", "Select Business Type")}</option>
                 <option value="individual">{t("storeProfile.details.individual", "Individual")}</option>

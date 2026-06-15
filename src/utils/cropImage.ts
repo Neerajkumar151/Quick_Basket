@@ -23,6 +23,10 @@ export async function getCroppedImg(
   canvas.width = pixelCrop.width
   canvas.height = pixelCrop.height
 
+  // Fill background white to prevent transparent PNGs from turning black
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
   ctx.drawImage(
     image,
     pixelCrop.x,

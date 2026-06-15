@@ -3,8 +3,7 @@ import { Plus, ImageIcon, Edit2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { PageHeader } from "../../components/ui/PageHeader";
-import { FilterBar } from "../../components/ui/FilterBar";
-import { SearchInput } from "../../components/ui/SearchInput";
+
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
 import { StatusBadge } from "../../components/ui/StatusBadge";
@@ -24,7 +23,6 @@ import { useEntityDrawer } from "../../hooks/useEntityDrawer";
 export const BannersPage = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [searchQuery, setSearchQuery] = useState("");
 
   // Drawer
   const { isOpen, editingItem: editingBanner, openDrawer, closeDrawer } = useEntityDrawer<Banner>();
@@ -78,22 +76,12 @@ export const BannersPage = () => {
     }
   };
 
-  // Filter Logic
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
-
   const processedBanners = useMemo(() => {
-    let result = [...banners];
-
-    if (debouncedSearchQuery) {
-      const q = debouncedSearchQuery.toLowerCase();
-      result = result.filter((b: Banner) => b.title.toLowerCase().includes(q));
-    }
-
+    const result = [...banners];
     // Sort by display order
     result.sort((a: Banner, b: Banner) => a.displayOrder - b.displayOrder);
-
     return result;
-  }, [banners, searchQuery]);
+  }, [banners]);
 
   const columns: ColumnDef<Banner>[] = [
     {
@@ -114,19 +102,7 @@ export const BannersPage = () => {
         </div>
       ),
     },
-    {
-      header: t("banners.table.title"),
-      cell: (banner: Banner) => (
-        <div className="flex flex-col">
-          <span className="font-bold text-foreground">{banner.title}</span>
-          {banner.description && (
-            <span className="text-caption text-muted-foreground truncate max-w-[200px]">
-              {banner.description}
-            </span>
-          )}
-        </div>
-      ),
-    },
+
     {
       header: t("banners.table.target"),
       cell: (banner: Banner) => (
@@ -183,18 +159,6 @@ export const BannersPage = () => {
         actionIcon={<Plus size={18} />}
         onAction={() => openDrawer()}
       />
-
-      <FilterBar>
-        <div className="w-full sm:w-72">
-          <SearchInput
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-            }}
-            placeholder={t("banners.filters.searchPlaceholder")}
-          />
-        </div>
-      </FilterBar>
 
       <div className="flex flex-col">
         {isError ? (

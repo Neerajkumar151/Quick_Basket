@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Image as ImageIcon } from "lucide-react";
 import { KPICards } from "../../components/dashboard/KPICards";
@@ -16,9 +16,13 @@ import { Loader2 } from "lucide-react";
 export const OverviewPage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [periodFilter, setPeriodFilter] = useState<'Daily' | 'Weekly' | 'Monthly'>('Monthly');
+
   const { data: profile, isLoading: isLoadingProfile } = useStoreProfile();
   const { data: operations, isLoading: isLoadingOperations } = useStoreOperations();
-  const { data: dashboard, isLoading: isLoadingDashboard, isError: isErrorDashboard, refetch: refetchDashboard } = useDashboard();
+  const { data: dashboard, isLoading: isLoadingDashboard, isError: isErrorDashboard, refetch: refetchDashboard } = useDashboard({
+    period: periodFilter.toLowerCase()
+  });
 
   if (isLoadingDashboard) {
     return (
@@ -73,7 +77,13 @@ export const OverviewPage: React.FC = () => {
       ) : (
         <>
           <KPICards metrics={dashboard?.metrics} />
-          <AnalyticsSection analytics={dashboard?.analytics} />
+          <AnalyticsSection 
+            analytics={dashboard?.analytics} 
+            revenueFilter={periodFilter}
+            setRevenueFilter={setPeriodFilter}
+            ordersFilter={periodFilter}
+            setOrdersFilter={setPeriodFilter}
+          />
           <OperationalInsights recentOrders={dashboard?.recentOrders} />
         </>
       )}

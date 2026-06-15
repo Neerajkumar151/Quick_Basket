@@ -22,18 +22,33 @@ import { TAGS_QUERY_KEY } from "../../hooks/useTags";
 import { CATALOG_METADATA_QUERY_KEY } from "../../hooks/useCatalogMetadata";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
+import { Select } from "../../components/ui/Select";
+import { Pagination } from "../../components/ui/Pagination";
 
 export const TagsPage = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Drawer
   const { isOpen, editingItem: editingTag, openDrawer, closeDrawer } = useEntityDrawer<Tag>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   // Data via TanStack Query (cached)
-  const { data: tags = [], isLoading, isError, refetch } = useTags();
+  const { data: responseData, isLoading, isError, refetch } = useTags(
+    debouncedSearchQuery,
+    statusFilter,
+    currentPage,
+    itemsPerPage
+  );
+
+  const tags = responseData?.data || [];
+  const meta = responseData?.meta || { totalPages: 1, page: 1, total: 0 };
 
 
 
@@ -85,14 +100,6 @@ export const TagsPage = () => {
     }
   };
 
-  // Filter Logic
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
-
-  const filteredTags = useMemo(() => {
-    return tags.filter((t: Tag) => {
-      return t.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
-    });
-  }, [tags, debouncedSearchQuery]);
 
   const columns: ColumnDef<Tag>[] = [
     {
@@ -168,14 +175,26 @@ export const TagsPage = () => {
       />
 
       <FilterBar>
-        <div className="w-full sm:w-72">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full sm:w-1/2">
           <SearchInput
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
+              setCurrentPage(1);
             }}
             placeholder={t("tags.filters.searchPlaceholder")}
           />
+          <Select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+          >
+            <option value="all">{t("products.filters.statusAll", "All Status")}</option>
+            <option value="Active">{t("banners.form.active", "Active")}</option>
+            <option value="Inactive">{t("banners.form.inactive", "Inactive")}</option>
+          </Select>
         </div>
       </FilterBar>
 
@@ -184,14 +203,24 @@ export const TagsPage = () => {
           <ErrorState onRetry={refetch} />
         ) : (
           <DataTable
-            data={filteredTags}
+            data={tags}
             columns={columns}
             isLoading={isLoading}
             keyExtractor={(item) => item.id}
             emptyTitle={t("tags.messages.emptyTitle")}
             emptyDescription={t("tags.messages.emptySubtitle")}
-            itemsPerPage={10}
+            pagination={false}
           />
+        )}
+
+        {meta.totalPages > 1 && (
+          <div className="mt-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={meta.totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         )}
       </div>
 

@@ -115,25 +115,14 @@ export const BannerForm: React.FC<BannerFormProps> = ({
         quality={0.9}
       />
 
-      <Input
-        label={t("banners.form.title")}
-        placeholder={t("banners.form.titlePlaceholder")}
-        error={errors.title?.message}
-        {...register("title")}
-      />
 
-      <TextArea
-        label={t("banners.form.description")}
-        placeholder={t("banners.form.descriptionPlaceholder")}
-        error={errors.description?.message}
-        {...register("description")}
-      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Select
           label={t("banners.form.redirectType")}
           error={errors.redirectType?.message}
           {...register("redirectType")}
+          value={watch("redirectType")}
         >
           <option value="Product">{t("banners.form.targetTypeProduct")}</option>
           <option value="Category">
@@ -168,6 +157,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({
             label={t("banners.form.redirectTarget")}
             error={errors.redirectId?.message}
             {...register("redirectId")}
+            value={watch("redirectId")}
             disabled={isLoadingMetadata}
           >
             <option value="">{t("banners.form.selectCategory")}</option>
@@ -192,6 +182,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({
           label={t("banners.form.status")}
           error={errors.status?.message}
           {...register("status")}
+          value={watch("status")}
         >
           <option value="Active">{t("banners.form.active")}</option>
           <option value="Inactive">{t("banners.form.inactive")}</option>
