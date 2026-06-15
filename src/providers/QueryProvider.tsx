@@ -4,11 +4,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Data is considered fresh for 30 seconds — prevents redundant refetches
-      staleTime: 30_000,
-      // Disable automatic retries for failed queries to prevent network spam when backend is down
-      retry: false,
-      // Disable refetching every time the user switches tabs/focuses the window
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
+      retry: 1,
       refetchOnWindowFocus: false,
     },
   },
@@ -23,6 +21,3 @@ export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 };
-
-// Export queryClient so pages can call queryClient.invalidateQueries after mutations
-export { queryClient };

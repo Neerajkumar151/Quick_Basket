@@ -19,17 +19,19 @@ interface DataTableProps<T> {
   emptyDescription?: string;
   itemsPerPage?: number;
   pagination?: boolean;
+  keyExtractor?: (item: T) => string | number;
 }
 
-export function DataTable<T>({ 
+export const DataTable = React.memo(<T extends unknown>({ 
   data, 
   columns, 
   isLoading,
   emptyTitle = "No data found",
   emptyDescription = "There are no records to display.",
   itemsPerPage = 10,
-  pagination = true
-}: DataTableProps<T>) {
+  pagination = true,
+  keyExtractor
+}: DataTableProps<T>) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   if (isLoading) {
@@ -60,15 +62,18 @@ export function DataTable<T>({
           </tr>
         </thead>
         <tbody>
-          {paginatedData.map((row, rowIndex) => (
-            <tr key={rowIndex} className="border-b border-border hover:bg-muted/50 transition-colors last:border-0">
+          {paginatedData.map((row, rowIndex) => {
+            const rowKey = keyExtractor ? keyExtractor(row) : rowIndex;
+            return (
+              <tr key={rowKey} className="border-b border-border hover:bg-muted/50 transition-colors last:border-0">
               {columns.map((col, colIndex) => (
                 <td key={colIndex} className={`px-6 py-4 ${col.className || ''}`}>
                   {col.cell ? col.cell(row) : col.accessorKey ? String(row[col.accessorKey as keyof T]) : null}
                 </td>
               ))}
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
       </div>
@@ -81,4 +86,4 @@ export function DataTable<T>({
       )}
     </div>
   );
-}
+}) as <T>(props: DataTableProps<T>) => React.ReactElement;

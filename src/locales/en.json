@@ -4,7 +4,7 @@
     "help": "Help",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
-    "copyright": "© 2024 QuickBasket Inc. All rights reserved.",
+    "copyright": "\u00a9 2024 QuickBasket Inc. All rights reserved.",
     "searchPlaceholder": "Search orders, products...",
     "adminName": "Alexander Chen",
     "adminRole": "Store Admin"
@@ -216,12 +216,17 @@
       "title": "Something went wrong",
       "description": "An unexpected error occurred. You can try refreshing the page or click the button below to recover.",
       "retry": "Try again"
-    }
+    },
+    "previous": "Previous",
+    "next": "Next",
+    "select": "Select...",
+    "noOptions": "No options",
+    "to": "to"
   },
   "dashboard": {
     "storeInfo": {
       "name": "FreshMart Grocery",
-      "hours": "9:00 AM – 9:00 PM",
+      "hours": "9:00 AM \u2013 9:00 PM",
       "lastUpdatedValue": "Today, 10:45 AM"
     },
     "header": {
@@ -732,7 +737,7 @@
         "title": "Delivery Settings",
         "description": "Configure delivery availability and minimums",
         "enableDelivery": "Enable Delivery",
-        "minimumOrder": "Minimum Order Amount (₹)",
+        "minimumOrder": "Minimum Order Amount (\u20b9)",
         "estimatedTime": "Estimated Delivery Time (mins)"
       }
     },
@@ -765,6 +770,18 @@
       "validationDeliveryTime": "Estimated delivery time must be greater than 0.",
       "validationMinOrder": "Minimum order amount cannot be negative.",
       "errorLoading": "Error loading store profile data."
+    },
+    "details": {
+      "title": "Store Details",
+      "storeType": "Store Type",
+      "selectBusinessType": "Select Business Type",
+      "individual": "Individual",
+      "registrationDate": "Registration Date",
+      "verificationStatus": "Verification Status",
+      "gstNumber": "GST Number",
+      "panNumber": "PAN Number",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe your store"
     }
   },
   "help": {
@@ -787,7 +804,7 @@
       },
       "hours": {
         "title": "Support Hours",
-        "value": "Mon–Sat, 9 AM – 6 PM"
+        "value": "Mon\u2013Sat, 9 AM \u2013 6 PM"
       }
     },
     "reportIssue": {
@@ -888,7 +905,9 @@
       "filters": {
         "daily": "Daily",
         "weekly": "Weekly",
-        "monthly": "Monthly"
+        "monthly": "Monthly",
+        "viewBy": "View By:",
+        "custom": "Custom Range"
       },
       "export": "Export to CSV",
       "trends": "Revenue Trends"

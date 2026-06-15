@@ -22,6 +22,8 @@
   --color-status-delivered: hsl(var(--status-delivered));
   --color-status-cancelled: hsl(var(--status-cancelled));
   --color-status-purple: hsl(var(--status-purple));
+  --color-status-blue: hsl(var(--status-blue));
+  --color-status-cyan: hsl(var(--status-cyan));
 
   --color-auth-text: hsl(var(--auth-text));
 
@@ -53,10 +55,12 @@
     --success: 142 71% 45%;
     --warning: 38 92% 50%;
     
-    --status-pending: 38 92% 50%;
-    --status-delivered: 142 71% 45%;
-    --status-cancelled: 0 84% 60%;
+    --status-pending: var(--warning);
+    --status-delivered: var(--success);
+    --status-cancelled: var(--error);
     --status-purple: 270 70% 65%;
+    --status-blue: 221 83.2% 53.3%;
+    --status-cyan: 189 94% 43%;
 
     --radius: 0.5rem;
 
@@ -132,11 +136,13 @@
     --warning: 38 92% 50%;
     
     /* Dashboard Specific Colors */
-    --status-pending: 38 92% 50%; /* Orange */
+    --status-pending: var(--warning); /* Orange */
 
-    --status-delivered: 142 71% 45%; /* Green */
-    --status-cancelled: 0 84% 60%; /* Red */
+    --status-delivered: var(--success); /* Green */
+    --status-cancelled: var(--error); /* Red */
     --status-purple: 270 70% 65%; /* Purple */
+    --status-blue: 221 83.2% 53.3%; /* Blue */
+    --status-cyan: 189 94% 43%; /* Cyan */
   }
 }
 
@@ -174,11 +180,11 @@
   /* Custom Glow Animations */
   @keyframes sun-glow {
     0%, 100% {
-      box-shadow: 0 0 10px 2px rgba(234, 179, 8, 0.2), 0 0 20px 5px rgba(234, 179, 8, 0.1);
+      box-shadow: 0 0 10px 2px hsl(var(--warning) / 0.2), 0 0 20px 5px hsl(var(--warning) / 0.1);
       transform: scale(1);
     }
     50% {
-      box-shadow: 0 0 25px 8px rgba(234, 179, 8, 0.6), 0 0 50px 15px rgba(234, 179, 8, 0.3);
+      box-shadow: 0 0 25px 8px hsl(var(--warning) / 0.6), 0 0 50px 15px hsl(var(--warning) / 0.3);
       transform: scale(1.03);
     }
   }

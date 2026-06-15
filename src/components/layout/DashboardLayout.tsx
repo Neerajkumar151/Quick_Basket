@@ -1,24 +1,19 @@
 import React, { useState, useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
   Grid,
   Tag as Tags,
   Image as ImageIcon,
-  Box,
   ShoppingBag,
-  Users,
-  CreditCard,
   BarChart2,
   Store as StoreIcon,
   HelpCircle,
   LogOut,
   ChevronDown,
   ChevronRight,
-  Clock,
   Network,
-  ShieldCheck,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
@@ -108,7 +103,7 @@ const getNavigation = (t: TFunction) => [
   },
 ];
 
-export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
+export const DashboardLayout: React.FC<{ children?: React.ReactNode }> = ({
   children,
 }) => {
   const { pathname } = useLocation();
@@ -236,7 +231,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto bg-background p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto w-full">{children}</div>
+          <div className="max-w-7xl mx-auto w-full">{children || <Outlet />}</div>
         </main>
       </div>
     </div>

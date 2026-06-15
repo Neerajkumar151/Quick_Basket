@@ -13,21 +13,39 @@ const mapTag = (t: any): Tag => ({
   createdAt: formatShortDate(new Date(t.createdAt ?? t.created_at ?? Date.now())),
 });
 
-// Exported so catalogService and others can call it for dropdown metadata
 export const getStoredTags = async (): Promise<Tag[]> => {
-  return tagService.getTags();
+  const res = await tagService.getTags("", "all", 1, 500);
+  return res.data;
 };
 
 export const tagService = {
   // GET /tags
-  getTags: async (): Promise<Tag[]> => {
-    const response = await apiClient.get(`${ENDPOINTS.TAGS.BASE}?limit=500`);
+  getTags: async (
+    search?: string,
+    statusFilter?: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: Tag[]; meta: any }> => {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (search) queryParams.append("search", search);
+    if (statusFilter && statusFilter !== "all") {
+      queryParams.append("isActive", statusFilter === "Active" ? "true" : "false");
+    }
+
+    const response = await apiClient.get(`${ENDPOINTS.TAGS.BASE}?${queryParams.toString()}`);
     const rawTags = Array.isArray(response.data?.data)
       ? response.data.data
       : Array.isArray(response.data)
       ? response.data
       : [];
-    return rawTags.map(mapTag);
+      
+    return {
+      data: rawTags.map(mapTag),
+      meta: response.data?.meta ?? { totalPages: 1, page: 1, total: rawTags.length },
+    };
   },
 
   // POST /admin/tags

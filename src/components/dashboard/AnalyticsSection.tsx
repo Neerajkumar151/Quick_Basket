@@ -6,13 +6,17 @@ import {
 } from "recharts";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
-import { DashboardAnalytics } from "../../types/dashboard";
+import { DashboardAnalytics, OrderStatusDistributionItem } from "../../types/dashboard";
 
 interface AnalyticsSectionProps {
   analytics?: DashboardAnalytics;
+  revenueFilter: 'Daily' | 'Weekly' | 'Monthly';
+  setRevenueFilter: (filter: 'Daily' | 'Weekly' | 'Monthly') => void;
+  ordersFilter: 'Daily' | 'Weekly' | 'Monthly';
+  setOrdersFilter: (filter: 'Daily' | 'Weekly' | 'Monthly') => void;
 }
 
-const getOrderStatusData = (t: TFunction, distribution: any[] = []) => {
+const getOrderStatusData = (t: TFunction, distribution: OrderStatusDistributionItem[] = []) => {
   // If API provides distribution, map it. Otherwise fallback to empty.
   return distribution.map(item => {
     let color = item.color;
@@ -20,9 +24,15 @@ const getOrderStatusData = (t: TFunction, distribution: any[] = []) => {
       const lowerName = item.name.toLowerCase();
       if (lowerName.includes('cancel') || lowerName.includes('reject')) {
         color = 'hsl(var(--status-cancelled))';
-      } else if (lowerName.includes('deliver') || lowerName.includes('complet')) {
+      } else if (lowerName === 'delivered' || lowerName.includes('complet')) {
         color = 'hsl(var(--status-delivered))';
-      } else if (lowerName.includes('pend') || lowerName.includes('progress') || lowerName.includes('place')) {
+      } else if (lowerName === 'out_for_delivery' || lowerName.includes('out for delivery')) {
+        color = 'hsl(var(--status-cyan))';
+      } else if (lowerName === 'processing' || lowerName.includes('progress')) {
+        color = 'hsl(var(--status-blue))';
+      } else if (lowerName === 'placed' || lowerName.includes('place')) {
+        color = 'hsl(var(--status-purple))';
+      } else if (lowerName.includes('pend')) {
         color = 'hsl(var(--status-pending))';
       } else {
         color = 'hsl(var(--primary))';
@@ -37,11 +47,11 @@ const renderActiveShape = (props: any) => {
   const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent } = props;
   const sin = Math.sin(-RADIAN * midAngle);
   const cos = Math.cos(-RADIAN * midAngle);
-  const sx = cx + (outerRadius + 10) * cos;
-  const sy = cy + (outerRadius + 10) * sin;
-  const mx = cx + (outerRadius + 12) * cos;
-  const my = cy + (outerRadius + 12) * sin;
-  const ex = mx + (cos >= 0 ? 1 : -1) * 15;
+  const sx = cx + (outerRadius + 6) * cos;
+  const sy = cy + (outerRadius + 6) * sin;
+  const mx = cx + (outerRadius + 14) * cos;
+  const my = cy + (outerRadius + 14) * sin;
+  const ex = mx + (cos >= 0 ? 1 : -1) * 10;
   const ey = my;
   const textAnchor = cos >= 0 ? 'start' : 'end';
 
@@ -51,7 +61,7 @@ const renderActiveShape = (props: any) => {
         cx={cx}
         cy={cy}
         innerRadius={innerRadius}
-        outerRadius={outerRadius + 8}
+        outerRadius={outerRadius + 6}
         startAngle={startAngle}
         endAngle={endAngle}
         fill={fill}
@@ -61,23 +71,30 @@ const renderActiveShape = (props: any) => {
         cy={cy}
         startAngle={startAngle}
         endAngle={endAngle}
-        innerRadius={outerRadius + 10}
-        outerRadius={outerRadius + 12}
+        innerRadius={outerRadius + 8}
+        outerRadius={outerRadius + 10}
         fill={fill}
       />
       <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#fff" fontSize={12} fontWeight="bold">
-        {`${payload.name} ${(percent * 100).toFixed(1)}%`}
+      <text x={ex + (cos >= 0 ? 1 : -1) * 8} y={ey - 4} textAnchor={textAnchor} fill="hsl(var(--foreground))" fontSize={11} fontWeight="bold">
+        {payload.name}
+      </text>
+      <text x={ex + (cos >= 0 ? 1 : -1) * 8} y={ey + 12} textAnchor={textAnchor} fill="hsl(var(--muted-foreground))" fontSize={11}>
+        {`${(percent * 100).toFixed(1)}%`}
       </text>
     </g>
   );
 };
 
-export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ analytics }) => {
+export const AnalyticsSection: React.FC<AnalyticsSectionProps> = React.memo(({ 
+  analytics, 
+  revenueFilter, 
+  setRevenueFilter, 
+  ordersFilter, 
+  setOrdersFilter 
+}) => {
   const { t } = useTranslation();
-  const [revenueFilter, setRevenueFilter] = useState<'Daily' | 'Weekly' | 'Monthly'>('Monthly');
-  const [ordersFilter, setOrdersFilter] = useState<'Daily' | 'Weekly' | 'Monthly'>('Monthly');
   const [activePieIndex, setActivePieIndex] = useState<number | undefined>(undefined);
   
   const orderStatusData = getOrderStatusData(t, analytics?.orderStatusDistribution || []);
@@ -121,19 +138,19 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ analytics })
                   dataKey="name" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: '#64748b', fontSize: 12 }}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   dy={10}
                 />
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: '#64748b', fontSize: 12 }}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   tickFormatter={(value) => `₹${value}`}
                 />
                 <RechartsTooltip 
-                  cursor={{ stroke: 'rgba(255, 255, 255, 0.1)', strokeWidth: 1, strokeDasharray: '4 4' }}
-                  contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(8px)', border: '1px solid #1e293b', borderRadius: '8px' }}
-                  itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                  cursor={{ stroke: 'hsl(var(--muted-foreground) / 0.1)', strokeWidth: 1, strokeDasharray: '4 4' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', backdropFilter: 'blur(8px)', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                  itemStyle={{ color: 'hsl(var(--card-foreground))', fontWeight: 'bold' }}
                   formatter={(value: any) => [`₹${value.toLocaleString()}`, t("dashboard.analytics.tabs.revenue")]}
                 />
                 <Area 
@@ -177,18 +194,18 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ analytics })
                   dataKey="name" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: '#64748b', fontSize: 12 }}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                   dy={10}
                 />
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: '#64748b', fontSize: 12 }}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                 />
                 <RechartsTooltip 
-                  cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
-                  contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(8px)', border: '1px solid #1e293b', borderRadius: '8px' }}
-                  itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                  cursor={{ fill: 'hsl(var(--muted-foreground) / 0.03)' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', backdropFilter: 'blur(8px)', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                  itemStyle={{ color: 'hsl(var(--card-foreground))', fontWeight: 'bold' }}
                   formatter={(value: any) => [value.toLocaleString(), t("dashboard.analytics.tabs.orders")]}
                 />
                 <Bar 
@@ -256,8 +273,8 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ analytics })
                 data={orderStatusData}
                 cx="50%"
                 cy="50%"
-                innerRadius={70}
-                outerRadius={95}
+                innerRadius={65}
+                outerRadius={85}
                 paddingAngle={4}
                 dataKey="value"
                 stroke="none"
@@ -281,4 +298,5 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ analytics })
       </div>
     </div>
   );
-};
+});
+AnalyticsSection.displayName = "AnalyticsSection";

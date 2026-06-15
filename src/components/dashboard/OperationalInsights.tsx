@@ -21,22 +21,34 @@ export const OperationalInsights: React.FC<OperationalInsightsProps> = ({ recent
     },
     {
       header: t("dashboard.operational.recentOrders.columns.customer"),
-      accessorKey: 'customer',
-      className: "font-semibold text-foreground"
+      accessorKey: 'customerName',
+      cell: (order: any) => (
+        <span className="font-semibold text-foreground">
+          {order.customerName || (order.User && order.User.name) || 'Unknown'}
+        </span>
+      )
     },
     {
       header: t("dashboard.operational.recentOrders.columns.time"),
-      accessorKey: 'time',
-      className: "text-muted-foreground"
+      accessorKey: 'created_at',
+      cell: (order: any) => (
+        <span className="text-muted-foreground">
+          {order.created_at ? new Date(order.created_at).toLocaleString() : 'N/A'}
+        </span>
+      )
     },
     {
       header: t("dashboard.operational.recentOrders.columns.status"),
-      cell: (order: { status: string }) => <StatusBadge status={order.status} />
+      cell: (order: any) => <StatusBadge status={order.status} />
     },
     {
       header: t("dashboard.operational.recentOrders.columns.total"),
-      accessorKey: 'amount',
-      className: "font-bold text-foreground"
+      accessorKey: 'grandTotal',
+      cell: (order: any) => (
+        <span className="font-bold text-foreground">
+          ₹{order.grandTotal ? Number(order.grandTotal).toFixed(2) : '0.00'}
+        </span>
+      )
     },
     {
       header: t("dashboard.operational.recentOrders.columns.action"),
@@ -59,7 +71,7 @@ export const OperationalInsights: React.FC<OperationalInsightsProps> = ({ recent
           </button>
         </div>
         
-        <DataTable data={recentOrders || []} columns={columns} />
+        <DataTable data={recentOrders || []} columns={columns} keyExtractor={(order) => order.id} />
       </div>
     </div>
   );

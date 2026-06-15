@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { cn } from "../ui/Button";
+import { cn } from "../../utils/cn";
 import { Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";

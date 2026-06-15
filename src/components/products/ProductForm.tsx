@@ -130,6 +130,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             label={t("products.form.category")}
             error={errors.categoryId?.message}
             {...register("categoryId")}
+            value={watch("categoryId")}
             disabled={isFetchingMetadata}
           >
             <option value="">{t("products.form.categoryPlaceholder")}</option>
@@ -144,6 +145,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             label={t("products.form.subCategory")}
             error={errors.subCategoryId?.message}
             {...register("subCategoryId")}
+            value={watch("subCategoryId")}
             disabled={isFetchingMetadata || !selectedCategoryId || subCategories.length === 0}
           >
             <option value="">{t("products.form.subCategoryPlaceholder")}</option>
@@ -184,6 +186,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           label={t("products.form.status")}
           error={errors.status?.message}
           {...register("status")}
+          value={watch("status")}
         >
           <option value="Active">{t("products.form.active")}</option>
           <option value="Inactive">{t("products.form.inactive")}</option>

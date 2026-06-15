@@ -61,6 +61,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<LocationDetailsFormValues>({
     resolver: zodResolver(locationDetailsSchema),
@@ -259,6 +260,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({
                 disabled={isFetching || isSubmitting}
                 required
                 {...register("state")}
+                value={watch("state")}
               >
                 <option value="">
                   {t("onboarding.location.fields.state.placeholder")}

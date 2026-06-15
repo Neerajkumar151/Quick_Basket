@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { UseFormRegister, FieldErrors, Path } from "react-hook-form";
+import { UseFormRegister, FieldErrors, Path, UseFormWatch } from "react-hook-form";
 import { Input } from "../../ui/Input";
 import { TextArea } from "../../ui/TextArea";
 import { Select } from "../../ui/Select";
@@ -9,6 +9,7 @@ import type { FieldValues } from "react-hook-form";
 
 interface BaseCategoryFormProps<TFieldValues extends FieldValues> {
   register: UseFormRegister<TFieldValues>;
+  watch?: UseFormWatch<TFieldValues>;
   errors: FieldErrors<TFieldValues>;
   isSubmitting: boolean;
   submitLabel: string;
@@ -23,6 +24,7 @@ interface BaseCategoryFormProps<TFieldValues extends FieldValues> {
 
 export const BaseCategoryForm = <TFieldValues extends FieldValues>({
   register,
+  watch,
   errors,
   isSubmitting,
   submitLabel,
@@ -60,6 +62,7 @@ export const BaseCategoryForm = <TFieldValues extends FieldValues>({
         <Select
           label={t("categories.form.status")}
           {...register("status" as Path<TFieldValues>)}
+          value={watch ? watch("status" as Path<TFieldValues>) : undefined}
           error={errors.status?.message as string}
         >
           <option value="Active">{t("categories.form.active")}</option>

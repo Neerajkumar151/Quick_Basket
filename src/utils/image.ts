@@ -49,10 +49,13 @@ export const resolveImageUrl = (path?: string) => {
   if (!path) return "";
   if (path.startsWith("http") || path.startsWith("data:")) return path;
   
+  // Clean up backend double uploads bug if present
+  const cleanPath = path.replace(/^\/?uploads\/uploads\//, "uploads/").replace(/^\//, "");
+
   if (import.meta.env.DEV) {
-    return `/${path.replace(/^\//, "")}`; // Local vite proxy will intercept and add ngrok bypass header
+    return `/${cleanPath}`; // Local vite proxy will intercept and add ngrok bypass header
   }
 
   const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/api\/v1\/?$/, "") || "";
-  return `${baseUrl}/${path.replace(/^\//, "")}`;
+  return `${baseUrl}/${cleanPath}`;
 };

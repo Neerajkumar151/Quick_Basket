@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { productService } from "../services/productService";
-
-export const PRODUCTS_QUERY_KEY = ["products"] as const;
+import { queryKeys } from "../constants/queryKeys";
 
 /**
  * Fetches all products. Results are cached — repeated calls across components
@@ -17,9 +16,8 @@ export function useProducts(
   limit: number = 10
 ) {
   return useQuery({
-    queryKey: [...PRODUCTS_QUERY_KEY, searchQuery, categoryFilter, subCategoryFilter, statusFilter, sortBy, page, limit],
+    queryKey: [...queryKeys.products, searchQuery, categoryFilter, subCategoryFilter, statusFilter, sortBy, page, limit],
     queryFn: () => productService.getProducts(searchQuery, categoryFilter, subCategoryFilter, statusFilter, sortBy, page, limit),
-    staleTime: 5 * 60 * 1000,
   });
 }
 

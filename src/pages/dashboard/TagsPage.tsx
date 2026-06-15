@@ -10,26 +10,45 @@ import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { DateTimeDisplay } from "../../components/ui/DateTimeDisplay";
+import { ErrorState } from "../../components/ui/ErrorState";
 
 import { TagForm, TagFormValues } from "../../components/tags/TagForm";
 import { tagService } from "../../services/tagService";
 import { Tag } from "../../types/tag";
 import { useTags } from "../../hooks/useTags";
-import { queryClient } from "../../providers/QueryProvider";
+import { useQueryClient } from "@tanstack/react-query";
+import { useDebounce } from "../../hooks/useDebounce";
 import { TAGS_QUERY_KEY } from "../../hooks/useTags";
+import { CATALOG_METADATA_QUERY_KEY } from "../../hooks/useCatalogMetadata";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
+import { Select } from "../../components/ui/Select";
+import { Pagination } from "../../components/ui/Pagination";
 
 export const TagsPage = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Drawer
   const { isOpen, editingItem: editingTag, openDrawer, closeDrawer } = useEntityDrawer<Tag>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   // Data via TanStack Query (cached)
-  const { data: tags = [], isLoading } = useTags();
+  const { data: responseData, isLoading, isError, refetch } = useTags(
+    debouncedSearchQuery,
+    statusFilter,
+    currentPage,
+    itemsPerPage
+  );
+
+  const tags = responseData?.data || [];
+  const meta = responseData?.meta || { totalPages: 1, page: 1, total: 0 };
 
 
 
@@ -50,7 +69,10 @@ export const TagsPage = () => {
         toast.success(t("tags.messages.successCreate"));
       }
 
-      await queryClient.invalidateQueries({ queryKey: TAGS_QUERY_KEY });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: TAGS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: [CATALOG_METADATA_QUERY_KEY] })
+      ]);
       closeDrawer();
     } catch (error: unknown) {
       const message =
@@ -67,7 +89,10 @@ export const TagsPage = () => {
       toast.success(
         t("tags.messages.successStatus") || "Status updated successfully"
       );
-      await queryClient.invalidateQueries({ queryKey: TAGS_QUERY_KEY });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: TAGS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: [CATALOG_METADATA_QUERY_KEY] })
+      ]);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("tags.messages.errorStatus")
@@ -75,12 +100,6 @@ export const TagsPage = () => {
     }
   };
 
-  // Filter Logic
-  const filteredTags = useMemo(() => {
-    return tags.filter((t: Tag) =>
-      t.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [tags, searchQuery]);
 
   const columns: ColumnDef<Tag>[] = [
     {
@@ -156,26 +175,53 @@ export const TagsPage = () => {
       />
 
       <FilterBar>
-        <div className="w-full sm:w-72">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full sm:w-1/2">
           <SearchInput
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
+              setCurrentPage(1);
             }}
             placeholder={t("tags.filters.searchPlaceholder")}
           />
+          <Select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+          >
+            <option value="all">{t("products.filters.statusAll", "All Status")}</option>
+            <option value="Active">{t("banners.form.active", "Active")}</option>
+            <option value="Inactive">{t("banners.form.inactive", "Inactive")}</option>
+          </Select>
         </div>
       </FilterBar>
 
       <div className="flex flex-col">
-        <DataTable
-          data={filteredTags}
-          columns={columns}
-          isLoading={isLoading}
-          emptyTitle={t("tags.messages.emptyTitle")}
-          emptyDescription={t("tags.messages.emptySubtitle")}
-          itemsPerPage={10}
-        />
+        {isError ? (
+          <ErrorState onRetry={refetch} />
+        ) : (
+          <DataTable
+            data={tags}
+            columns={columns}
+            isLoading={isLoading}
+            keyExtractor={(item) => item.id}
+            emptyTitle={t("tags.messages.emptyTitle")}
+            emptyDescription={t("tags.messages.emptySubtitle")}
+            pagination={false}
+          />
+        )}
+
+        {meta.totalPages > 1 && (
+          <div className="mt-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={meta.totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
       </div>
 
       <EntityDrawer

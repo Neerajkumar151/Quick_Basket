@@ -16,18 +16,10 @@ import { Select } from '../../../components/ui/Select';
 import { Input } from '../../../components/ui/Input';
 import { DataTable, ColumnDef } from '../../../components/ui/DataTable';
 import { StatusBadge } from '../../../components/ui/StatusBadge';
+import { ErrorState } from '../../../components/ui/ErrorState';
 import { useRevenueMetrics, useRevenueTrends, useRevenueBreakdown } from '../../../hooks/useReports';
 import { DateRange } from '../../../services/reports.service';
-import mockData from '../../../constants/mock.json';
-import { Wallet, ShoppingBag, Package, TrendingUp } from 'lucide-react';
-
-const IconMap: Record<string, any> = {
-  Wallet,
-  ShoppingBag,
-  Package,
-  TrendingUp,
-  Landmark
-};
+import { Wallet, ShoppingBag, TrendingUp } from "lucide-react";
 
 export const RevenueReports: React.FC = () => {
   const { t } = useTranslation();
@@ -41,9 +33,16 @@ export const RevenueReports: React.FC = () => {
   const [appliedStartDate, setAppliedStartDate] = useState('');
   const [appliedEndDate, setAppliedEndDate] = useState('');
 
-  const { data: metrics, isLoading: isMetricsLoading } = useRevenueMetrics(dateRange, appliedStartDate, appliedEndDate);
-  const { data: trends, isLoading: isTrendsLoading } = useRevenueTrends(dateRange, appliedStartDate, appliedEndDate);
-  const { data: breakdown, isLoading: isBreakdownLoading } = useRevenueBreakdown(dateRange, appliedStartDate, appliedEndDate);
+  const { data: metrics, isError: isMetricsError, refetch: refetchMetrics } = useRevenueMetrics(dateRange, appliedStartDate, appliedEndDate);
+  const { data: trends, isLoading: isTrendsLoading, isError: isTrendsError, refetch: refetchTrends } = useRevenueTrends(dateRange, appliedStartDate, appliedEndDate);
+  const { data: breakdown, isLoading: isBreakdownLoading, isError: isBreakdownError, refetch: refetchBreakdown } = useRevenueBreakdown(dateRange, appliedStartDate, appliedEndDate);
+
+  const isError = isMetricsError || isTrendsError || isBreakdownError;
+  const handleRefetch = () => {
+    refetchMetrics();
+    refetchTrends();
+    refetchBreakdown();
+  };
 
   const breakdownColumns: ColumnDef<any>[] = useMemo(() => [
     { header: t('dashboard.operational.recentOrders.columns.orderId') || 'Order ID', accessorKey: 'id' },
@@ -97,35 +96,40 @@ export const RevenueReports: React.FC = () => {
   };
 
   const kpiItems: KPIItem[] = useMemo(() => {
-    return mockData.revenueKpis.map((kpi: any) => {
-      let value: string | number = '-';
-      
-      if (metrics) {
-        switch (kpi.id) {
-          case 'totalRevenue':
-            value = formatCurrency(metrics.totalRevenue);
-            break;
-          case 'grossRevenue':
-            value = formatCurrency(metrics.grossRevenue);
-            break;
-          case 'deliveredRevenue':
-            value = formatCurrency(metrics.deliveredRevenue);
-            break;
-          case 'totalOrders':
-            value = metrics.totalOrders;
-            break;
-        }
+    return [
+      {
+        id: 'totalRevenue',
+        title: t('dashboard.kpis.primary.revenue', 'Total Revenue'),
+        icon: Wallet,
+        bgClass: 'bg-primary/10',
+        colorClass: 'text-primary',
+        value: metrics ? formatCurrency(metrics.totalRevenue) : '-'
+      },
+      {
+        id: 'grossRevenue',
+        title: t('reports.revenue.gross', 'Gross Revenue'),
+        icon: Landmark,
+        bgClass: 'bg-status-purple/10',
+        colorClass: 'text-status-purple',
+        value: metrics ? formatCurrency(metrics.grossRevenue) : '-'
+      },
+      {
+        id: 'deliveredRevenue',
+        title: t('reports.revenue.delivered', 'Delivered Revenue'),
+        icon: TrendingUp,
+        bgClass: 'bg-status-delivered/10',
+        colorClass: 'text-status-delivered',
+        value: metrics ? formatCurrency(metrics.deliveredRevenue) : '-'
+      },
+      {
+        id: 'totalOrders',
+        title: t('dashboard.kpis.primary.orders', 'Total Orders'),
+        icon: ShoppingBag,
+        bgClass: 'bg-status-pending/10',
+        colorClass: 'text-status-pending',
+        value: metrics ? metrics.totalOrders : '-'
       }
-
-      return {
-        id: kpi.id,
-        title: t(kpi.title),
-        icon: IconMap[kpi.icon] || Wallet,
-        bgClass: kpi.bgClass,
-        colorClass: kpi.colorClass,
-        value
-      };
-    });
+    ];
   }, [metrics, t]);
 
   return (
@@ -135,7 +139,7 @@ export const RevenueReports: React.FC = () => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 w-full xl:w-auto">
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-              View By:
+              {t("reports.revenue.filters.viewBy", "View By:")}
             </label>
             <Select 
               value={dateRange}
@@ -145,7 +149,7 @@ export const RevenueReports: React.FC = () => {
               <option value="daily">{t('reports.revenue.filters.daily') || 'Daily'}</option>
               <option value="weekly">{t('reports.revenue.filters.weekly') || 'Weekly'}</option>
               <option value="monthly">{t('reports.revenue.filters.monthly') || 'Monthly'}</option>
-              <option value="custom">Custom Range</option>
+              <option value="custom">{t("reports.revenue.filters.custom", "Custom Range")}</option>
             </Select>
           </div>
 
@@ -157,7 +161,7 @@ export const RevenueReports: React.FC = () => {
                 onChange={(e) => setCustomStartDate(e.target.value)} 
                 className="w-auto h-9 text-sm"
               />
-              <span className="text-muted-foreground text-sm font-medium px-1">to</span>
+              <span className="text-muted-foreground text-sm font-medium px-1">{t("common.to", "to")}</span>
               <Input 
                 type="date" 
                 value={customEndDate} 
@@ -187,79 +191,86 @@ export const RevenueReports: React.FC = () => {
         </Button>
       </div>
 
-      {/* KPI Grid */}
-      <KPICards items={kpiItems} />
+      {isError ? (
+        <ErrorState onRetry={handleRefetch} />
+      ) : (
+        <>
+          {/* KPI Grid */}
+          <KPICards items={kpiItems} />
 
-      {/* Revenue Trends Chart */}
-      <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-foreground mb-6">
-          {t('reports.revenue.trends')}
-        </h3>
-        <div className="h-[300px] w-full">
-          {isTrendsLoading ? (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-              Loading chart...
+          {/* Revenue Trends Chart */}
+          <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-foreground mb-6">
+              {t('reports.revenue.trends')}
+            </h3>
+            <div className="h-[300px] w-full">
+              {isTrendsLoading ? (
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                  Loading chart...
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={trends}>
+                    <defs>
+                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                    <XAxis 
+                      dataKey="name" 
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                      dy={10}
+                    />
+                    <YAxis 
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                      tickFormatter={(value) => `₹${value}`}
+                      dx={-10}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))',
+                        borderColor: 'hsl(var(--border))',
+                        borderRadius: '8px',
+                        color: 'hsl(var(--foreground))'
+                      }}
+                      itemStyle={{ color: 'hsl(var(--foreground))' }}
+                      formatter={(value: any) => [formatCurrency(Number(value) || 0), 'Revenue']}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke="hsl(var(--primary))" 
+                      strokeWidth={2}
+                      fillOpacity={1} 
+                      fill="url(#colorRevenue)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </div>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={trends}>
-                <defs>
-                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                  dy={10}
-                />
-                <YAxis 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                  tickFormatter={(value) => `₹${value}`}
-                  dx={-10}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))',
-                    borderColor: 'hsl(var(--border))',
-                    borderRadius: '8px',
-                    color: 'hsl(var(--foreground))'
-                  }}
-                  itemStyle={{ color: 'hsl(var(--foreground))' }}
-                  formatter={(value: number) => [formatCurrency(value), 'Revenue']}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="hsl(var(--primary))" 
-                  strokeWidth={2}
-                  fillOpacity={1} 
-                  fill="url(#colorRevenue)" 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </div>
+          </div>
 
-      {/* Revenue Breakdown Table */}
-      <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-foreground mb-6">
-          Order-Based Revenue Breakdown
-        </h3>
-        <DataTable 
-          columns={breakdownColumns} 
-          data={breakdown || []} 
-          isLoading={isBreakdownLoading}
-          itemsPerPage={5}
-        />
-      </div>
+          {/* Revenue Breakdown Table */}
+          <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-foreground mb-6">
+              Order-Based Revenue Breakdown
+            </h3>
+            <DataTable 
+              columns={breakdownColumns} 
+              data={breakdown || []} 
+              keyExtractor={(item) => item.id}
+              isLoading={isBreakdownLoading}
+              itemsPerPage={5}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };

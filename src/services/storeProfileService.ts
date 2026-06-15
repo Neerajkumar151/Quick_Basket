@@ -113,12 +113,6 @@ export const mapStoreOperations = (raw: RawStoreProfile): StoreOperations => {
 };
 
 export const storeProfileService = {
-  getStoreProfile: async (): Promise<StoreProfile> => {
-    const response = await apiClient.get(ENDPOINTS.STORE.PROFILE);
-    const raw: RawStoreProfile = response.data?.data ?? response.data ?? {};
-    return mapStoreProfile(raw);
-  },
-
   updateStoreProfile: async (data: StoreProfileUpdateInput, logoFile?: File | null, bannerFile?: File | null): Promise<StoreProfile> => {
     // Map frontend fields back to backend API expected format using FormData
     const formData = new FormData();
@@ -147,15 +141,8 @@ export const storeProfileService = {
     return mapStoreProfile(raw);
   },
 
-  getStoreOperations: async (): Promise<StoreOperations> => {
-    // Operations data is returned in the same profile payload
-    const response = await apiClient.get(ENDPOINTS.STORE.PROFILE);
-    const raw: RawStoreProfile = response.data?.data ?? response.data ?? {};
-    return mapStoreOperations(raw);
-  },
-
   updateStoreOperations: async (data: StoreOperationsUpdateInput): Promise<StoreOperations> => {
-    let payload: Record<string, any> = {};
+    let payload: Record<string, string | boolean | number> = {};
 
     if (data.deliveryEnabled !== undefined) payload.deliveryEnabled = data.deliveryEnabled;
     if (data.minimumOrderAmount !== undefined) payload.minOrderAmount = data.minimumOrderAmount.toString();

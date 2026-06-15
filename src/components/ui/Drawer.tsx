@@ -1,12 +1,7 @@
+
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
+import FocusTrap from 'focus-trap-react';
 interface DrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -38,9 +33,15 @@ export const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose, title, children
       />
       
       {/* Drawer Panel */}
-      <div className="relative w-full max-w-md h-full bg-card shadow-2xl flex flex-col animate-in slide-in-from-right-full duration-300">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="text-h3 font-bold text-foreground">{title}</h2>
+      <FocusTrap focusTrapOptions={{ initialFocus: false, onDeactivate: onClose }}>
+        <div 
+          className="relative w-full max-w-md h-full bg-card shadow-2xl flex flex-col animate-in slide-in-from-right-full duration-300"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="drawer-title"
+        >
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+            <h2 id="drawer-title" className="text-h3 font-bold text-foreground">{title}</h2>
           <button 
             onClick={onClose}
             className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
@@ -48,10 +49,11 @@ export const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose, title, children
             <X size={20} />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-          {children}
+          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            {children}
+          </div>
         </div>
-      </div>
+      </FocusTrap>
     </div>
   );
 };
