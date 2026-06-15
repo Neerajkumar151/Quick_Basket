@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Edit2, ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
@@ -10,6 +10,7 @@ import { Select } from "../../components/ui/Select";
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
 import { StatusBadge } from "../../components/ui/StatusBadge";
+import { ErrorState } from "../../components/ui/ErrorState";
 
 import {
   SubCategoryForm,
@@ -19,7 +20,9 @@ import { subCategoryService } from "../../services/subCategoryService";
 import { SubCategory } from "../../types/subCategory";
 import { useSubCategories, SUB_CATEGORIES_QUERY_KEY } from "../../hooks/useSubCategories";
 import { useCategoryTree, CATEGORY_TREE_QUERY_KEY } from "../../hooks/useCategoryTree";
-import { queryClient } from "../../providers/QueryProvider";
+import { useQueryClient } from "@tanstack/react-query";
+import { SUB_CATEGORIES_METADATA_QUERY_KEY } from "../../hooks/useCatalogMetadata";
+import { useDebounce } from "../../hooks/useDebounce";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
 
@@ -27,6 +30,7 @@ import { Pagination } from "../../components/ui/Pagination";
 
 export const SubCategoriesPage = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCategoryFilter = searchParams.get("category") || "";
 
@@ -41,7 +45,7 @@ export const SubCategoriesPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Data via TanStack Query (cached)
-  const { data: subCategoriesResponse, isLoading } = useSubCategories(searchQuery, categoryFilter, currentPage, itemsPerPage);
+  const { data: subCategoriesResponse, isLoading, isError, refetch } = useSubCategories(searchQuery, categoryFilter, currentPage, itemsPerPage);
   const subCategories = subCategoriesResponse?.data || [];
   const totalPages = subCategoriesResponse?.meta?.totalPages || 1;
 
@@ -69,6 +73,7 @@ export const SubCategoriesPage = () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: SUB_CATEGORIES_QUERY_KEY }),
         queryClient.invalidateQueries({ queryKey: CATEGORY_TREE_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: [SUB_CATEGORIES_METADATA_QUERY_KEY] }),
       ]);
       closeDrawer();
     } catch (error: unknown) {
@@ -89,6 +94,7 @@ export const SubCategoriesPage = () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: SUB_CATEGORIES_QUERY_KEY }),
         queryClient.invalidateQueries({ queryKey: CATEGORY_TREE_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: [SUB_CATEGORIES_METADATA_QUERY_KEY] }),
       ]);
     } catch (error) {
       toast.error(
@@ -98,7 +104,15 @@ export const SubCategoriesPage = () => {
   };
 
   // Filter Logic (Now handled on the server, we just pass down `subCategories`)
-  const filteredSubCategories = subCategories;
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  const filteredSubCategories = useMemo(() => {
+    return subCategories.filter((sc: SubCategory) => {
+      const matchesSearch = sc.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        (sc.description && sc.description.toLowerCase().includes(debouncedSearchQuery.toLowerCase()));
+      return matchesSearch;
+    });
+  }, [subCategories, debouncedSearchQuery]);
 
   const columns: ColumnDef<SubCategory>[] = [
     {
@@ -228,14 +242,19 @@ export const SubCategoriesPage = () => {
       </FilterBar>
 
       <div className="flex flex-col">
-        <DataTable
-          data={filteredSubCategories}
-          columns={columns}
-          isLoading={isLoading}
-          emptyTitle={t("subCategories.messages.emptyTitle")}
-          emptyDescription={t("subCategories.messages.emptySubtitle")}
-          pagination={false}
-        />
+        {isError ? (
+          <ErrorState onRetry={refetch} />
+        ) : (
+          <DataTable
+            data={filteredSubCategories}
+            columns={columns}
+            isLoading={isLoading}
+            keyExtractor={(item) => item.id}
+            emptyTitle={t("subCategories.messages.emptyTitle")}
+            emptyDescription={t("subCategories.messages.emptySubtitle")}
+            pagination={false}
+          />
+        )}
         
         {totalPages > 1 && (
           <div className="mt-4">

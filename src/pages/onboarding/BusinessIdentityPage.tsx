@@ -8,8 +8,8 @@ export const BusinessIdentityPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const handleFinalSubmit = (data: any) => {
-    console.log("Final Registration Data:", data);
+  const handleFinalSubmit = (_data: any) => {
+    // Final Registration Logic
     toast.success(t("onboarding.business.success", "Store onboarding complete! Verification in progress."), {
       duration: 5000,
       icon: "🎉",

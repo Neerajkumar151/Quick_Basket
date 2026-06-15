@@ -3,32 +3,33 @@ import { Plus, ImageIcon, Edit2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { PageHeader } from "../../components/ui/PageHeader";
-import { FilterBar } from "../../components/ui/FilterBar";
-import { SearchInput } from "../../components/ui/SearchInput";
+
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
 import { StatusBadge } from "../../components/ui/StatusBadge";
+import { ErrorState } from "../../components/ui/ErrorState";
 
 import { BannerForm } from "../../components/banners/BannerForm";
 import { BannerFormValues } from "../../validations/banner";
 import { bannerService } from "../../services/bannerService";
 import { Banner } from "../../types/banner";
 import { useBanners } from "../../hooks/useBanners";
-import { queryClient } from "../../providers/QueryProvider";
+import { useQueryClient } from "@tanstack/react-query";
+import { useDebounce } from "../../hooks/useDebounce";
 import { BANNERS_QUERY_KEY } from "../../hooks/useBanners";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
 
 export const BannersPage = () => {
   const { t } = useTranslation();
-  const [searchQuery, setSearchQuery] = useState("");
+  const queryClient = useQueryClient();
 
   // Drawer
   const { isOpen, editingItem: editingBanner, openDrawer, closeDrawer } = useEntityDrawer<Banner>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Data via TanStack Query (cached)
-  const { data: banners = [], isLoading } = useBanners();
+  const { data: banners = [], isLoading, isError, refetch } = useBanners();
 
 
 
@@ -75,20 +76,12 @@ export const BannersPage = () => {
     }
   };
 
-  // Filter Logic
   const processedBanners = useMemo(() => {
-    let result = [...banners];
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter((b: Banner) => b.title.toLowerCase().includes(q));
-    }
-
+    const result = [...banners];
     // Sort by display order
     result.sort((a: Banner, b: Banner) => a.displayOrder - b.displayOrder);
-
     return result;
-  }, [banners, searchQuery]);
+  }, [banners]);
 
   const columns: ColumnDef<Banner>[] = [
     {
@@ -109,19 +102,7 @@ export const BannersPage = () => {
         </div>
       ),
     },
-    {
-      header: t("banners.table.title"),
-      cell: (banner: Banner) => (
-        <div className="flex flex-col">
-          <span className="font-bold text-foreground">{banner.title}</span>
-          {banner.description && (
-            <span className="text-caption text-muted-foreground truncate max-w-[200px]">
-              {banner.description}
-            </span>
-          )}
-        </div>
-      ),
-    },
+
     {
       header: t("banners.table.target"),
       cell: (banner: Banner) => (
@@ -179,27 +160,20 @@ export const BannersPage = () => {
         onAction={() => openDrawer()}
       />
 
-      <FilterBar>
-        <div className="w-full sm:w-72">
-          <SearchInput
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-            }}
-            placeholder={t("banners.filters.searchPlaceholder")}
-          />
-        </div>
-      </FilterBar>
-
       <div className="flex flex-col">
-        <DataTable
-          data={processedBanners}
-          columns={columns}
-          isLoading={isLoading}
-          emptyTitle={t("banners.messages.emptyTitle")}
-          emptyDescription={t("banners.messages.emptySubtitle")}
-          itemsPerPage={10}
-        />
+        {isError ? (
+          <ErrorState onRetry={refetch} />
+        ) : (
+          <DataTable
+            data={processedBanners}
+            columns={columns}
+            isLoading={isLoading}
+            keyExtractor={(item) => item.id}
+            emptyTitle={t("banners.messages.emptyTitle")}
+            emptyDescription={t("banners.messages.emptySubtitle")}
+            itemsPerPage={10}
+          />
+        )}
       </div>
 
       <EntityDrawer

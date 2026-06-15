@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { cn } from './Button';
+import { cn } from '../../utils/cn';
 import { SearchInput } from './SearchInput';
 
 export interface Option {

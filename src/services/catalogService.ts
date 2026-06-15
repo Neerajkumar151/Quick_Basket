@@ -19,8 +19,8 @@ export const catalogService = {
         .filter((c) => c.status === "Active")
         .map((c) => ({ id: c.id, name: c.name }));
 
-      const fetchedTags = await tagService.getTags();
-      const tags = fetchedTags
+      const fetchedTagsRes = await tagService.getTags("", "all", 1, 500);
+      const tags = fetchedTagsRes.data
         .filter((t) => t.status === "Active")
         .map((t) => ({ id: t.id, name: t.name }));
 

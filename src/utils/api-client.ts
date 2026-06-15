@@ -100,7 +100,7 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        console.log("Access token expired. Attempting silent token refresh...");
+        // Silent token refresh
 
         // FIX 2: Use apiClient (not raw axios) so withCredentials & headers are inherited
         const { data } = await apiClient.post<{ accessToken: string }>(

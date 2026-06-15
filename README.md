@@ -20,17 +20,20 @@ This is the administrative web dashboard for **Quick Basket**, built with React,
 ### Prerequisites
 
 Before you begin, ensure you have the following installed on your machine:
+
 - [Node.js](https://nodejs.org/) (v18 or higher recommended)
 - Git
 
 ### Installation
 
 1. **Clone the repository** (if you haven't already):
+
    ```bash
    git clone https://github.com/krishnaCodriva/QuickBasket.git
    ```
 
 2. **Navigate to the admin project directory**:
+
    ```bash
    cd QuickBasket/store-admin
    ```
@@ -99,6 +102,34 @@ The built files will be located in the `dist` directory, ready to be deployed.
 
 ---
 
+## Testing
+
+This project uses [Vitest](https://vitest.dev/) for unit testing. To run the tests:
+
+```bash
+npm run test
+```
+
+To run tests in watch mode during development:
+
+```bash
+npm run test:watch
+```
+
+---
+
+## Bundle Analysis
+
+You can visualize the production bundle size and optimize chunk dependencies:
+
+```bash
+npm run analyze
+```
+
+This generates a `bundle-stats.html` file that visualizes the distribution of module sizes.
+
+---
+
 ## Contributors
 
 A big thank you to all the people who have contributed to this project:
@@ -106,7 +137,6 @@ A big thank you to all the people who have contributed to this project:
 - [krishnaCodriva](https://github.com/krishnaCodriva)
 - [Satyam Tripathi (satyamtripathii)](https://github.com/satyamtripathii)
 - [NEERAJ KUMAR (Neerajkumar151)](https://github.com/Neerajkumar151)
-- [Sktripathii](https://github.com/Sktripathii)
 
 ---
 

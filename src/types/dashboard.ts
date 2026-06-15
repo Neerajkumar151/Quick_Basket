@@ -22,10 +22,16 @@ export interface ChartDataPoint {
   value: number;
 }
 
+export interface OrderStatusDistributionItem {
+  name: string;
+  value: number;
+  color?: string;
+}
+
 export interface DashboardAnalytics {
   revenueTrend: ChartDataPoint[];
   orderTrend: ChartDataPoint[];
-  orderStatusDistribution: any[]; // You can refine this if orderStatusDistribution returns a specific structure
+  orderStatusDistribution: OrderStatusDistributionItem[];
 }
 
 export interface RecentOrder {

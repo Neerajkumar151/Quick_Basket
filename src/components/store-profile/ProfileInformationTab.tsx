@@ -5,6 +5,7 @@ import { Button } from "../ui/Button";
 import { Edit2, MapPin, Phone, Mail, FileText, User } from "lucide-react";
 import { StoreProfileForm } from "./StoreProfileForm";
 import { StoreInfoHeader } from "./StoreInfoHeader";
+import { DetailRow } from "../ui/DetailRow";
 import { useTranslation } from "react-i18next";
 
 interface ProfileInformationTabProps {
@@ -62,64 +63,59 @@ export const ProfileInformationTab: React.FC<ProfileInformationTabProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Details Section */}
         <SectionCard 
-          title={"Store Details"} 
+          title={t("storeProfile.details.title", "Store Details")} 
           icon={<FileText size={20} />}
           className="h-full"
         >
           <div className="flex flex-col gap-5">
-            <div>
-              <p className="text-caption text-muted-foreground uppercase tracking-wider mb-1">Store Type</p>
-              <p className="text-body font-medium text-foreground">
-                {profile.businessType || "-"}
-              </p>
-            </div>
+            <DetailRow 
+              label={t("storeProfile.details.storeType", "Store Type")} 
+              value={profile.businessType || "-"} 
+            />
             
             {profile.businessRegistrationDate && (
-              <div>
-                <p className="text-caption text-muted-foreground uppercase tracking-wider mb-1">Registration Date</p>
-                <p className="text-body font-medium text-foreground">
-                  {profile.businessRegistrationDate}
-                </p>
-              </div>
+              <DetailRow 
+                label={t("storeProfile.details.registrationDate", "Registration Date")} 
+                value={profile.businessRegistrationDate} 
+              />
             )}
 
-            <div>
-              <p className="text-caption text-muted-foreground uppercase tracking-wider mb-1">Verification Status</p>
-              <div className="flex items-center mt-1">
-                <span className={`px-2.5 py-1 rounded-full text-[12px] font-bold tracking-wider uppercase border 
-                  ${profile.verificationStatus === 'verified' ? 'bg-status-delivered/10 text-status-delivered border-status-delivered/20' : 
-                    profile.verificationStatus === 'pending' ? 'bg-status-outForDelivery/10 text-status-outForDelivery border-status-outForDelivery/20' : 
-                    'bg-status-cancelled/10 text-status-cancelled border-status-cancelled/20'}`}
-                >
-                  {profile.verificationStatus}
-                </span>
-              </div>
-            </div>
+            <DetailRow 
+              label={t("storeProfile.details.verificationStatus", "Verification Status")} 
+              value={
+                <div className="flex items-center mt-1">
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase border 
+                    ${profile.verificationStatus === 'verified' ? 'bg-status-delivered/10 text-status-delivered border-status-delivered/20' : 
+                      profile.verificationStatus === 'pending' ? 'bg-status-outForDelivery/10 text-status-outForDelivery border-status-outForDelivery/20' : 
+                      'bg-status-cancelled/10 text-status-cancelled border-status-cancelled/20'}`}
+                  >
+                    {profile.verificationStatus}
+                  </span>
+                </div>
+              }
+            />
 
             {profile.gstNumber && (
-              <div>
-                <p className="text-caption text-muted-foreground uppercase tracking-wider mb-1">GST Number</p>
-                <p className="text-body font-medium text-foreground uppercase">
-                  {profile.gstNumber}
-                </p>
-              </div>
+              <DetailRow 
+                label={t("storeProfile.details.gstNumber", "GST Number")} 
+                value={profile.gstNumber} 
+                valueClassName="text-body font-medium text-foreground uppercase"
+              />
             )}
 
             {profile.panNumber && (
-              <div>
-                <p className="text-caption text-muted-foreground uppercase tracking-wider mb-1">PAN Number</p>
-                <p className="text-body font-medium text-foreground uppercase">
-                  {profile.panNumber}
-                </p>
-              </div>
+              <DetailRow 
+                label={t("storeProfile.details.panNumber", "PAN Number")} 
+                value={profile.panNumber} 
+                valueClassName="text-body font-medium text-foreground uppercase"
+              />
             )}
 
-            <div>
-              <p className="text-caption text-muted-foreground uppercase tracking-wider mb-1">Description</p>
-              <p className="text-description text-muted-foreground whitespace-pre-wrap">
-                {profile.description || "-"}
-              </p>
-            </div>
+            <DetailRow 
+              label={t("storeProfile.details.description", "Description")} 
+              value={profile.description || "-"} 
+              valueClassName="text-description text-muted-foreground whitespace-pre-wrap"
+            />
           </div>
         </SectionCard>
 

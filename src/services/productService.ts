@@ -13,12 +13,15 @@ const mapProduct = (item: any): Product => {
     ? item.tagIds
     : [];
 
-  const mappedImages =
-    Array.isArray(item.gallery) && item.gallery.length > 0
-      ? item.gallery.map((img: string) => resolveImageUrl(img))
-      : item.imageUrl
-      ? [resolveImageUrl(item.imageUrl)]
-      : [];
+  const mappedImages: string[] = [];
+  if (item.imageUrl) {
+    mappedImages.push(resolveImageUrl(item.imageUrl));
+  }
+  if (Array.isArray(item.gallery)) {
+    item.gallery.forEach((img: string) => {
+      if (img) mappedImages.push(resolveImageUrl(img));
+    });
+  }
 
   return {
     id: item.id,
@@ -36,6 +39,12 @@ const mapProduct = (item: any): Product => {
     createdAt: item.created_at ?? item.createdAt ?? new Date().toISOString(),
     updatedAt: item.updated_at ?? item.updatedAt ?? new Date().toISOString(),
   };
+};
+
+const base64ToFile = async (dataUrl: string, filename: string): Promise<File> => {
+  const res = await fetch(dataUrl);
+  const blob = await res.blob();
+  return new File([blob], filename, { type: blob.type });
 };
 
 export const productService = {
@@ -61,18 +70,15 @@ export const productService = {
       queryParams.append("isActive", statusFilter === "Active" ? "true" : "false");
     }
     if (sortBy) {
-      const sortMap: Record<string, { sortBy: string; sortOrder: string }> = {
-        newest: { sortBy: "createdAt", sortOrder: "desc" },
-        oldest: { sortBy: "createdAt", sortOrder: "asc" },
-        priceAsc: { sortBy: "price", sortOrder: "asc" },
-        priceDesc: { sortBy: "price", sortOrder: "desc" },
-        nameAsc: { sortBy: "name", sortOrder: "asc" },
-        nameDesc: { sortBy: "name", sortOrder: "desc" },
+      const sortMap: Record<string, string> = {
+        newest: "latest",
+        popularity: "popularity",
+        priceAsc: "price_asc",
+        priceDesc: "price_desc",
       };
       const mapped = sortMap[sortBy];
       if (mapped) {
-        queryParams.append("sortBy", mapped.sortBy);
-        queryParams.append("sortOrder", mapped.sortOrder);
+        queryParams.append("sortBy", mapped);
       }
     }
 
@@ -103,11 +109,7 @@ export const productService = {
   },
 
   createProduct: async (data: any): Promise<Product> => {
-    const base64ToFile = async (dataUrl: string, filename: string): Promise<File> => {
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      return new File([blob], filename, { type: blob.type });
-    };
+
 
     const formData = new FormData();
     formData.append("categoryId", data.categoryId);
@@ -122,9 +124,19 @@ export const productService = {
     formData.append("isActive", data.status === "Active" ? "true" : "false");
 
     const images = data.images ?? [];
-    if (images.length > 0 && images[0].startsWith("data:image")) {
-      const file = await base64ToFile(images[0], `product-image-${Date.now()}.jpg`);
-      formData.append("productImage", file);
+    let newImageCount = 0;
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i];
+      if (image.startsWith("data:image")) {
+        const file = await base64ToFile(image, `product-image-${Date.now()}-${newImageCount++}.jpg`);
+        if (i === 0) {
+          formData.append("productImage", file);
+        } else {
+          formData.append("images", file);
+        }
+      } else {
+        formData.append("existingImages", image);
+      }
     }
 
     const response = await apiClient.post(ENDPOINTS.PRODUCTS.ADMIN, formData, {
@@ -134,11 +146,7 @@ export const productService = {
   },
 
   updateProduct: async (id: string, data: any): Promise<Product> => {
-    const base64ToFile = async (dataUrl: string, filename: string): Promise<File> => {
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      return new File([blob], filename, { type: blob.type });
-    };
+
 
     const formData = new FormData();
     if (data.categoryId !== undefined) formData.append("categoryId", data.categoryId);
@@ -153,9 +161,19 @@ export const productService = {
     if (data.status !== undefined) formData.append("isActive", data.status === "Active" ? "true" : "false");
 
     const images = data.images ?? [];
-    if (images.length > 0 && images[0].startsWith("data:image")) {
-      const file = await base64ToFile(images[0], `product-image-${Date.now()}.jpg`);
-      formData.append("productImage", file);
+    let newImageCount = 0;
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i];
+      if (image.startsWith("data:image")) {
+        const file = await base64ToFile(image, `product-image-${Date.now()}-${newImageCount++}.jpg`);
+        if (i === 0) {
+          formData.append("productImage", file);
+        } else {
+          formData.append("images", file);
+        }
+      } else {
+        formData.append("existingImages", image);
+      }
     }
 
     const response = await apiClient.put(`${ENDPOINTS.PRODUCTS.ADMIN}/${id}`, formData, {

@@ -48,6 +48,7 @@ export const SubCategoryForm: React.FC<SubCategoryFormProps> = ({
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<SubCategoryFormValues>({
     resolver: zodResolver(createSubCategorySchema(t)),
     defaultValues: initialData ?? {
@@ -71,6 +72,7 @@ export const SubCategoryForm: React.FC<SubCategoryFormProps> = ({
   return (
     <BaseCategoryForm<SubCategoryFormValues>
       register={register}
+      watch={watch}
       errors={errors}
       isSubmitting={isSubmitting}
       submitLabel={defaultSubmitLabel}
@@ -89,6 +91,7 @@ export const SubCategoryForm: React.FC<SubCategoryFormProps> = ({
             label={t("subCategories.form.parentCategory")}
             error={errors.categoryId?.message}
             {...register("categoryId")}
+            value={watch("categoryId")}
             disabled={isLoadingCategories}
           >
             <option value="">

@@ -24,7 +24,7 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
   const getEntry = (status: OrderStatus) =>
     timeline.find((t: any) => t.status === status);
 
-  const getStepIndex = (status: OrderStatus) => ALL_STEPS.indexOf(status);
+  
 
   const cancelEntry = timeline.find((t: any) => t.status === ORDER_STATUS.CANCELLED);
 

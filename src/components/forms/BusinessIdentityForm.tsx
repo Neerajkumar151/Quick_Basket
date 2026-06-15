@@ -13,7 +13,8 @@ import toast from "react-hot-toast";
 
 import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
-import { Button, cn } from "../ui/Button";
+import { Button } from "../ui/Button";
+import { cn } from "../../utils/cn";
 import {
   businessIdentitySchema,
   type BusinessIdentityFormValues,
@@ -42,6 +43,7 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
     setValue,
     setError,
     clearErrors,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<BusinessIdentityFormValues>({
     resolver: zodResolver(businessIdentitySchema),
@@ -158,6 +160,7 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
             error={errors.businessType?.message}
             required
             {...register("businessType")}
+            value={watch("businessType")}
           >
             <option value="">
               {t("onboarding.identity.fields.businessType.placeholder")}

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { MoreHorizontal } from 'lucide-react';
-import { cn } from './Button';
+import { cn } from '../../utils/cn';
 
 export interface RowAction {
   label: string;

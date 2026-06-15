@@ -37,6 +37,7 @@ export const TagForm: React.FC<TagFormProps> = ({
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<TagFormValues>({
     resolver: zodResolver(createTagSchema(t)),
     defaultValues: {
@@ -59,6 +60,7 @@ export const TagForm: React.FC<TagFormProps> = ({
   return (
     <BaseCategoryForm<TagFormValues>
       register={register}
+      watch={watch}
       errors={errors}
       isSubmitting={isSubmitting}
       submitLabel={defaultSubmitLabel}

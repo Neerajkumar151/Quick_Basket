@@ -2,7 +2,7 @@ import * as z from 'zod';
 import type { TFunction } from "i18next";
 
 export const createBannerSchema = (t: TFunction) => z.object({
-  title: z.string().min(1, { message: t("banners.messages.errorTitleRequired") }),
+  title: z.string().optional(),
   description: z.string().optional(),
   redirectType: z.enum(['Product', 'Category'], {
     message: t("banners.messages.errorTypeRequired")
@@ -14,7 +14,7 @@ export const createBannerSchema = (t: TFunction) => z.object({
 });
 
 export interface BannerFormValues {
-  title: string;
+  title?: string;
   description?: string;
   redirectType: "Product" | "Category";
   redirectId: string;

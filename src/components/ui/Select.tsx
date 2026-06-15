@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { cn } from "./Button";
+import { cn } from "../../utils/cn";
 import { ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
@@ -11,6 +12,7 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, label, error, required, children, value, onChange, disabled, ...props }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
+    const { t } = useTranslation();
     const wrapperRef = useRef<HTMLDivElement>(null);
     const selectRef = useRef<HTMLSelectElement | null>(null);
 
@@ -46,25 +48,29 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     const options: { value: string; label: React.ReactNode }[] = [];
     React.Children.forEach(children, (child) => {
       if (React.isValidElement(child) && child.type === 'option') {
+        const element = child as any;
         options.push({
-          value: child.props.value !== undefined ? child.props.value : child.props.children?.toString() || "",
-          label: child.props.children,
+          value: element.props.value !== undefined ? element.props.value : element.props.children?.toString() || "",
+          label: element.props.children,
         });
       } else if (React.isValidElement(child) && child.type === React.Fragment) {
-        React.Children.forEach(child.props.children, (subChild) => {
-          if (React.isValidElement(subChild) && subChild.type === 'option') {
+        const element = child as any;
+        React.Children.forEach(element.props.children, (subChild) => {
+          if (React.isValidElement(subChild)) {
+            const subElement = subChild as any;
             options.push({
-              value: subChild.props.value !== undefined ? subChild.props.value : subChild.props.children?.toString() || "",
-              label: subChild.props.children,
+              value: subElement.props.value !== undefined ? subElement.props.value : subElement.props.children?.toString() || "",
+              label: subElement.props.children,
             });
           }
         });
       } else if (Array.isArray(child)) {
         child.forEach((c: any) => {
           if (React.isValidElement(c) && c.type === 'option') {
+            const element = c as any;
             options.push({
-              value: c.props.value !== undefined ? c.props.value : c.props.children?.toString() || "",
-              label: c.props.children,
+              value: element.props.value !== undefined ? element.props.value : element.props.children?.toString() || "",
+              label: element.props.children,
             });
           }
         });
@@ -112,7 +118,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             }}
           >
             <span className="truncate pr-4">
-              {selectedOption ? selectedOption.label : 'Select...'}
+              {selectedOption ? selectedOption.label : t("common.select", 'Select...')}
             </span>
             <ChevronDown size={16} className="text-muted-foreground shrink-0" />
           </div>
@@ -120,7 +126,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           {isOpen && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-md shadow-lg z-50 overflow-hidden flex flex-col py-1 max-h-60 overflow-y-auto custom-scrollbar">
               {options.length === 0 ? (
-                <div className="px-3 py-2 text-description text-muted-foreground">No options</div>
+                <div className="px-3 py-2 text-description text-muted-foreground">{t("common.noOptions", "No options")}</div>
               ) : (
                 options.map((o, idx) => (
                   <div
