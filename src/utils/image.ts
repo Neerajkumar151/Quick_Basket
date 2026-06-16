@@ -48,6 +48,8 @@ export const resizeImage = (file: File, maxWidth = 2048, maxHeight = 2048, quali
 export const resolveImageUrl = (path?: string) => {
   if (!path) return "";
   if (path.startsWith("http") || path.startsWith("data:")) return path;
+  // Guard: if already processed into a proxy URL, return as-is to prevent double-nesting
+  if (path.includes("proxy-image")) return path;
   
   // Clean up backend double uploads bug if present
   const cleanPath = path.replace(/^\/?uploads\/uploads\//, "uploads/").replace(/^\//, "");
