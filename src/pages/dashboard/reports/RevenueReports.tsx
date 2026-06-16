@@ -20,6 +20,7 @@ import { ErrorState } from '../../../components/ui/ErrorState';
 import { useRevenueMetrics, useRevenueTrends, useRevenueBreakdown } from '../../../hooks/useReports';
 import { DateRange } from '../../../services/reports.service';
 import { Wallet, ShoppingBag, TrendingUp } from "lucide-react";
+import { formatCurrency } from '../../../utils/number';
 
 export const RevenueReports: React.FC = () => {
   const { t } = useTranslation();
@@ -59,14 +60,6 @@ export const RevenueReports: React.FC = () => {
       className: 'font-medium'
     }
   ], [t]);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
   const handleExportCSV = () => {
     if (!trends) return;

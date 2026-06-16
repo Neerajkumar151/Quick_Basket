@@ -52,7 +52,9 @@ export const resolveImageUrl = (path?: string) => {
   // Clean up backend double uploads bug if present
   const cleanPath = path.replace(/^\/?uploads\/uploads\//, "uploads/").replace(/^\//, "");
 
-  if (import.meta.env.DEV) {
+  const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+  if (import.meta.env.DEV || isLocalhost) {
     return `/${cleanPath}`; // Local vite proxy will intercept and add ngrok bypass header
   }
 

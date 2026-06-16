@@ -54,7 +54,10 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
         // ── Normal flow ────────────────────────────────────────────────
         ALL_STEPS.map((step, idx) => {
           const entry = getEntry(step);
-          const isCompleted = !!entry;
+          const currentStatusIdx = ALL_STEPS.indexOf(currentStatus);
+          
+          // Mark completed if it's explicitly in the timeline OR if its sequence is <= current status
+          const isCompleted = !!entry || (currentStatusIdx !== -1 && idx <= currentStatusIdx);
           const isLast = idx === ALL_STEPS.length - 1;
 
           return (

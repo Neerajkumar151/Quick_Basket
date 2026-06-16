@@ -206,3 +206,16 @@
     z-index: 10;
   }
 }
+
+@layer utilities {
+  .hide-scrollbar {
+    /* IE and Edge */
+    -ms-overflow-style: none;
+    /* Firefox */
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    /* Chrome, Safari and Opera */
+    display: none;
+  }
+}

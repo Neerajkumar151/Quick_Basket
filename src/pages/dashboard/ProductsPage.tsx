@@ -11,6 +11,7 @@ import { EntityDrawer } from "../../components/ui/EntityDrawer";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { formatCurrency } from "../../utils/number";
+import { resolveImageUrl } from "../../utils/image";
 
 import { ProductForm } from "../../components/products/ProductForm";
 import { ProductFormValues } from "../../validations/product";
@@ -116,7 +117,7 @@ export const ProductsPage = () => {
             {prod.images && prod.images.length > 0 ? (
               <>
                 <img
-                  src={prod.images[0]}
+                  src={resolveImageUrl(prod.images[0])}
                   alt={prod.name}
                   className="w-full h-full object-cover"
                 />

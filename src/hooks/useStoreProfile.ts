@@ -7,7 +7,7 @@ import { ENDPOINTS } from "../constants/endpoints";
 import { queryKeys } from "../constants/queryKeys";
 
 // Master fetcher that hits the network exactly once
-export const useStoreData = () => {
+export const useStoreData = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.storeProfile,
     queryFn: async (): Promise<RawStoreProfile> => {
@@ -15,12 +15,13 @@ export const useStoreData = () => {
       return response.data?.data ?? response.data ?? {};
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    ...options,
   });
 };
 
 // Hooks for Profile Information
-export const useStoreProfile = () => {
-  const query = useStoreData();
+export const useStoreProfile = (options?: { enabled?: boolean }) => {
+  const query = useStoreData(options);
   return {
     ...query,
     data: query.data ? mapStoreProfile(query.data) : undefined,
@@ -40,8 +41,8 @@ export const useUpdateStoreProfile = () => {
 };
 
 // Hooks for Store Operations
-export const useStoreOperations = () => {
-  const query = useStoreData();
+export const useStoreOperations = (options?: { enabled?: boolean }) => {
+  const query = useStoreData(options);
   return {
     ...query,
     data: query.data ? mapStoreOperations(query.data) : undefined,

@@ -19,6 +19,9 @@ import { Order, ORDER_STATUS } from "../../types/order";
 import { formatCurrency } from "../../utils/number";
 import { formatDateTime } from "../../utils/date";
 import { useTranslation } from "react-i18next";
+import { apiClient } from "../../utils/api-client";
+import { ENDPOINTS } from "../../constants/endpoints";
+import { orderService } from "../../services/orderService";
 
 export const OrdersPage = () => {
   const { t } = useTranslation();
@@ -70,14 +73,17 @@ export const OrdersPage = () => {
   const handleViewOrder = async (order: Order) => {
     const toastId = toast.loading(t("orders.messages.loadingDetails", "Loading order details..."));
     try {
-      const fullOrder = orders.find((o) => o.id === order.id) || order;
+      // Fetch and map the API response into our internal Order structure
+      const fullOrder = await orderService.getOrderById(order.id);
+      
       if (fullOrder) {
         setSelectedOrder(fullOrder);
         setIsModalOpen(true);
       } else {
         toast.error(t("orders.messages.errorFetchDetails", "Failed to load order details."));
       }
-    } catch {
+    } catch (err) {
+      console.error("Error fetching order details:", err);
       toast.error(t("orders.messages.errorFetchDetails", "Failed to load order details."));
     } finally {
       toast.dismiss(toastId);
@@ -90,12 +96,16 @@ export const OrdersPage = () => {
 
   // ── Stats cards ────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
-    // If dashboard metrics are available, use them. Otherwise, fallback to the current page's orders to avoid 0s (though this isn't a true total)
+    const distribution = dashboardData?.analytics?.orderStatusDistribution || [];
+    const getCount = (statusName: string) => 
+      distribution.find(d => d.name.toLowerCase() === statusName.toLowerCase())?.value || 0;
+
     if (metrics) {
       return {
         total: metrics.totalOrders || 0,
         new: metrics.pendingOrders || 0,
-        outForDelivery: 0, // Not provided by dashboard by default
+        processing: getCount('processing'),
+        outForDelivery: getCount('out for delivery'),
         delivered: metrics.deliveredOrders || 0,
         cancelled: metrics.cancelledOrders || 0,
       };
@@ -103,11 +113,12 @@ export const OrdersPage = () => {
     return {
       total: totalItems || orders.length,
       new: orders.filter((o: Order) => o.status === ORDER_STATUS.PENDING).length,
+      processing: orders.filter((o: Order) => o.status === ORDER_STATUS.PROCESSING).length,
       outForDelivery: orders.filter((o: Order) => o.status === ORDER_STATUS.OUT_FOR_DELIVERY).length,
       delivered: orders.filter((o: Order) => o.status === ORDER_STATUS.DELIVERED).length,
       cancelled: orders.filter((o: Order) => o.status === ORDER_STATUS.CANCELLED).length,
     };
-  }, [metrics, orders, totalItems]);
+  }, [metrics, dashboardData, orders, totalItems]);
 
   const columns: ColumnDef<Order>[] = [
     {
@@ -170,7 +181,7 @@ export const OrdersPage = () => {
       />
 
       {/* ── Stats Cards ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <StatCard
           label={t("orders.stats.total")}
           value={stats.total}
@@ -182,6 +193,12 @@ export const OrdersPage = () => {
           value={stats.new}
           icon={<Clock size={20} className="text-warning" />}
           color="bg-warning/10"
+        />
+        <StatCard
+          label={t("orders.stats.processing")}
+          value={stats.processing}
+          icon={<RefreshCw size={20} className="text-status-blue" />}
+          color="bg-status-blue/10"
         />
         <StatCard
           label={t("orders.stats.outForDelivery")}

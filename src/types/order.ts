@@ -32,6 +32,7 @@ export interface OrderItem {
   productName: string;
   quantity: number;
   unitPrice: number;
+  image?: string;
 }
 
 export interface PaymentInfo {
@@ -64,4 +65,5 @@ export interface Order {
   deliveryFee: number;
   tax: number;
   total: number;
+  availableStatusUpdates?: string[];
 }

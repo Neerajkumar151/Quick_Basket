@@ -35,9 +35,9 @@ export const LoginPage = () => {
       <Header />
       <main className="flex-1 relative flex items-center justify-center z-10">
         {/* Centered Login Form matching CSS variables */}
-        <div className="relative w-full max-w-[440px] p-6">
+        <div className="relative w-full max-w-[550px] p-6">
           <div
-            className="rounded-2xl border p-8 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-700 backdrop-blur-lg"
+            className="rounded-3xl border p-10 sm:p-12 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-700 backdrop-blur-xl"
             style={{
               backgroundColor: "var(--auth-card-bg)",
               borderColor: "var(--auth-card-border)",
@@ -46,7 +46,7 @@ export const LoginPage = () => {
           >
             <LoginForm onSuccess={handleLoginSuccess} />
 
-            <div className="mt-8 text-center">
+            <div className="mt-10 text-center text-base">
               <span className="text-auth-text/80">
                 {t("auth.login.noAccount")}{" "}
               </span>

@@ -3,7 +3,7 @@ import { z } from "zod";
 export const basicInfoSchema = z.object({
   storeName: z.string().min(2, "Store name must be at least 2 characters").max(50, "Store name is too long"),
   ownerName: z.string().min(2, "Owner name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid business email"),
+  email: z.string().email("Please enter a valid business email").regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|in|org|net|edu|ac\.in|co\.in|gov|mil|io|co|us|uk)$/i, "Please enter a genuine email address (e.g. .com, .in, .ac.in)"),
   phone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit phone number"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });

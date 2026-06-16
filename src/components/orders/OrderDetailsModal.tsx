@@ -11,6 +11,7 @@ import { StatusBadge } from "../ui/StatusBadge";
 import { Button } from "../ui/Button";
 import { Order, ORDER_STATUS, ORDER_FLOW, OrderStatus } from "../../types/order";
 import { useUpdateOrderStatus } from "../../hooks/useOrderMutations";
+import { resolveImageUrl } from "../../utils/image";
 import { formatCurrency } from "../../utils/number";
 import { formatDateTime } from "../../utils/date";
 import { useTranslation } from "react-i18next";
@@ -42,7 +43,17 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     [ORDER_STATUS.CANCELLED]: t("orders.actions.cancel", "Cancel Order"),
   };
 
-  const allowedTransitions = ORDER_FLOW[order.status] || [];
+  // Use backend-provided transitions if available, otherwise fallback to frontend state machine
+  const rawAllowedTransitions = order.availableStatusUpdates || ORDER_FLOW[order.status] || [];
+  
+  // Make sure we only show transitions that we have a label/action for
+  // And restrict CANCELLED to only be available when the order is PENDING
+  const allowedTransitions = rawAllowedTransitions.filter(status => {
+    if (status === ORDER_STATUS.CANCELLED && order.status !== ORDER_STATUS.PENDING) {
+      return false;
+    }
+    return Object.keys(ACTION_LABELS).includes(status) || Object.values(ORDER_STATUS).includes(status as any);
+  }) as OrderStatus[];
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
     try {
@@ -137,13 +148,22 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <div className="bg-card border border-border p-4 rounded-xl shadow-sm flex flex-col gap-3">
                 {order.items.map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between pb-3 border-b border-border last:border-0 last:pb-0">
-                    <div className="flex flex-col">
-                      <span className="text-description font-medium text-foreground">
-                        {item.productName}
-                      </span>
-                      <span className="text-caption text-muted-foreground">
-                        {formatCurrency(item.unitPrice)} × {item.quantity}
-                      </span>
+                    <div className="flex items-center gap-3">
+                      {item.image && (
+                        <img 
+                          src={resolveImageUrl(item.image)} 
+                          alt={item.productName} 
+                          className="w-12 h-12 object-cover rounded-md border border-border"
+                        />
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-description font-medium text-foreground">
+                          {item.productName}
+                        </span>
+                        <span className="text-caption text-muted-foreground">
+                          {formatCurrency(item.unitPrice)} × {item.quantity}
+                        </span>
+                      </div>
                     </div>
                     <span className="text-description font-bold text-foreground">
                       {formatCurrency(item.unitPrice * item.quantity)}
