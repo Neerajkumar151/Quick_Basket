@@ -14,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { pathname } = useLocation();
   const isLoggedIn = pathname.startsWith("/dashboard");
   const { theme, setTheme } = useTheme();
-  const { data: profile } = useStoreProfile();
+  const { data: profile } = useStoreProfile({ enabled: isLoggedIn });
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -40,8 +40,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
           </button>
         )}
         <div
-          onClick={() => navigate("/dashboard")}
-          className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => {
+            if (isLoggedIn) navigate("/dashboard");
+          }}
+          className={`flex items-center gap-3 ${isLoggedIn ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}`}
         >
           <img
             src="/logo.png"

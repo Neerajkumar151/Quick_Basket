@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from "react";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -317,7 +318,7 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
         </form>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between pt-8 mt-8 border-t border-border">
+        <div className="flex flex-col sm:flex-row items-center justify-between pt-8 mt-8 border-t border-border gap-4">
           <Button
             type="button"
             variant="ghost"
@@ -327,17 +328,26 @@ export const BusinessIdentityForm: React.FC<BusinessIdentityFormProps> = ({
             <ArrowLeft size={16} className="mr-2" />
             {t("onboarding.identity.buttons.previous")}
           </Button>
-          <Button
-            type="submit"
-            form="identity-form"
-            disabled={isSubmitting}
-            className="min-w-[140px] bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            {isSubmitting
-              ? t("onboarding.form.submitting")
-              : t("onboarding.identity.buttons.submit")}
-            {!isSubmitting && <ArrowRight size={16} className="ml-2" />}
-          </Button>
+          
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            <div className="text-description text-muted-foreground">
+              {t("onboarding.form.hasAccount")}{" "}
+              <Link to="/login" className="text-primary hover:underline font-medium">
+                {t("onboarding.form.signIn")}
+              </Link>
+            </div>
+            <Button
+              type="submit"
+              form="identity-form"
+              disabled={isSubmitting}
+              className="min-w-[140px] w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {isSubmitting
+                ? t("onboarding.form.submitting")
+                : t("onboarding.identity.buttons.submit")}
+              {!isSubmitting && <ArrowRight size={16} className="ml-2" />}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

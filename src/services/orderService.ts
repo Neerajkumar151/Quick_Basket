@@ -21,7 +21,9 @@ interface RawOrder {
   };
   address?: {
     flatNo?: string;
+    flat?: string;
     area?: string;
+    street?: string;
     city?: string;
     pincode?: string;
     state?: string;
@@ -30,18 +32,37 @@ interface RawOrder {
     productId?: string;
     product?: { id?: string; name?: string };
     productName?: string;
+    name?: string;
     quantity?: number;
     unitPrice?: number;
     price?: number;
+    image?: string;
   }>;
   payment?: { method?: string; status?: string; transactionId?: string };
   timeline?: Array<{ status: string; timestamp: string; note?: string }>;
   subtotal?: number;
   deliveryFee?: number;
+  deliveryCharge?: number;
   tax?: number;
+  taxes?: number;
   total?: number;
+  totalAmount?: number;
   grandTotal?: number;
+  availableStatusUpdates?: string[];
 }
+
+const mapBackendStatusToFrontend = (status: string): OrderStatus => {
+  const s = status.toLowerCase().replace(/_/g, " ");
+  switch (s) {
+    case "pending": return "Pending";
+    case "confirmed": return "Processing"; // Map confirmed to processing
+    case "processing": return "Processing";
+    case "out for delivery": return "Out for Delivery";
+    case "delivered": return "Delivered";
+    case "cancelled": return "Cancelled";
+    default: return (status.charAt(0).toUpperCase() + status.slice(1)) as OrderStatus;
+  }
+};
 
 const mapOrder = (raw: RawOrder): Order => ({
   id: raw.id,
@@ -49,19 +70,20 @@ const mapOrder = (raw: RawOrder): Order => ({
   customerPhone: raw.customer?.phone ?? raw.customerPhone ?? "",
   customerEmail: raw.customer?.email ?? raw.customerEmail ?? "",
   orderDate: raw.orderDate ?? raw.createdAt ?? new Date().toISOString(),
-  status: raw.status as OrderStatus,
+  status: mapBackendStatusToFrontend(raw.status),
   address: {
-    flatNo: raw.deliveryAddress?.flatNo ?? raw.address?.flatNo ?? "",
-    area: raw.deliveryAddress?.area ?? raw.address?.area ?? "",
+    flatNo: raw.deliveryAddress?.flatNo ?? raw.address?.flatNo ?? raw.address?.flat ?? "",
+    area: raw.deliveryAddress?.area ?? raw.address?.area ?? raw.address?.street ?? "",
     city: raw.deliveryAddress?.city ?? raw.address?.city ?? "",
     pincode: raw.deliveryAddress?.pincode ?? raw.address?.pincode ?? "",
     state: raw.deliveryAddress?.state ?? raw.address?.state ?? "",
   },
   items: (raw.items ?? []).map((item) => ({
     productId: item.productId ?? item.product?.id ?? "",
-    productName: item.productName ?? item.product?.name ?? "Unknown",
+    productName: item.productName ?? item.product?.name ?? item.name ?? "Unknown",
     quantity: item.quantity ?? 1,
     unitPrice: item.unitPrice ?? item.price ?? 0,
+    image: item.image,
   })),
   payment: {
     method: ((raw as any).paymentMethod ?? raw.payment?.method ?? "UPI") as Order["payment"]["method"],
@@ -69,14 +91,15 @@ const mapOrder = (raw: RawOrder): Order => ({
     transactionId: raw.payment?.transactionId,
   },
   timeline: (raw.timeline ?? []).map((entry) => ({
-    status: entry.status as OrderStatus,
+    status: mapBackendStatusToFrontend(entry.status),
     timestamp: entry.timestamp,
     note: entry.note,
   })),
   subtotal: raw.subtotal ?? 0,
-  deliveryFee: raw.deliveryFee ?? 0,
-  tax: raw.tax ?? 0,
-  total: (raw as any).totalAmount ?? raw.total ?? raw.grandTotal ?? 0,
+  deliveryFee: raw.deliveryFee ?? raw.deliveryCharge ?? 0,
+  tax: raw.tax ?? raw.taxes ?? 0,
+  total: raw.totalAmount ?? raw.total ?? raw.grandTotal ?? 0,
+  availableStatusUpdates: Array.from(new Set((raw.availableStatusUpdates ?? []).map(mapBackendStatusToFrontend))),
 });
 
 // ─── Order Service ────────────────────────────────────────────────────────────

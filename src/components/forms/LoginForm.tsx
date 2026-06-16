@@ -70,15 +70,21 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         toast.success(t("auth.login.success", "Welcome back!"), { icon: "👋" });
         onSuccess("/dashboard");
       }
-    } catch (err) {
-      toast.error(t("auth.messages.invalidCredentials", "Invalid credentials."));
+    } catch (err: any) {
+      if (!err.response) {
+        toast.error(t("auth.messages.networkError", "Network error. Please check your connection and ensure the server is running."));
+      } else if (err.response?.status >= 500) {
+        toast.error(t("auth.messages.serverError", "Internal server error. Please try again later."));
+      } else {
+        toast.error(err.response?.data?.message || t("auth.messages.invalidCredentials", "Invalid credentials."));
+      }
     }
   };
 
   return (
-    <div className="flex flex-col w-full max-w-sm mx-auto">
-      <div className="flex flex-col mb-8 text-center sm:text-left">
-        <h2 className="text-h1 font-bold text-card-foreground mb-2 tracking-tight">
+    <div className="flex flex-col w-full max-w-lg mx-auto">
+      <div className="flex flex-col mb-10 text-center sm:text-left">
+        <h2 className="text-h1 font-bold text-card-foreground mb-4 tracking-tight">
           {t("auth.login.title")}
         </h2>
         <p className="text-auth-text/80 text-description">
@@ -86,7 +92,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
         <Input
           label={t("auth.login.fields.email.label")}
           type="email"
@@ -121,7 +127,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md mt-2 py-6 text-body"
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md mt-4 py-6 text-body"
         >
           {isSubmitting ? t("auth.login.submitting") : t("auth.login.submit")}
           {!isSubmitting && <ArrowRight size={18} className="ml-2" />}

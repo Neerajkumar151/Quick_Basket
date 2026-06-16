@@ -624,7 +624,8 @@
     },
     "stats": {
       "total": "Total Orders",
-      "new": "New",
+      "new": "Pending",
+      "processing": "Processing",
       "outForDelivery": "Out for Delivery",
       "delivered": "Delivered",
       "cancelled": "Cancelled"

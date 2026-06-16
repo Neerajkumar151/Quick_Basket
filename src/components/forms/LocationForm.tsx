@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -350,7 +351,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({
       </div>
 
       {/* Footer Actions */}
-      <div className="flex items-center justify-between pt-4 border-t border-border mt-auto">
+      <div className="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-border mt-auto gap-4">
         <Button
           type="button"
           variant="ghost"
@@ -360,17 +361,26 @@ export const LocationForm: React.FC<LocationFormProps> = ({
           <ArrowLeft size={16} className="mr-2" />
           {t("onboarding.location.buttons.previous")}
         </Button>
-        <Button
-          type="submit"
-          form="location-form"
-          disabled={isSubmitting || isFetching}
-          className="min-w-[140px]"
-        >
-          {isSubmitting
-            ? t("onboarding.form.submitting")
-            : t("onboarding.location.buttons.continue")}
-          {!isSubmitting && <ArrowRight size={16} className="ml-2" />}
-        </Button>
+        
+        <div className="flex flex-col sm:flex-row items-center gap-6">
+          <div className="text-description text-auth-text/80">
+            {t("onboarding.form.hasAccount")}{" "}
+            <Link to="/login" className="text-auth-text hover:underline font-bold">
+              {t("onboarding.form.signIn")}
+            </Link>
+          </div>
+          <Button
+            type="submit"
+            form="location-form"
+            disabled={isSubmitting || isFetching}
+            className="min-w-[140px] w-full sm:w-auto"
+          >
+            {isSubmitting
+              ? t("onboarding.form.submitting")
+              : t("onboarding.location.buttons.continue")}
+            {!isSubmitting && <ArrowRight size={16} className="ml-2" />}
+          </Button>
+        </div>
       </div>
     </div>
   );

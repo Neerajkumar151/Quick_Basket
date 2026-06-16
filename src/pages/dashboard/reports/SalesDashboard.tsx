@@ -9,6 +9,7 @@ import { useSalesMetrics, useRevenueTrends } from '../../../hooks/useReports';
 import { DateRange } from '../../../services/reports.service';
 import { Wallet, ShoppingBag, Package, TrendingUp, CheckCircle2, XCircle } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import { formatCurrency } from '../../../utils/number';
 
 export const SalesDashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -19,14 +20,6 @@ export const SalesDashboard: React.FC = () => {
   // Map the dateRange to trend periods for the chart
   const trendPeriod = dateRange === 'today' ? 'daily' : dateRange === 'thisWeek' ? 'weekly' : 'monthly';
   const { data: trendData, isLoading: isTrendLoading } = useRevenueTrends(trendPeriod as any);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
   const isUpdating = isLoading || isFetching;
 

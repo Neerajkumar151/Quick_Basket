@@ -21,49 +21,59 @@ export const StepTracker: React.FC = () => {
   const currentStepNum = currentIndex !== -1 ? currentIndex + 1 : 1;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-row lg:flex-col justify-between lg:justify-start mb-6 lg:mb-0 relative">
       {onboardingSteps.map((step, index) => {
         const isActive = step.path === location.pathname;
         const isCompleted = step.id < currentStepNum;
         const isLast = index === onboardingSteps.length - 1;
 
         return (
-          <div key={step.id} className="relative flex items-start gap-4 pb-10 last:pb-0">
-            {/* Connecting Line */}
+          <div key={step.id} className="relative flex flex-col lg:flex-row items-center lg:items-start gap-3 lg:gap-6 lg:pb-12 lg:last:pb-0 flex-1 lg:flex-none">
+            {/* Desktop Connecting Line */}
             {!isLast && (
               <div
                 className={cn(
-                  "absolute left-[19px] top-10 bottom-0 w-px -ml-px",
+                  "hidden lg:block absolute left-[23px] top-12 bottom-0 w-[2px] -ml-px",
+                  isCompleted ? "bg-primary" : "bg-border"
+                )}
+              />
+            )}
+
+            {/* Mobile Connecting Line */}
+            {!isLast && (
+              <div
+                className={cn(
+                  "lg:hidden absolute top-[23px] left-[50%] right-[-50%] h-[2px] -mt-px z-0",
                   isCompleted ? "bg-primary" : "bg-border"
                 )}
               />
             )}
 
             {/* Step Indicator */}
-            <div className="flex flex-col items-center relative z-10">
+            <div className="flex flex-col items-center relative z-10 bg-transparent">
               <button
                 onClick={() => navigate(step.path)}
                 className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center font-bold text-description transition-all duration-300 shadow-sm border cursor-pointer hover:ring-2 hover:ring-primary/50",
+                  "w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-base transition-all duration-300 shadow-sm border-2 cursor-pointer hover:ring-4 hover:ring-primary/50",
                   isActive
                     ? "bg-primary text-primary-foreground border-primary"
                     : isCompleted
                     ? "bg-card text-foreground border-border"
-                    : "bg-muted/30 text-muted-foreground border-transparent"
+                    : "bg-muted/30 text-muted-foreground border-transparent backdrop-blur-md"
                 )}
               >
-                {isCompleted && !isActive ? <Check size={18} className="text-primary" /> : step.id}
+                {isCompleted && !isActive ? <Check size={20} className="text-primary" /> : step.id}
               </button>
             </div>
 
             {/* Text Content */}
             <button
               onClick={() => navigate(step.path)}
-              className="flex flex-col pt-2 text-left cursor-pointer group"
+              className="flex flex-col pt-2 lg:pt-3 text-center lg:text-left cursor-pointer group items-center lg:items-start relative z-10"
             >
               <span
                 className={cn(
-                  "text-body font-semibold leading-none transition-colors group-hover:text-auth-text",
+                  "text-body font-bold leading-none transition-colors group-hover:text-auth-text",
                   isActive ? "text-auth-text" : "text-auth-text/70"
                 )}
               >
@@ -71,7 +81,7 @@ export const StepTracker: React.FC = () => {
               </span>
               <span
                 className={cn(
-                  "text-caption transition-colors mt-1.5",
+                  "hidden lg:block text-caption transition-colors mt-1.5 font-medium",
                   isActive || isCompleted ? "text-auth-text/80" : "text-auth-text/50"
                 )}
               >
