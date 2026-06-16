@@ -3,6 +3,10 @@
     {
       "source": "/uploads/:match*",
       "destination": "https://cinema-jackal-disclose.ngrok-free.dev/uploads/:match*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
