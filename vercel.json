@@ -1,8 +1,19 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/uploads/:match*",
+      "destination": "https://cinema-jackal-disclose.ngrok-free.dev/uploads/:match*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/uploads/:match*",
+      "headers": [
+        {
+          "key": "ngrok-skip-browser-warning",
+          "value": "69420"
+        }
+      ]
     }
   ]
 }
