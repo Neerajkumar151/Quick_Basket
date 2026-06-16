@@ -58,7 +58,13 @@ export const resolveImageUrl = (path?: string) => {
     return `/${cleanPath}`; // Local vite proxy will intercept and add ngrok bypass header
   }
 
-  // For Vercel production deployments pointing to ngrok:
-  // We route through our custom serverless function to inject the request header
-  return `/api/proxy-image?path=${cleanPath}`;
+  const rawBaseUrl = import.meta.env.VITE_IMAGE_URL || import.meta.env.VITE_API_URL?.replace(/\/api\/v1\/?$/, "") || "";
+  
+  if (rawBaseUrl === "/") {
+    // For Vercel production deployments pointing to ngrok using the Vercel Serverless Proxy
+    return `/api/proxy-image?path=${cleanPath}`;
+  }
+
+  const baseUrl = rawBaseUrl.replace(/\/$/, "");
+  return `${baseUrl}/${cleanPath}`;
 };
