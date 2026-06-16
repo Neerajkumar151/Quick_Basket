@@ -58,6 +58,8 @@ export const resolveImageUrl = (path?: string) => {
     return `/${cleanPath}`; // Local vite proxy will intercept and add ngrok bypass header
   }
 
-  const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/api\/v1\/?$/, "") || "";
+  const rawBaseUrl = import.meta.env.VITE_IMAGE_URL || import.meta.env.VITE_API_URL?.replace(/\/api\/v1\/?$/, "") || "";
+  const baseUrl = rawBaseUrl.replace(/\/$/, "");
+  
   return `${baseUrl}/${cleanPath}`;
 };
