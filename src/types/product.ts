@@ -6,7 +6,9 @@ export interface Product {
   mrp?: number;
   stockQuantity: number;
   categoryId: string;
+  categoryName?: string;
   subCategoryId?: string;
+  subCategoryName?: string;
   tagIds?: string[];
   images: string[];
   status: "Active" | "Inactive";
