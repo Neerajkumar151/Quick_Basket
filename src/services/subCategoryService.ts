@@ -122,6 +122,7 @@ export const subCategoryService = {
     if (data.description !== undefined) payload.description = data.description;
     if (data.status !== undefined) {
       payload.isActive = data.status === "Active";
+      payload.status = data.status;
     }
     if (uploadedImageUrl) payload.imageUrl = uploadedImageUrl;
 

@@ -97,18 +97,35 @@ export const bannerService = {
 
   // PATCH /admin/banners/:id
   updateBanner: async (id: string, data: Partial<BannerInput>, imageFile?: File | null): Promise<Banner> => {
-    const formData = new FormData();
-    if (data.title !== undefined) formData.append("title", data.title || "");
-    if (data.description !== undefined) formData.append("description", data.description);
-    if (data.redirectType !== undefined) formData.append("redirectType", data.redirectType.toLowerCase());
-    if (data.redirectId !== undefined) formData.append("redirectId", data.redirectId);
-    if (data.displayOrder !== undefined) formData.append("priority", data.displayOrder.toString());
-    if (data.status !== undefined) formData.append("status", data.status.toLowerCase());
-    if (imageFile) formData.append("image", imageFile);
+    let imageUrl: string | undefined;
+    if (imageFile) {
+      const uploadForm = new FormData();
+      uploadForm.append("file", imageFile);
+      const uploadRes = await apiClient.post(ENDPOINTS.MEDIA.UPLOAD, uploadForm, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      imageUrl = uploadRes.data?.data?.url || uploadRes.data?.url || uploadRes.data?.data?.imageUrl || "";
+    }
 
-    const response = await apiClient.patch(`${ENDPOINTS.BANNERS.ADMIN_BASE}/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const isInternal = data.redirectType ? ["product", "category", "store"].includes(data.redirectType.toLowerCase()) : undefined;
+
+    const payload: Record<string, any> = {};
+    if (data.title !== undefined) payload.title = data.title || "";
+    if (data.description !== undefined) payload.description = data.description;
+    if (data.redirectType !== undefined) payload.redirectType = data.redirectType.toLowerCase();
+    if (data.displayOrder !== undefined) payload.priority = data.displayOrder;
+    if (data.status !== undefined) payload.status = data.status.toLowerCase();
+    if (imageUrl) payload.imageUrl = imageUrl;
+
+    if (data.redirectId !== undefined) {
+      if (isInternal) {
+        payload.redirectId = data.redirectId || null;
+      } else {
+        payload.redirectUrl = data.redirectId || null;
+      }
+    }
+
+    const response = await apiClient.patch(`${ENDPOINTS.BANNERS.ADMIN_BASE}/${id}`, payload);
     const raw: RawApiBanner = response.data?.data ?? response.data?.banner ?? { id };
     return mapBanner({
       ...raw,
