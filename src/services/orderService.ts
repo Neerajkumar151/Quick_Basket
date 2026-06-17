@@ -117,7 +117,7 @@ export const orderService = {
     if (params?.limit) queryParams.append("limit", params.limit.toString());
     if (params?.sortBy) queryParams.append("sortBy", params.sortBy);
     if (params?.sortOrder) queryParams.append("sortOrder", params.sortOrder);
-    if (params?.status && params.status !== "all") queryParams.append("status", params.status);
+    if (params?.status && params.status !== "all") queryParams.append("status", params.status.toLowerCase());
     if (params?.search) queryParams.append("search", params.search);
 
     const response = await apiClient.get(`${ENDPOINTS.ORDERS.BASE}?${queryParams.toString()}`);
