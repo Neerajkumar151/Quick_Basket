@@ -83,22 +83,6 @@ export const TagsPage = () => {
     }
   };
 
-  const toggleStatus = async (tag: Tag) => {
-    try {
-      await tagService.toggleStatus(tag);
-      toast.success(
-        t("tags.messages.successStatus") || "Status updated successfully"
-      );
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: TAGS_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: [CATALOG_METADATA_QUERY_KEY] })
-      ]);
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t("tags.messages.errorStatus")
-      );
-    }
-  };
 
 
   const columns: ColumnDef<Tag>[] = [
@@ -139,12 +123,7 @@ export const TagsPage = () => {
     {
       header: t("tags.table.status") || "Status",
       cell: (tag: Tag) => (
-        <button
-          onClick={() => toggleStatus(tag)}
-          className="hover:opacity-80 transition-opacity"
-        >
-          <StatusBadge status={tag.status || "Active"} />
-        </button>
+        <StatusBadge status={tag.status || "Active"} />
       ),
     },
     {

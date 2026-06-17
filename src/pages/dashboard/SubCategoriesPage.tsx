@@ -91,23 +91,6 @@ export const SubCategoriesPage = () => {
     }
   };
 
-  const toggleStatus = async (subCat: SubCategory) => {
-    try {
-      await subCategoryService.toggleStatus(subCat.id);
-      toast.success(
-        t("subCategories.messages.successStatus") || "Status updated successfully"
-      );
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: SUB_CATEGORIES_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: CATEGORY_TREE_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: [SUB_CATEGORIES_METADATA_QUERY_KEY] }),
-      ]);
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t("subCategories.messages.errorStatus")
-      );
-    }
-  };
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   void debouncedSearchQuery; // search is passed directly to hook; debounce kept for future use
@@ -175,12 +158,7 @@ export const SubCategoriesPage = () => {
     {
       header: t("subCategories.table.status") || "Status",
       cell: (sc: SubCategory) => (
-        <button
-          onClick={() => toggleStatus(sc)}
-          className="hover:opacity-80 transition-opacity"
-        >
-          <StatusBadge status={sc.status || "Active"} />
-        </button>
+        <StatusBadge status={sc.status || "Active"} />
       ),
     },
     {

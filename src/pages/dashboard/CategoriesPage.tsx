@@ -109,26 +109,6 @@ export const CategoriesPage = () => {
     }
   };
 
-  const toggleStatus = async (cat: Category) => {
-    try {
-      const newIsActive = cat.status === "Inactive";
-      await categoryService.toggleStatus(cat.id, newIsActive);
-      toast.success(
-        t("categories.messages.successStatus") || "Status updated successfully",
-      );
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: CATEGORY_TREE_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: [CATALOG_METADATA_QUERY_KEY] }),
-      ]);
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t("categories.messages.errorStatus"),
-      );
-    }
-  };
 
   const columns: ColumnDef<Category>[] = [
     {
@@ -182,12 +162,7 @@ export const CategoriesPage = () => {
     {
       header: t("categories.table.status") || "Status",
       cell: (cat: Category) => (
-        <button
-          onClick={() => toggleStatus(cat)}
-          className="hover:opacity-80 transition-opacity"
-        >
-          <StatusBadge status={cat.status || "Active"} />
-        </button>
+        <StatusBadge status={cat.status || "Active"} />
       ),
     },
     {
