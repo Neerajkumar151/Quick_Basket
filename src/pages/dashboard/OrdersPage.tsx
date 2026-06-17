@@ -41,10 +41,10 @@ export const OrdersPage = () => {
   if (sortBy === "oldest") {
     apiSortOrder = "asc";
   } else if (sortBy === "amountHigh") {
-    apiSortBy = "total";
+    apiSortBy = "totalAmount";
     apiSortOrder = "desc";
   } else if (sortBy === "amountLow") {
-    apiSortBy = "total";
+    apiSortBy = "totalAmount";
     apiSortOrder = "asc";
   }
 
@@ -256,8 +256,8 @@ export const OrdersPage = () => {
           >
             <option value="newest">{t("orders.filters.sortNewest")}</option>
             <option value="oldest">{t("orders.filters.sortOldest")}</option>
-            <option value="amountHigh">{t("orders.filters.sortAmountHigh")}</option>
-            <option value="amountLow">{t("orders.filters.sortAmountLow")}</option>
+            {/* <option value="amountHigh">{t("orders.filters.sortAmountHigh")}</option>
+            <option value="amountLow">{t("orders.filters.sortAmountLow")}</option> */}
           </Select>
           <Button
             variant="outline"

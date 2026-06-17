@@ -57,10 +57,8 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
     try {
-      await updateOrderStatus({ id: order.id, status: newStatus });
-      // The hook will invalidate orders, but we might want to update the local selectedOrder immediately
-      onStatusUpdated({ ...order, status: newStatus });
-      onClose(); // Optional: close modal or just let it update
+      const updatedOrder = await updateOrderStatus({ id: order.id, status: newStatus });
+      onStatusUpdated(updatedOrder);
     } catch (err: any) {
       // Error handled by hook's toast
     }

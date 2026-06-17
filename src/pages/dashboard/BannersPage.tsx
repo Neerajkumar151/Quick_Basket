@@ -144,6 +144,7 @@ export const BannersPage = () => {
     },
     {
       header: t("banners.table.actions"),
+      className: "text-right",
       cell: (banner: Banner) => (
         <div className="flex justify-end">
           <button
