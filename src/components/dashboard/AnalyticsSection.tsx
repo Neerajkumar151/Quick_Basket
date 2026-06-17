@@ -10,10 +10,6 @@ import { DashboardAnalytics, OrderStatusDistributionItem } from "../../types/das
 
 interface AnalyticsSectionProps {
   analytics?: DashboardAnalytics;
-  revenueFilter: 'Daily' | 'Weekly' | 'Monthly';
-  setRevenueFilter: (filter: 'Daily' | 'Weekly' | 'Monthly') => void;
-  ordersFilter: 'Daily' | 'Weekly' | 'Monthly';
-  setOrdersFilter: (filter: 'Daily' | 'Weekly' | 'Monthly') => void;
 }
 
 const getOrderStatusData = (t: TFunction, distribution: OrderStatusDistributionItem[] = []) => {
@@ -88,11 +84,7 @@ const renderActiveShape = (props: any) => {
 };
 
 export const AnalyticsSection: React.FC<AnalyticsSectionProps> = React.memo(({ 
-  analytics, 
-  revenueFilter, 
-  setRevenueFilter, 
-  ordersFilter, 
-  setOrdersFilter 
+  analytics 
 }) => {
   const { t } = useTranslation();
   const [activePieIndex, setActivePieIndex] = useState<number | undefined>(undefined);
@@ -109,21 +101,6 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = React.memo(({
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm flex flex-col h-[420px]">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-h3 font-bold text-card-foreground">{t("dashboard.analytics.tabs.revenue")}</h2>
-            <div className="flex bg-background border border-border rounded-md overflow-hidden shrink-0">
-              {['Daily', 'Weekly', 'Monthly'].map(filter => (
-                <button 
-                  key={filter}
-                  onClick={() => setRevenueFilter(filter as any)}
-                  className={`px-3 py-1.5 text-caption font-medium transition-colors ${
-                    revenueFilter === filter 
-                      ? 'bg-primary/20 text-primary' 
-                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                  }`}
-                >
-                  {filter === 'Daily' ? t("dashboard.analytics.filters.daily") : filter === 'Weekly' ? t("dashboard.analytics.filters.weekly") : t("dashboard.analytics.filters.monthly")}
-                </button>
-              ))}
-            </div>
           </div>
           <div className="flex-1 w-full relative">
             <ResponsiveContainer width="100%" height="100%">
@@ -171,21 +148,6 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = React.memo(({
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm flex flex-col h-[420px]">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-h3 font-bold text-card-foreground">{t("dashboard.analytics.tabs.orders")}</h2>
-            <div className="flex bg-background border border-border rounded-md overflow-hidden shrink-0">
-              {['Daily', 'Weekly', 'Monthly'].map(filter => (
-                <button 
-                  key={filter}
-                  onClick={() => setOrdersFilter(filter as any)}
-                  className={`px-3 py-1.5 text-caption font-medium transition-colors ${
-                    ordersFilter === filter 
-                      ? 'bg-status-purple/20 text-status-purple' 
-                      : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
-                  }`}
-                >
-                  {filter === 'Daily' ? t("dashboard.analytics.filters.daily") : filter === 'Weekly' ? t("dashboard.analytics.filters.weekly") : t("dashboard.analytics.filters.monthly")}
-                </button>
-              ))}
-            </div>
           </div>
           <div className="flex-1 w-full relative">
             <ResponsiveContainer width="100%" height="100%">

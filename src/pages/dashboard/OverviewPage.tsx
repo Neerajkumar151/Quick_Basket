@@ -53,7 +53,23 @@ export const OverviewPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 mt-4 md:mt-0">
+          <div className="flex bg-card border border-border rounded-lg overflow-hidden shadow-sm shrink-0 mr-2 md:mr-4">
+            {['Daily', 'Weekly', 'Monthly'].map(filter => (
+              <button 
+                key={filter}
+                onClick={() => setPeriodFilter(filter as any)}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  periodFilter === filter 
+                    ? 'bg-primary/10 text-primary font-bold' 
+                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                }`}
+              >
+                {filter === 'Daily' ? t("dashboard.analytics.filters.daily") : filter === 'Weekly' ? t("dashboard.analytics.filters.weekly") : t("dashboard.analytics.filters.monthly")}
+              </button>
+            ))}
+          </div>
+
           {/* Action Buttons [MODIFY] */}
           <button
             onClick={() => navigate("/dashboard/banners")}
@@ -79,10 +95,6 @@ export const OverviewPage: React.FC = () => {
           <KPICards metrics={dashboard?.metrics} />
           <AnalyticsSection 
             analytics={dashboard?.analytics} 
-            revenueFilter={periodFilter}
-            setRevenueFilter={setPeriodFilter}
-            ordersFilter={periodFilter}
-            setOrdersFilter={setPeriodFilter}
           />
           <OperationalInsights recentOrders={dashboard?.recentOrders} />
         </>

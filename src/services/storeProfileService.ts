@@ -117,15 +117,15 @@ export const storeProfileService = {
     // Map frontend fields back to backend API expected format using FormData
     const formData = new FormData();
     
-    if (data.storeName) formData.append("name", data.storeName);
-    if (data.ownerName) formData.append("ownerName", data.ownerName);
-    if (data.description) formData.append("description", data.description);
-    if (data.phoneNumber) formData.append("contactNumber", data.phoneNumber);
-    if (data.email) formData.append("email", data.email);
-    if (data.address) formData.append("address", data.address);
-    if (data.businessType) formData.append("businessType", data.businessType);
-    if (data.gstNumber) formData.append("gstNumber", data.gstNumber);
-    if (data.panNumber) formData.append("panNumber", data.panNumber);
+    if (data.storeName !== undefined) formData.append("name", data.storeName);
+    if (data.ownerName !== undefined) formData.append("ownerName", data.ownerName);
+    if (data.description !== undefined) formData.append("description", data.description);
+    if (data.phoneNumber !== undefined) formData.append("contactNumber", data.phoneNumber);
+    if (data.email !== undefined) formData.append("email", data.email);
+    if (data.address !== undefined) formData.append("address", data.address);
+    if (data.businessType !== undefined) formData.append("businessType", data.businessType);
+    if (data.gstNumber !== undefined) formData.append("gstNumber", data.gstNumber);
+    if (data.panNumber !== undefined) formData.append("panNumber", data.panNumber);
     
     // Append files if they exist
     if (logoFile) formData.append("logo", logoFile);

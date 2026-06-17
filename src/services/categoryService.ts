@@ -23,13 +23,15 @@ export const categoryService = {
   getCategories: async (
     search?: string,
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
+    status?: string
   ): Promise<{ data: Category[]; meta: any }> => {
     const queryParams = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
     });
     if (search) queryParams.append("search", search);
+    if (status) queryParams.append("status", status);
 
     const url = `${ENDPOINTS.CATEGORIES.ADMIN}?${queryParams.toString()}`;
     const response = await apiClient.get(url);

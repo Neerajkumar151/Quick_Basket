@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { FilterBar } from "../../components/ui/FilterBar";
 import { SearchInput } from "../../components/ui/SearchInput";
+import { Select } from "../../components/ui/Select";
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
 import { StatusBadge } from "../../components/ui/StatusBadge";
@@ -32,6 +33,7 @@ export const CategoriesPage = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Drawer
@@ -54,6 +56,7 @@ export const CategoriesPage = () => {
     debouncedSearchQuery,
     currentPage,
     itemsPerPage,
+    statusFilter !== "all" ? statusFilter : undefined,
   );
 
   const categories = responseData?.data || [];
@@ -215,14 +218,26 @@ export const CategoriesPage = () => {
       />
 
       <FilterBar>
-        <div className="w-full sm:w-72">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full sm:max-w-lg">
           <SearchInput
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
+              setCurrentPage(1);
             }}
             placeholder={t("categories.filters.searchPlaceholder")}
           />
+          <Select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+          >
+            <option value="all">{t("products.filters.statusAll", "All Status")}</option>
+            <option value="Active">{t("banners.form.active", "Active")}</option>
+            <option value="Inactive">{t("banners.form.inactive", "Inactive")}</option>
+          </Select>
         </div>
       </FilterBar>
 

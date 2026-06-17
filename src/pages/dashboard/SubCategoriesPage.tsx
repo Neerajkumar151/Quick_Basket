@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Plus, Edit2, ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
@@ -35,7 +35,7 @@ export const SubCategoriesPage = () => {
   const initialCategoryFilter = searchParams.get("category") || "";
 
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState(initialCategoryFilter);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -45,7 +45,13 @@ export const SubCategoriesPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Data via TanStack Query (cached)
-  const { data: subCategoriesResponse, isLoading, isError, refetch } = useSubCategories(searchQuery, categoryFilter, currentPage, itemsPerPage);
+  const { data: subCategoriesResponse, isLoading, isError, refetch } = useSubCategories(
+    searchQuery,
+    categoryFilter,
+    currentPage,
+    itemsPerPage,
+    statusFilter !== "all" ? statusFilter : undefined
+  );
   const subCategories = subCategoriesResponse?.data || [];
   const totalPages = subCategoriesResponse?.meta?.totalPages || 1;
 
@@ -103,16 +109,8 @@ export const SubCategoriesPage = () => {
     }
   };
 
-  // Filter Logic (Now handled on the server, we just pass down `subCategories`)
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
-
-  const filteredSubCategories = useMemo(() => {
-    return subCategories.filter((sc: SubCategory) => {
-      const matchesSearch = sc.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        (sc.description && sc.description.toLowerCase().includes(debouncedSearchQuery.toLowerCase()));
-      return matchesSearch;
-    });
-  }, [subCategories, debouncedSearchQuery]);
+  void debouncedSearchQuery; // search is passed directly to hook; debounce kept for future use
 
   const columns: ColumnDef<SubCategory>[] = [
     {
@@ -213,21 +211,21 @@ export const SubCategoriesPage = () => {
       />
 
       <FilterBar>
-        <div className="w-full sm:w-72">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
           <SearchInput
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
+              setCurrentPage(1);
             }}
             placeholder={t("subCategories.filters.searchPlaceholder")}
           />
-        </div>
-        <div className="w-full sm:w-56">
           <Select
             value={categoryFilter}
             onChange={(e) => {
               setCategoryFilter(e.target.value);
               setSearchParams(e.target.value ? { category: e.target.value } : {});
+              setCurrentPage(1);
             }}
             aria-label="Filter by Category"
           >
@@ -238,6 +236,17 @@ export const SubCategoriesPage = () => {
               </option>
             ))}
           </Select>
+          <Select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+          >
+            <option value="all">{t("products.filters.statusAll", "All Status")}</option>
+            <option value="Active">{t("banners.form.active", "Active")}</option>
+            <option value="Inactive">{t("banners.form.inactive", "Inactive")}</option>
+          </Select>
         </div>
       </FilterBar>
 
@@ -246,7 +255,7 @@ export const SubCategoriesPage = () => {
           <ErrorState onRetry={refetch} />
         ) : (
           <DataTable
-            data={filteredSubCategories}
+            data={subCategories}
             columns={columns}
             isLoading={isLoading}
             keyExtractor={(item) => item.id}
