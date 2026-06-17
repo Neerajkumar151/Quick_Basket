@@ -123,8 +123,8 @@ export const ProductsPage = () => {
     {
       header: t("products.table.name"),
       cell: (prod: Product) => {
-        const catName = categories.find((c: any) => c.id === prod.categoryId)?.name || t("products.messages.unknownCategory");
-        const subCatName = allSubCategories.find((sc: any) => sc.id === prod.subCategoryId)?.name;
+        const catName = prod.categoryName || categories.find((c: any) => c.id === prod.categoryId)?.name || t("products.messages.unknownCategory");
+        const subCatName = prod.subCategoryName || allSubCategories.find((sc: any) => sc.id === prod.subCategoryId)?.name;
         
         return (
           <div className="flex flex-col max-w-[250px]">
