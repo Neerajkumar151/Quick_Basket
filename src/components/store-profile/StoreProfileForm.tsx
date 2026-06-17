@@ -201,17 +201,11 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
           <div className="flex flex-col gap-4">
             <div>
               <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">{t("storeProfile.details.storeType", "Store Type")}</p>
-              <Select
+              <Input
                 {...register("businessType")}
-                error={errors.businessType?.message}
-                value={watch("businessType")}
-              >
-                <option value="" disabled>{t("storeProfile.details.selectBusinessType", "Select Business Type")}</option>
-                <option value="individual">{t("storeProfile.details.individual", "Individual")}</option>
-                <option value="proprietorship">Proprietorship</option>
-                <option value="partnership">Partnership</option>
-                <option value="pvtLtd">Private Limited</option>
-              </Select>
+                disabled
+                className="bg-muted cursor-not-allowed opacity-70 capitalize"
+              />
             </div>
             
             {profile.businessRegistrationDate && (
@@ -245,7 +239,8 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                   {...register("gstNumber")}
                   error={errors.gstNumber?.message}
                   placeholder={t("common.optional", "Optional")}
-                  className="uppercase"
+                  className="uppercase bg-muted cursor-not-allowed opacity-70"
+                  disabled
                 />
               </div>
               <div>
@@ -254,7 +249,8 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                   {...register("panNumber")}
                   error={errors.panNumber?.message}
                   placeholder="PAN"
-                  className="uppercase"
+                  className="uppercase bg-muted cursor-not-allowed opacity-70"
+                  disabled
                 />
               </div>
             </div>
@@ -322,6 +318,8 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                   <Input
                     {...register("email")}
                     error={errors.email?.message}
+                    disabled
+                    className="bg-muted cursor-not-allowed opacity-70"
                   />
                 </div>
               </div>
@@ -345,6 +343,8 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                   {...register("address")}
                   error={errors.address?.message}
                   rows={2}
+                  disabled
+                  className="bg-muted cursor-not-allowed opacity-70"
                 />
               </div>
             </div>

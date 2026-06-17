@@ -141,7 +141,7 @@ export const StoreOperationsTab: React.FC<StoreOperationsTabProps> = ({
         </div>
       </SectionCard>
 
-      {/* Delivery Settings */}
+      {/* Delivery Settings
       <SectionCard 
         title={t("storeProfile.operations.delivery.title")} 
         description={t("storeProfile.operations.delivery.description")}
@@ -179,6 +179,7 @@ export const StoreOperationsTab: React.FC<StoreOperationsTabProps> = ({
           </div>
         </div>
       </SectionCard>
+      */}
 
       {/* Save Action */}
       <div className="flex justify-end pt-4 pb-12">

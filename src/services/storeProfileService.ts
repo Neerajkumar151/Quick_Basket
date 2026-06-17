@@ -69,7 +69,7 @@ export const mapStoreProfile = (raw: RawStoreProfile): StoreProfile => {
     storeName: raw.name ?? "",
     ownerName: raw.ownerName ?? "",
     description: raw.description ?? "",
-    phoneNumber: raw.ownerPhone ?? raw.contactNumber ?? "",
+    phoneNumber: raw.contactNumber ?? raw.ownerPhone ?? "",
     email: raw.ownerEmail ?? raw.email ?? "",
     address: address,
     businessType: raw.businessType,
