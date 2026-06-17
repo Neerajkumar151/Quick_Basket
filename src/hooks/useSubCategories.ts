@@ -3,10 +3,10 @@ import { subCategoryService } from "../services/subCategoryService";
 
 export const SUB_CATEGORIES_QUERY_KEY = ["subCategories"] as const;
 
-export function useSubCategories(searchQuery: string = "", categoryId: string = "", page: number = 1, limit: number = 10) {
+export function useSubCategories(searchQuery: string = "", categoryId: string = "", page: number = 1, limit: number = 10, status?: string) {
   return useQuery({
-    queryKey: [...SUB_CATEGORIES_QUERY_KEY, searchQuery, categoryId, page, limit],
-    queryFn: () => subCategoryService.getSubCategories(searchQuery, categoryId, page, limit),
+    queryKey: [...SUB_CATEGORIES_QUERY_KEY, searchQuery, categoryId, page, limit, status],
+    queryFn: () => subCategoryService.getSubCategories(searchQuery, categoryId, page, limit, status),
     staleTime: 5 * 60 * 1000,
   });
 }

@@ -19,6 +19,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 import { BANNERS_QUERY_KEY } from "../../hooks/useBanners";
 import { useTranslation } from "react-i18next";
 import { useEntityDrawer } from "../../hooks/useEntityDrawer";
+import { Pagination } from "../../components/ui/Pagination";
 
 export const BannersPage = () => {
   const { t } = useTranslation();
@@ -28,8 +29,15 @@ export const BannersPage = () => {
   const { isOpen, editingItem: editingBanner, openDrawer, closeDrawer } = useEntityDrawer<Banner>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   // Data via TanStack Query (cached)
-  const { data: banners = [], isLoading, isError, refetch } = useBanners();
+  const { data: responseData, isLoading, isError, refetch } = useBanners(currentPage, itemsPerPage);
+  
+  const banners = responseData?.data || [];
+  const totalPages = responseData?.meta?.totalPages || 1;
 
 
 
@@ -171,8 +179,18 @@ export const BannersPage = () => {
             keyExtractor={(item) => item.id}
             emptyTitle={t("banners.messages.emptyTitle")}
             emptyDescription={t("banners.messages.emptySubtitle")}
-            itemsPerPage={10}
+            pagination={false}
           />
+        )}
+
+        {totalPages > 1 && (
+          <div className="mt-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         )}
       </div>
 

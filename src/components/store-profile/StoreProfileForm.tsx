@@ -214,6 +214,30 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
               </Select>
             </div>
             
+            {profile.businessRegistrationDate && (
+              <div>
+                <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">{t("storeProfile.details.registrationDate", "Registration Date")}</p>
+                <Input
+                  value={profile.businessRegistrationDate}
+                  disabled
+                  className="bg-muted cursor-not-allowed opacity-70"
+                />
+              </div>
+            )}
+
+            <div>
+              <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">{t("storeProfile.details.verificationStatus", "Verification Status")}</p>
+              <div className="h-10 flex items-center">
+                <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase border 
+                  ${profile.verificationStatus === 'verified' ? 'bg-status-delivered/10 text-status-delivered border-status-delivered/20' : 
+                    profile.verificationStatus === 'pending' ? 'bg-status-outForDelivery/10 text-status-outForDelivery border-status-outForDelivery/20' : 
+                    'bg-status-cancelled/10 text-status-cancelled border-status-cancelled/20'}`}
+                >
+                  {profile.verificationStatus}
+                </span>
+              </div>
+            </div>
+            
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-caption text-muted-foreground uppercase tracking-wider mb-2">{t("storeProfile.details.gstNumber", "GST Number")}</p>
@@ -326,7 +350,12 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                   {...register("address")}
                   error={errors.address?.message}
                   rows={2}
+                  disabled
+                  className="bg-muted cursor-not-allowed opacity-70"
                 />
+                <p className="text-caption text-muted-foreground mt-1.5">
+                  This address is used for billing and cannot be changed here.
+                </p>
               </div>
             </div>
           </SectionCard>

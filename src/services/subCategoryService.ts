@@ -24,7 +24,8 @@ export const subCategoryService = {
     search?: string,
     categoryId?: string,
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
+    status?: string
   ): Promise<{ data: SubCategory[]; meta: any }> => {
     const queryParams = new URLSearchParams({
       page: page.toString(),
@@ -32,6 +33,7 @@ export const subCategoryService = {
     });
     if (search) queryParams.append("search", search);
     if (categoryId) queryParams.append("categoryId", categoryId);
+    if (status) queryParams.append("status", status);
 
     const response = await apiClient.get(
       `${ENDPOINTS.SUB_CATEGORIES.BASE}?${queryParams.toString()}`

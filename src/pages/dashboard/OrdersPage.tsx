@@ -157,6 +157,17 @@ export const OrdersPage = () => {
       cell: (o: Order) => <StatusBadge status={o.status} />,
     },
     {
+      header: t("orders.table.payment", "Payment"),
+      cell: (o: Order) => (
+        <div className="flex flex-col gap-1 items-start">
+          <StatusBadge status={o.payment?.status} />
+          <span className="text-caption text-muted-foreground uppercase tracking-wider font-medium">
+            {o.payment?.method}
+          </span>
+        </div>
+      ),
+    },
+    {
       header: t("orders.table.actions"),
       className: "text-right",
       cell: (o: Order) => (

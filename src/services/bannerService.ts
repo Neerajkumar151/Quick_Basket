@@ -30,12 +30,25 @@ const mapBanner = (item: RawApiBanner, fallbackOrder = 0): Banner => ({
 
 export const bannerService = {
   // GET /banners
-  getBanners: async (): Promise<Banner[]> => {
-    const response = await apiClient.get(ENDPOINTS.BANNERS.BASE);
+  getBanners: async (
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: Banner[]; meta: any }> => {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    
+    // We fetch from the admin endpoint so we get paginated results
+    const response = await apiClient.get(`${ENDPOINTS.BANNERS.ADMIN_BASE}?${queryParams.toString()}`);
     const raw: RawApiBanner[] = Array.isArray(response.data?.data)
       ? response.data.data
-      : [];
-    return raw.map((item, i) => mapBanner(item, i));
+      : (Array.isArray(response.data?.banners) ? response.data.banners : []);
+      
+    return {
+      data: raw.map((item, i) => mapBanner(item, i)),
+      meta: response.data?.pagination ?? response.data?.meta ?? { totalPages: 1, page: 1, total: raw.length },
+    };
   },
 
   // POST /admin/banners
