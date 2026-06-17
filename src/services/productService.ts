@@ -109,76 +109,89 @@ export const productService = {
   },
 
   createProduct: async (data: any): Promise<Product> => {
-
-
-    const formData = new FormData();
-    formData.append("categoryId", data.categoryId);
-    formData.append("name", data.name);
-    if (data.description) formData.append("description", data.description);
-    formData.append("price", data.sellingPrice.toString());
-    if (data.mrp) formData.append("compareAtPrice", data.mrp.toString());
-    formData.append("stockQuantity", data.stockQuantity?.toString() ?? "0");
-    if (data.tagIds?.length > 0) formData.append("tags", JSON.stringify(data.tagIds));
-    if (data.subCategoryId) formData.append("subCategoryId", data.subCategoryId);
-    if (data.brand) formData.append("brand", data.brand);
-    formData.append("isActive", data.status === "Active" ? "true" : "false");
-
     const images = data.images ?? [];
-    let newImageCount = 0;
+    let primaryImageUrl: string | undefined;
+    const galleryUrls: string[] = [];
+
     for (let i = 0; i < images.length; i++) {
       const image = images[i];
       if (image.startsWith("data:image")) {
-        const file = await base64ToFile(image, `product-image-${Date.now()}-${newImageCount++}.jpg`);
-        if (i === 0) {
-          formData.append("productImage", file);
-        } else {
-          formData.append("images", file);
-        }
+        const file = await base64ToFile(image, `product-image-${Date.now()}-${i}.jpg`);
+        const uploadForm = new FormData();
+        uploadForm.append("file", file);
+        const uploadRes = await apiClient.post(`${ENDPOINTS.MEDIA.UPLOAD}?type=product`, uploadForm, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        const url = uploadRes.data?.data?.imageUrl || uploadRes.data?.data?.url || uploadRes.data?.url || "";
+        
+        if (i === 0) primaryImageUrl = url;
+        else galleryUrls.push(url);
       } else {
-        formData.append("existingImages", image);
+        if (i === 0) primaryImageUrl = image;
+        else galleryUrls.push(image);
       }
     }
 
-    const response = await apiClient.post(ENDPOINTS.PRODUCTS.ADMIN, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const payload: any = {
+      categoryId: data.categoryId,
+      name: data.name,
+      description: data.description || "",
+      price: data.sellingPrice.toString(),
+      compareAtPrice: data.mrp?.toString() || "",
+      stockQuantity: data.stockQuantity ?? 0,
+      tags: data.tagIds ?? [],
+      subCategoryId: data.subCategoryId || "",
+      brand: data.brand || "",
+      isActive: data.status === "Active",
+    };
+
+    if (primaryImageUrl) payload.imageUrl = primaryImageUrl;
+    if (galleryUrls.length > 0) payload.gallery = galleryUrls;
+
+    const response = await apiClient.post(ENDPOINTS.PRODUCTS.ADMIN, payload);
     return mapProduct(response.data?.data ?? response.data);
   },
 
   updateProduct: async (id: string, data: any): Promise<Product> => {
-
-
-    const formData = new FormData();
-    if (data.categoryId !== undefined) formData.append("categoryId", data.categoryId);
-    if (data.name !== undefined) formData.append("name", data.name);
-    if (data.description !== undefined) formData.append("description", data.description);
-    if (data.sellingPrice !== undefined) formData.append("price", data.sellingPrice.toString());
-    if (data.mrp !== undefined) formData.append("compareAtPrice", data.mrp?.toString() ?? "");
-    if (data.stockQuantity !== undefined) formData.append("stockQuantity", data.stockQuantity.toString());
-    if (data.tagIds !== undefined) formData.append("tags", JSON.stringify(data.tagIds));
-    if (data.subCategoryId !== undefined) formData.append("subCategoryId", data.subCategoryId ?? "");
-    if (data.brand !== undefined) formData.append("brand", data.brand ?? "");
-    if (data.status !== undefined) formData.append("isActive", data.status === "Active" ? "true" : "false");
-
     const images = data.images ?? [];
-    let newImageCount = 0;
+    let primaryImageUrl: string | undefined;
+    const galleryUrls: string[] = [];
+
     for (let i = 0; i < images.length; i++) {
       const image = images[i];
       if (image.startsWith("data:image")) {
-        const file = await base64ToFile(image, `product-image-${Date.now()}-${newImageCount++}.jpg`);
-        if (i === 0) {
-          formData.append("productImage", file);
-        } else {
-          formData.append("images", file);
-        }
+        const file = await base64ToFile(image, `product-image-${Date.now()}-${i}.jpg`);
+        const uploadForm = new FormData();
+        uploadForm.append("file", file);
+        const uploadRes = await apiClient.post(`${ENDPOINTS.MEDIA.UPLOAD}?type=product`, uploadForm, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        const url = uploadRes.data?.data?.imageUrl || uploadRes.data?.data?.url || uploadRes.data?.url || "";
+        
+        if (i === 0) primaryImageUrl = url;
+        else galleryUrls.push(url);
       } else {
-        formData.append("existingImages", image);
+        if (i === 0) primaryImageUrl = image;
+        else galleryUrls.push(image);
       }
     }
 
-    const response = await apiClient.put(`${ENDPOINTS.PRODUCTS.ADMIN}/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const payload: any = {};
+    if (data.categoryId !== undefined) payload.categoryId = data.categoryId;
+    if (data.name !== undefined) payload.name = data.name;
+    if (data.description !== undefined) payload.description = data.description;
+    if (data.sellingPrice !== undefined) payload.price = data.sellingPrice.toString();
+    if (data.mrp !== undefined) payload.compareAtPrice = data.mrp?.toString() ?? "";
+    if (data.stockQuantity !== undefined) payload.stockQuantity = data.stockQuantity;
+    if (data.tagIds !== undefined) payload.tags = data.tagIds;
+    if (data.subCategoryId !== undefined) payload.subCategoryId = data.subCategoryId;
+    if (data.brand !== undefined) payload.brand = data.brand;
+    if (data.status !== undefined) payload.isActive = data.status === "Active";
+
+    if (primaryImageUrl) payload.imageUrl = primaryImageUrl;
+    payload.gallery = galleryUrls;
+
+    const response = await apiClient.put(`${ENDPOINTS.PRODUCTS.ADMIN}/${id}`, payload);
     return mapProduct(response.data?.data ?? response.data);
   },
 

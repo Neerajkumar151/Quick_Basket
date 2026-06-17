@@ -29,6 +29,7 @@ export const categoryService = {
     const queryParams = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
+      parentId: "root"
     });
     if (search) queryParams.append("search", search);
     if (status) queryParams.append("status", status);

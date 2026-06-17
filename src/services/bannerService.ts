@@ -57,7 +57,7 @@ export const bannerService = {
     if (imageFile) {
       const uploadForm = new FormData();
       uploadForm.append("file", imageFile);
-      const uploadRes = await apiClient.post(ENDPOINTS.MEDIA.UPLOAD, uploadForm, {
+      const uploadRes = await apiClient.post(`${ENDPOINTS.MEDIA.UPLOAD}?type=banner`, uploadForm, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       imageUrl = uploadRes.data?.data?.url || uploadRes.data?.url || uploadRes.data?.data?.imageUrl || "";
@@ -101,7 +101,7 @@ export const bannerService = {
     if (imageFile) {
       const uploadForm = new FormData();
       uploadForm.append("file", imageFile);
-      const uploadRes = await apiClient.post(ENDPOINTS.MEDIA.UPLOAD, uploadForm, {
+      const uploadRes = await apiClient.post(`${ENDPOINTS.MEDIA.UPLOAD}?type=banner`, uploadForm, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       imageUrl = uploadRes.data?.data?.url || uploadRes.data?.url || uploadRes.data?.data?.imageUrl || "";
