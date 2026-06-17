@@ -32,7 +32,6 @@ export const ProductsPage = () => {
   // Filters & Sorting
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [subCategoryFilter, setSubCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
 
@@ -55,7 +54,7 @@ export const ProductsPage = () => {
   const { data: responseData, isLoading, isError, refetch } = useProducts(
     debouncedSearchQuery,
     categoryFilter !== "all" ? categoryFilter : undefined,
-    subCategoryFilter !== "all" ? subCategoryFilter : undefined,
+    undefined,
     statusFilter !== "all" ? statusFilter : undefined,
     sortBy !== "newest" ? sortBy : undefined,
     currentPage,
@@ -68,14 +67,6 @@ export const ProductsPage = () => {
   const categories = catalogMetadata?.categories || [];
   const { data: allSubCategoriesResponse } = useSubCategories("", "", 1, 500);
   const allSubCategories = allSubCategoriesResponse?.data || [];
-  
-  // Fetch subcategories only for the selected category filter
-  const { data: subCategoriesForFilter = [] } = useSubCategoryMetadata(
-    categoryFilter !== "all" ? categoryFilter : undefined
-  );
-
-  const displayedSubCategories = categoryFilter === "all" ? allSubCategories : subCategoriesForFilter;
-
 
   const handleSubmitForm = async (data: ProductFormValues) => {
     setIsSubmitting(true);
@@ -241,7 +232,6 @@ export const ProductsPage = () => {
             value={categoryFilter}
             onChange={(e) => {
               setCategoryFilter(e.target.value);
-              setSubCategoryFilter("all");
               setCurrentPage(1);
             }}
           >
@@ -249,21 +239,6 @@ export const ProductsPage = () => {
             {categories.map((c: any) => (
               <option key={c.id} value={c.id}>
                 {c.name}
-              </option>
-            ))}
-          </Select>
-          
-          <Select
-            value={subCategoryFilter}
-            onChange={(e) => {
-              setSubCategoryFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-          >
-            <option value="all">{t("products.filters.subCategoryAll")}</option>
-            {displayedSubCategories.map((sc: any) => (
-              <option key={sc.id} value={sc.id}>
-                {sc.name}
               </option>
             ))}
           </Select>

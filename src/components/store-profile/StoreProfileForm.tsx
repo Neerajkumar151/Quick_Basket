@@ -322,12 +322,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                   <Input
                     {...register("email")}
                     error={errors.email?.message}
-                    disabled
-                    className="bg-muted cursor-not-allowed opacity-70"
                   />
-                  <p className="text-caption text-muted-foreground mt-1.5">
-                    {t("storeProfile.contact.emailReadOnly")}
-                  </p>
                 </div>
               </div>
             </div>
@@ -350,12 +345,7 @@ export const StoreProfileForm: React.FC<StoreProfileFormProps> = ({
                   {...register("address")}
                   error={errors.address?.message}
                   rows={2}
-                  disabled
-                  className="bg-muted cursor-not-allowed opacity-70"
                 />
-                <p className="text-caption text-muted-foreground mt-1.5">
-                  This address is used for billing and cannot be changed here.
-                </p>
               </div>
             </div>
           </SectionCard>

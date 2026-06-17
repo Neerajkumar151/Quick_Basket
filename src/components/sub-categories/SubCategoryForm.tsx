@@ -97,7 +97,7 @@ export const SubCategoryForm: React.FC<SubCategoryFormProps> = ({
             <option value="">
               {t("subCategories.form.parentCategoryPlaceholder")}
             </option>
-            {categories.map((cat: Category) => (
+            {categories.filter((c: Category) => c.status === 'Active').map((cat: Category) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
