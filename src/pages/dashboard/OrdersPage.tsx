@@ -33,7 +33,7 @@ export const OrdersPage = () => {
   const itemsPerPage = 10;
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  const { data: dashboardData } = useDashboard();
+  const { data: dashboardData, refetch: refetchDashboard, isRefetching: isRefetchingDashboard } = useDashboard();
   const metrics = dashboardData?.metrics;
 
   let apiSortBy = "createdAt";
@@ -66,7 +66,7 @@ export const OrdersPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleRefresh = async () => {
-    await refetch();
+    await Promise.all([refetch(), refetchDashboard()]);
     toast.success(t("orders.messages.refreshed"));
   };
 
@@ -262,11 +262,11 @@ export const OrdersPage = () => {
           <Button
             variant="outline"
             onClick={handleRefresh}
-            disabled={isRefetching}
+            disabled={isRefetching || isRefetchingDashboard}
             className="flex items-center gap-2"
           >
-            <RefreshCw size={16} className={isRefetching ? "animate-spin" : ""} />
-            {isRefetching ? t("orders.filters.refreshing") : t("orders.filters.refresh")}
+            <RefreshCw size={16} className={isRefetching || isRefetchingDashboard ? "animate-spin" : ""} />
+            {isRefetching || isRefetchingDashboard ? t("orders.filters.refreshing") : t("orders.filters.refresh")}
           </Button>
         </div>
       </FilterBar>

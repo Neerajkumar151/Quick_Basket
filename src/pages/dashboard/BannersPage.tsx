@@ -74,15 +74,6 @@ export const BannersPage = () => {
     }
   };
 
-  const toggleStatus = async (banner: Banner) => {
-    try {
-      await bannerService.toggleStatus(banner.id);
-      toast.success(t("banners.messages.successStatus"));
-      await queryClient.invalidateQueries({ queryKey: BANNERS_QUERY_KEY });
-    } catch {
-      toast.error(t("banners.messages.errorStatus"));
-    }
-  };
 
   const processedBanners = useMemo(() => {
     const result = [...banners];
@@ -134,12 +125,7 @@ export const BannersPage = () => {
     {
       header: t("banners.table.status"),
       cell: (banner: Banner) => (
-        <button
-          onClick={() => toggleStatus(banner)}
-          className="hover:opacity-80 transition-opacity"
-        >
-          <StatusBadge status={banner.status} />
-        </button>
+        <StatusBadge status={banner.status} />
       ),
     },
     {

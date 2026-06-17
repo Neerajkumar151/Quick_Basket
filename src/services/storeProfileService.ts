@@ -114,9 +114,7 @@ export const mapStoreOperations = (raw: RawStoreProfile): StoreOperations => {
 
 export const storeProfileService = {
   updateStoreProfile: async (data: StoreProfileUpdateInput, logoFile?: File | null, bannerFile?: File | null): Promise<StoreProfile> => {
-    // Map frontend fields back to backend API expected format using FormData
     const formData = new FormData();
-    
     if (data.storeName !== undefined) formData.append("name", data.storeName);
     if (data.ownerName !== undefined) formData.append("ownerName", data.ownerName);
     if (data.description !== undefined) formData.append("description", data.description);
@@ -127,16 +125,12 @@ export const storeProfileService = {
     if (data.gstNumber !== undefined) formData.append("gstNumber", data.gstNumber);
     if (data.panNumber !== undefined) formData.append("panNumber", data.panNumber);
     
-    // Append files if they exist
     if (logoFile) formData.append("logo", logoFile);
     if (bannerFile) formData.append("banner", bannerFile);
 
     const response = await apiClient.put(ENDPOINTS.STORE.PROFILE, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
-    
     const raw: RawStoreProfile = response.data?.data ?? response.data ?? {};
     return mapStoreProfile(raw);
   },

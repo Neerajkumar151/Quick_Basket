@@ -84,13 +84,6 @@ export const ProductsPage = () => {
     }
   };
 
-  const toggleStatus = async (prod: Product) => {
-    try {
-      await toggleProductStatus(prod.id);
-    } catch {
-      // Error handled by hook
-    }
-  };
 
   // Wait, no need to filter on frontend anymore since the backend handles it.
 
@@ -184,12 +177,7 @@ export const ProductsPage = () => {
     {
       header: t("products.table.status"),
       cell: (prod: Product) => (
-        <button
-          onClick={() => toggleStatus(prod)}
-          className="hover:opacity-80 transition-opacity"
-        >
-          <StatusBadge status={prod.status} />
-        </button>
+        <StatusBadge status={prod.status} />
       ),
     },
     {
