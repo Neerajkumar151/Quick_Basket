@@ -31,6 +31,7 @@ const mapBanner = (item: RawApiBanner, fallbackOrder = 0): Banner => ({
 export const bannerService = {
   // GET /banners
   getBanners: async (
+    statusFilter?: string,
     page: number = 1,
     limit: number = 10
   ): Promise<{ data: Banner[]; meta: any }> => {
@@ -38,6 +39,10 @@ export const bannerService = {
       page: page.toString(),
       limit: limit.toString(),
     });
+    
+    if (statusFilter && statusFilter !== "all") {
+      queryParams.append("status", statusFilter.toLowerCase());
+    }
     
     // We fetch from the admin endpoint so we get paginated results
     const response = await apiClient.get(`${ENDPOINTS.BANNERS.ADMIN_BASE}?${queryParams.toString()}`);

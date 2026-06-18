@@ -32,7 +32,7 @@ export const tagService = {
     });
     if (search) queryParams.append("search", search);
     if (statusFilter && statusFilter !== "all") {
-      queryParams.append("isActive", statusFilter === "Active" ? "true" : "false");
+      queryParams.append("status", statusFilter);
     }
 
     const response = await apiClient.get(`${ENDPOINTS.TAGS.BASE}?${queryParams.toString()}`);
