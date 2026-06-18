@@ -45,6 +45,7 @@ export const BaseCategoryForm = <TFieldValues extends FieldValues>({
 
         <Input
           label={nameLabel}
+          required
           placeholder={namePlaceholder}
           {...register("name" as Path<TFieldValues>)}
           error={errors.name?.message as string}

@@ -7,6 +7,7 @@ import { ImageCropperModal } from './ImageCropperModal';
 
 interface ImageUploaderProps {
   label?: string;
+  required?: boolean;
   maxFiles?: number;
   maxSizeMB?: number;
   acceptedFormats?: string[];
@@ -25,6 +26,7 @@ interface ImageUploaderProps {
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
   label = "Image",
+  required,
   maxSizeMB = 5,
   acceptedFormats = ["image/jpeg", "image/jpg", "image/png", "image/webp"],
   previewUrl: initialPreviewUrl,
@@ -87,7 +89,12 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      {label && <label className="text-description font-medium text-foreground">{label}</label>}
+      {label && (
+        <label className="text-description font-medium text-foreground">
+          {label}
+          {required && <span className="text-error ml-1">*</span>}
+        </label>
+      )}
       {previewUrl ? (
         <div className={`relative rounded-lg border border-border overflow-hidden group bg-input flex items-center justify-center ${previewClassName}`}>
           <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />

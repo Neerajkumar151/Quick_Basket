@@ -80,6 +80,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       prependChildren={
         <ImageUploader
           label={t("categories.form.image")}
+          required
           previewUrl={initialData?.image}
           onFileSelect={setSelectedFile}
         />

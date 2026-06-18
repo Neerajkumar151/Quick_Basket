@@ -126,6 +126,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         {/* Name */}
         <Input
           label={t("products.form.name")}
+          required
           placeholder={t("products.form.namePlaceholder")}
           error={errors.name?.message}
           {...register("name")}
@@ -152,6 +153,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           <Input
             type="number"
             step="0.01"
+            required
             label={t("products.form.sellingPrice")}
             error={errors.sellingPrice?.message}
             {...register("sellingPrice")}
@@ -215,6 +217,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             type="number"
+            required
             label={t("products.form.initialStock")}
             error={errors.stockQuantity?.message}
             {...register("stockQuantity")}
@@ -254,6 +257,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           render={({ field }) => (
             <MultipleImageUploader
               label={t("products.form.images")}
+              required
               images={field.value}
               onChange={field.onChange}
               error={errors.images?.message}

@@ -7,6 +7,7 @@ import { ImageCropperModal } from "../ui/ImageCropperModal";
 
 interface MultipleImageUploaderProps {
   label?: string;
+  required?: boolean;
   maxFiles?: number;
   maxSizeMB?: number;
   acceptedFormats?: string[];
@@ -20,6 +21,7 @@ interface MultipleImageUploaderProps {
 
 export const MultipleImageUploader: React.FC<MultipleImageUploaderProps> = ({
   label = "Images",
+  required,
   maxFiles = 5,
   maxSizeMB = 5,
   acceptedFormats = ["image/jpeg", "image/jpg", "image/png", "image/webp"],
@@ -155,6 +157,7 @@ export const MultipleImageUploader: React.FC<MultipleImageUploaderProps> = ({
       {label && (
         <label className="text-description font-medium text-foreground">
           {label}
+          {required && <span className="text-error ml-1">*</span>}
         </label>
       )}
 
