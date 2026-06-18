@@ -195,6 +195,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             render={({ field }) => (
               <SearchableSelect
                 label={t("products.form.subCategory")}
+                required
                 options={subCategoryOptions}
                 value={field.value || ""}
                 onChange={field.onChange}

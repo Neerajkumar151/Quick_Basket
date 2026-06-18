@@ -10,7 +10,7 @@ export const createProductSchema = (t: TFunction) => z
     mrp: z.coerce.number().optional(),
     stockQuantity: z.coerce.number().min(0, t("products.validation.stockQuantityMin")).default(0),
     categoryId: z.string().min(1, t("products.validation.categoryRequired")),
-    subCategoryId: z.string().optional(),
+    subCategoryId: z.string().min(1, t("products.validation.subCategoryRequired", "Sub-Category is required")),
     tagIds: z.array(z.string()).default([]),
     images: z.array(z.string()).min(1, t("products.validation.imagesRequired")),
     status: z.enum(["Active", "Inactive"]).default("Inactive"),
@@ -36,7 +36,7 @@ export interface ProductFormValues {
   mrp?: number;
   stockQuantity: number;
   categoryId: string;
-  subCategoryId?: string;
+  subCategoryId: string;
   tagIds: string[];
   images: string[];
   status: "Active" | "Inactive";

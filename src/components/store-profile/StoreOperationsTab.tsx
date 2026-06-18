@@ -29,11 +29,13 @@ export const StoreOperationsTab: React.FC<StoreOperationsTabProps> = ({
 
   const handleSave = async () => {
     // Validation
+    /* 
     const hasEnabledDay = formData.businessHours.some((bh) => bh.enabled);
     if (!hasEnabledDay) {
       toast.error(t("storeProfile.messages.validationWorkingDays"));
       return;
     }
+    */
     
     if (formData.estimatedDeliveryTime <= 0) {
       toast.error(t("storeProfile.messages.validationDeliveryTime"));
@@ -88,7 +90,7 @@ export const StoreOperationsTab: React.FC<StoreOperationsTabProps> = ({
         </div>
       </SectionCard>
 
-      {/* Business Hours */}
+      {/* Business Hours Section - Commented Out
       <SectionCard 
         title={t("storeProfile.operations.businessHours.title")} 
         description={t("storeProfile.operations.businessHours.description")}
@@ -140,6 +142,7 @@ export const StoreOperationsTab: React.FC<StoreOperationsTabProps> = ({
           </table>
         </div>
       </SectionCard>
+      */}
 
       {/* Delivery Settings
       <SectionCard 

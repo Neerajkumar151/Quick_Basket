@@ -68,7 +68,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t("orders.modal.title", `Order #${order.id.split('-')[0]?.toUpperCase()}`, { id: `#${order.id.split('-')[0]?.toUpperCase()}` })}
+      title={t("orders.modal.title", `Order #${order.id.slice(-8).toUpperCase()}`, { id: `#${order.id.slice(-8).toUpperCase()}` })}
       maxWidth="4xl"
     >
       <div className="flex flex-col gap-6">
