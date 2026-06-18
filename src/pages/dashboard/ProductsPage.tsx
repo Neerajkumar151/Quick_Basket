@@ -250,7 +250,6 @@ export const ProductsPage = () => {
             }}
           >
             <option value="newest">{t("products.filters.sortOptions.newest")}</option>
-            <option value="popularity">Popularity</option>
             <option value="priceAsc">{t("products.filters.sortOptions.priceAsc")}</option>
             <option value="priceDesc">{t("products.filters.sortOptions.priceDesc")}</option>
           </Select>
