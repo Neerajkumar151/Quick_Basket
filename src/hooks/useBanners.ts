@@ -6,10 +6,10 @@ export const BANNERS_QUERY_KEY = ["banners"] as const;
 /**
  * Fetches all banners with caching via TanStack Query.
  */
-export function useBanners(page: number = 1, limit: number = 10) {
+export function useBanners(statusFilter?: string, page: number = 1, limit: number = 10) {
   return useQuery({
-    queryKey: [...BANNERS_QUERY_KEY, page, limit],
-    queryFn: () => bannerService.getBanners(page, limit),
+    queryKey: [...BANNERS_QUERY_KEY, statusFilter, page, limit],
+    queryFn: () => bannerService.getBanners(statusFilter, page, limit),
     staleTime: 5 * 60 * 1000,
   });
 }

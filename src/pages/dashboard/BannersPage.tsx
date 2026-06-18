@@ -3,6 +3,8 @@ import { Plus, ImageIcon, Edit2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { PageHeader } from "../../components/ui/PageHeader";
+import { FilterBar } from "../../components/ui/FilterBar";
+import { Select } from "../../components/ui/Select";
 
 import { DataTable, ColumnDef } from "../../components/ui/DataTable";
 import { EntityDrawer } from "../../components/ui/EntityDrawer";
@@ -29,12 +31,15 @@ export const BannersPage = () => {
   const { isOpen, editingItem: editingBanner, openDrawer, closeDrawer } = useEntityDrawer<Banner>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Filter state
+  const [statusFilter, setStatusFilter] = useState("all");
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   // Data via TanStack Query (cached)
-  const { data: responseData, isLoading, isError, refetch } = useBanners(currentPage, itemsPerPage);
+  const { data: responseData, isLoading, isError, refetch } = useBanners(statusFilter, currentPage, itemsPerPage);
   
   const banners = responseData?.data || [];
   const totalPages = responseData?.meta?.totalPages || 1;
@@ -50,12 +55,14 @@ export const BannersPage = () => {
       if (editingBanner) {
         await bannerService.updateBanner(editingBanner.id, {
           ...data,
+          title: data.title || "",
           redirectName: data.redirectName || "",
         }, imageFile);
         toast.success(t("banners.messages.successUpdate"));
       } else {
         await bannerService.createBanner({
           ...data,
+          title: data.title || "",
           redirectName: data.redirectName || "",
         }, imageFile);
         toast.success(t("banners.messages.successCreate"));
@@ -154,6 +161,22 @@ export const BannersPage = () => {
         actionIcon={<Plus size={18} />}
         onAction={() => openDrawer()}
       />
+
+      <FilterBar>
+        <div className="w-full sm:w-1/4">
+          <Select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+          >
+            <option value="all">{t("products.filters.statusAll", "All Status")}</option>
+            <option value="Active">{t("banners.form.active", "Active")}</option>
+            <option value="Inactive">{t("banners.form.inactive", "Inactive")}</option>
+          </Select>
+        </div>
+      </FilterBar>
 
       <div className="flex flex-col">
         {isError ? (
