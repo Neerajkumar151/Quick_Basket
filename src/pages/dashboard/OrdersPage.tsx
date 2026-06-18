@@ -125,7 +125,7 @@ export const OrdersPage = () => {
       header: t("orders.table.orderId"),
       cell: (o: Order) => (
         <span className="font-mono font-bold text-primary text-description" title={o.id}>
-          #{o.id.split('-')[0]?.toUpperCase()}
+          #{o.id.slice(-8).toUpperCase()}
         </span>
       ),
     },

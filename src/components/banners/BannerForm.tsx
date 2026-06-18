@@ -8,10 +8,10 @@ import { Select } from "../ui/Select";
 import { ImageUploader } from "../ui/ImageUploader";
 import { Button } from "../ui/Button";
 import { SearchableSelect } from "../ui/SearchableSelect";
-import { useCatalogMetadata } from "../../hooks/useCatalogMetadata";
+import { useCategories } from "../../hooks/useCategories";
 import { useTranslation } from "react-i18next";
 import type { Product } from "../../types/product";
-import type { CatalogMetadata } from "../../services/catalogService";
+import type { Category } from "../../types/category";
 import type { Banner } from "../../types/banner";
 import { useProducts } from "../../hooks/useProducts";
 interface BannerFormProps {
@@ -32,12 +32,18 @@ export const BannerForm: React.FC<BannerFormProps> = ({
   const { t } = useTranslation();
   const defaultSubmitLabel = submitLabel || t("banners.form.create");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [productSearch, setProductSearch] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
+  const [selectedProductLabel, setSelectedProductLabel] = useState(initialData?.redirectType === "Product" ? initialData?.redirectName || "" : "");
+  const [selectedCategoryLabel, setSelectedCategoryLabel] = useState(initialData?.redirectType === "Category" ? initialData?.redirectName || "" : "");
 
-  const { data: productsResponse, isLoading: isLoadingProducts } = useProducts();
+  const { data: productsResponse, isLoading: isLoadingProducts } =
+    useProducts(productSearch, undefined, undefined, undefined, undefined, 1, 10);
   const products = productsResponse?.data || [];
-  const { data: catalogMetadata, isLoading: isLoadingMetadataReq } = useCatalogMetadata();
-  const categories = catalogMetadata?.categories || [];
-  const isLoadingMetadata = isLoadingProducts || isLoadingMetadataReq;
+
+  const { data: categoriesResponse, isLoading: isLoadingCategories } =
+    useCategories(categorySearch, 1, 10, undefined);
+  const categories = categoriesResponse?.data || [];
 
   const {
     register,
@@ -60,6 +66,32 @@ export const BannerForm: React.FC<BannerFormProps> = ({
   });
 
   const redirectType = watch("redirectType");
+  const currentRedirectId = watch("redirectId");
+
+  // Cache labels for the selected items
+  useEffect(() => {
+    if (redirectType === "Product" && currentRedirectId) {
+      const p = products.find((prod) => prod.id === currentRedirectId);
+      if (p) setSelectedProductLabel(p.name);
+    }
+  }, [products, currentRedirectId, redirectType]);
+
+  useEffect(() => {
+    if (redirectType === "Category" && currentRedirectId) {
+      const c = categories.find((cat) => cat.id === currentRedirectId);
+      if (c) setSelectedCategoryLabel(c.name);
+    }
+  }, [categories, currentRedirectId, redirectType]);
+
+  const productOptions = products.map((p: Product) => ({
+    value: p.id,
+    label: p.name,
+  }));
+
+  const categoryOptions = categories.map((c: Category) => ({
+    value: c.id,
+    label: c.name,
+  }));
 
   useEffect(() => {
     if (initialData) {
@@ -88,11 +120,9 @@ export const BannerForm: React.FC<BannerFormProps> = ({
   const handleFormSubmit = async (data: BannerFormValues) => {
     let redirectName = t("common.unknown");
     if (data.redirectType === "Product") {
-      const p = products.find((prod: Product) => prod.id === data.redirectId);
-      if (p) redirectName = p.name;
+      redirectName = selectedProductLabel || data.redirectId;
     } else {
-      const c = categories.find((cat: CatalogMetadata) => cat.id === data.redirectId);
-      if (c) redirectName = c.name;
+      redirectName = selectedCategoryLabel || data.redirectId;
     }
 
     await onSubmit({ ...data, redirectName }, selectedFile);
@@ -109,13 +139,11 @@ export const BannerForm: React.FC<BannerFormProps> = ({
         label={t("banners.form.image")}
         previewUrl={initialData?.image}
         onFileSelect={setSelectedFile}
-        aspectRatio={16/9}
+        aspectRatio={16 / 9}
         maxWidth={1920}
         maxHeight={1080}
         quality={0.9}
       />
-
-
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Select
@@ -138,35 +166,40 @@ export const BannerForm: React.FC<BannerFormProps> = ({
               <SearchableSelect
                 label={t("banners.form.selectProduct")}
                 required
-                options={products.map((p: Product) => ({
-                  value: p.id,
-                  label: p.name,
-                }))}
+                options={productOptions}
                 value={field.value}
                 onChange={field.onChange}
+                onSearchChange={setProductSearch}
+                selectedOptionLabel={selectedProductLabel || currentRedirectId}
                 placeholder={t("banners.form.selectProduct")}
-                searchPlaceholder={t("banners.form.searchProducts")}
+                searchPlaceholder={t("banners.form.searchProducts", "Search products...")}
                 emptyMessage={t("banners.form.noProducts")}
-                disabled={isLoadingMetadata}
+                isLoading={isLoadingProducts}
                 error={errors.redirectId?.message}
               />
             )}
           />
         ) : (
-          <Select
-            label={t("banners.form.redirectTarget")}
-            error={errors.redirectId?.message}
-            {...register("redirectId")}
-            value={watch("redirectId")}
-            disabled={isLoadingMetadata}
-          >
-            <option value="">{t("banners.form.selectCategory")}</option>
-            {categories.map((c: CatalogMetadata) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </Select>
+          <Controller
+            control={control}
+            name="redirectId"
+            render={({ field }) => (
+              <SearchableSelect
+                label={t("banners.form.redirectTarget")}
+                required
+                options={categoryOptions}
+                value={field.value}
+                onChange={field.onChange}
+                onSearchChange={setCategorySearch}
+                selectedOptionLabel={selectedCategoryLabel || currentRedirectId}
+                placeholder={t("banners.form.selectCategory")}
+                searchPlaceholder={t("banners.form.searchCategories", "Search categories...")}
+                emptyMessage={t("banners.form.noCategories", "No categories found")}
+                isLoading={isLoadingCategories}
+                error={errors.redirectId?.message}
+              />
+            )}
+          />
         )}
       </div>
 

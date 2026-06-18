@@ -264,7 +264,16 @@ export const SubCategoriesPage = () => {
         }
       >
         <SubCategoryForm
-          initialData={editingSubCategory}
+          initialData={
+            editingSubCategory
+              ? {
+                  ...editingSubCategory,
+                  parentName: categories.find(
+                    (c: any) => c.id === editingSubCategory.categoryId,
+                  )?.name,
+                }
+              : undefined
+          }
           onSubmit={handleSubmitForm}
           isSubmitting={isSubmitting}
           submitLabel={

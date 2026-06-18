@@ -14,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { pathname } = useLocation();
   const isLoggedIn = pathname.startsWith("/dashboard");
   const { theme, setTheme } = useTheme();
-  const { data: profile } = useStoreProfile({ enabled: isLoggedIn });
+  const { data: profile, isLoading: isProfileLoading } = useStoreProfile({ enabled: isLoggedIn });
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -97,7 +97,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
             <div className="flex items-center gap-3 cursor-pointer group">
               <div className="hidden sm:flex flex-col items-end">
                 <span className="text-description font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
-                  {profile?.storeName || t("layout.adminName")}
+                  {isProfileLoading ? "..." : (profile?.storeName || t("layout.brand"))}
                 </span>
                 <span className="text-caption text-error font-medium leading-tight">
                   {t("layout.adminRole")}

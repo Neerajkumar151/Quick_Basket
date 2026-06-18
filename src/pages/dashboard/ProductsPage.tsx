@@ -213,6 +213,7 @@ export const ProductsPage = () => {
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
+              setCurrentPage(1);
             }}
             placeholder={t("products.filters.searchPlaceholder")}
           />
@@ -293,7 +294,7 @@ export const ProductsPage = () => {
         }
       >
         <ProductForm
-          initialData={editingProduct as ProductFormValues | undefined}
+          initialData={editingProduct as (ProductFormValues & { categoryName?: string; subCategoryName?: string }) | undefined}
           onSubmit={handleSubmitForm}
           isSubmitting={isSubmitting}
           submitLabel={

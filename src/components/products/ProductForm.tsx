@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createProductSchema, ProductFormValues } from "../../validations/product";
@@ -8,12 +8,15 @@ import { Select } from "../ui/Select";
 import { MultiSelect } from "../ui/MultiSelect";
 import { MultipleImageUploader } from "./MultipleImageUploader";
 import { Button } from "../ui/Button";
-import { useCatalogMetadata, useSubCategoryMetadata } from "../../hooks/useCatalogMetadata";
+import { useCatalogMetadata } from "../../hooks/useCatalogMetadata";
+import { useCategories } from "../../hooks/useCategories";
+import { useSubCategories } from "../../hooks/useSubCategories";
+import { SearchableSelect } from "../ui/SearchableSelect";
 import { useTranslation } from "react-i18next";
 import type { CatalogMetadata } from "../../services/catalogService";
 
 interface ProductFormProps {
-  initialData?: ProductFormValues | null;
+  initialData?: (ProductFormValues & { categoryName?: string; subCategoryName?: string }) | null;
   onSubmit: (data: ProductFormValues) => Promise<void>;
   isSubmitting?: boolean;
   submitLabel?: string;
@@ -30,8 +33,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const { t } = useTranslation();
   const defaultSubmitLabel = submitLabel || t("products.form.create");
   const { data: catalogMetadata, isLoading: isLoadingMetadata } = useCatalogMetadata();
-  const categories = catalogMetadata?.categories || [];
   const tags = catalogMetadata?.tags || [];
+
+  const [categorySearch, setCategorySearch] = useState("");
+  const [subCategorySearch, setSubCategorySearch] = useState("");
+  const [selectedCategoryLabel, setSelectedCategoryLabel] = useState(initialData?.categoryName || "");
+  const [selectedSubCategoryLabel, setSelectedSubCategoryLabel] = useState(initialData?.subCategoryName || "");
+
+  const { data: categoriesResponse, isLoading: isLoadingCategories } = useCategories(categorySearch, 1, 10, undefined);
+  const categories = categoriesResponse?.data || [];
 
   const {
     register,
@@ -64,10 +74,31 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   }, [initialData, reset]);
 
   const selectedCategoryId = watch("categoryId");
-  const { data: subCategories = [], isLoading: isLoadingSubCategories } = useSubCategoryMetadata(selectedCategoryId);
+  const selectedSubCategoryId = watch("subCategoryId");
+
+  const { data: subCategoriesResponse, isLoading: isLoadingSubCategories } = useSubCategories(
+    subCategorySearch,
+    selectedCategoryId,
+    1,
+    10,
+    undefined
+  );
+  const subCategories = subCategoriesResponse?.data || [];
   
-  // Update isFetchingMetadata to include subCategories
-  const isFetchingMetadata = isLoadingMetadata || isLoadingSubCategories;
+  // Update selected labels when ID matches fetched items
+  useEffect(() => {
+    if (selectedCategoryId) {
+      const c = categories.find((cat: any) => cat.id === selectedCategoryId);
+      if (c) setSelectedCategoryLabel(c.name);
+    }
+  }, [categories, selectedCategoryId]);
+
+  useEffect(() => {
+    if (selectedSubCategoryId) {
+      const sc = subCategories.find((cat: any) => cat.id === selectedSubCategoryId);
+      if (sc) setSelectedSubCategoryLabel(sc.name);
+    }
+  }, [subCategories, selectedSubCategoryId]);
 
   // Reset subCategory when category changes (but not on initial load)
   useEffect(() => {
@@ -75,6 +106,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       setValue("subCategoryId", "");
     }
   }, [selectedCategoryId, setValue, initialData]);
+
+  const categoryOptions = categories.map((c: any) => ({
+    value: c.id,
+    label: c.name,
+  }));
+
+  const subCategoryOptions = subCategories.map((c: any) => ({
+    value: c.id,
+    label: c.name,
+  }));
 
   return (
     <form
@@ -126,35 +167,49 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
         {/* Category & Stock */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Select
-            label={t("products.form.category")}
-            error={errors.categoryId?.message}
-            {...register("categoryId")}
-            value={watch("categoryId")}
-            disabled={isFetchingMetadata}
-          >
-            <option value="">{t("products.form.categoryPlaceholder")}</option>
-            {categories.map((cat: CatalogMetadata) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </Select>
+          <Controller
+            control={control}
+            name="categoryId"
+            render={({ field }) => (
+              <SearchableSelect
+                label={t("products.form.category")}
+                required
+                options={categoryOptions}
+                value={field.value}
+                onChange={field.onChange}
+                onSearchChange={setCategorySearch}
+                selectedOptionLabel={selectedCategoryLabel || selectedCategoryId}
+                placeholder={t("products.form.categoryPlaceholder")}
+                searchPlaceholder={t("banners.form.searchCategories", "Search categories...")}
+                emptyMessage={t("subCategories.form.noCategories", "No categories found")}
+                isLoading={isLoadingCategories}
+                error={errors.categoryId?.message}
+                disabled={isLoadingCategories}
+              />
+            )}
+          />
 
-          <Select
-            label={t("products.form.subCategory")}
-            error={errors.subCategoryId?.message}
-            {...register("subCategoryId")}
-            value={watch("subCategoryId")}
-            disabled={isFetchingMetadata || !selectedCategoryId || subCategories.length === 0}
-          >
-            <option value="">{t("products.form.subCategoryPlaceholder")}</option>
-            {subCategories.map((subCat: CatalogMetadata) => (
-              <option key={subCat.id} value={subCat.id}>
-                {subCat.name}
-              </option>
-            ))}
-          </Select>
+          <Controller
+            control={control}
+            name="subCategoryId"
+            render={({ field }) => (
+              <SearchableSelect
+                label={t("products.form.subCategory")}
+                required
+                options={subCategoryOptions}
+                value={field.value || ""}
+                onChange={field.onChange}
+                onSearchChange={setSubCategorySearch}
+                selectedOptionLabel={selectedSubCategoryLabel || selectedSubCategoryId}
+                placeholder={t("products.form.subCategoryPlaceholder")}
+                searchPlaceholder={t("banners.form.searchCategories", "Search sub-categories...")}
+                emptyMessage={t("subCategories.form.noCategories", "No sub-categories found")}
+                isLoading={isLoadingSubCategories}
+                error={errors.subCategoryId?.message}
+                disabled={isLoadingSubCategories || !selectedCategoryId}
+              />
+            )}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
