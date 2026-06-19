@@ -107,10 +107,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
   }, [selectedCategoryId, setValue, initialData]);
 
-  const categoryOptions = categories.map((c: any) => ({
-    value: c.id,
-    label: c.name,
-  }));
+  // Fetch all subcategories so we can filter them out of the categories list
+  const { data: allSubCategoriesResponse } = useSubCategories("", "", 1, 500);
+  const allSubCategories = allSubCategoriesResponse?.data || [];
+
+  const categoryOptions = categories
+    .filter((c: any) => !allSubCategories.some((sc: any) => sc.id === c.id))
+    .map((c: any) => ({
+      value: c.id,
+      label: c.name,
+    }));
 
   const subCategoryOptions = subCategories.map((c: any) => ({
     value: c.id,

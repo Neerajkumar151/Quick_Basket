@@ -95,7 +95,7 @@ export const ProductsPage = () => {
         return (
           <div
             className="relative w-10 h-10 rounded-lg bg-input overflow-hidden flex items-center justify-center border border-border shadow-sm cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => openDrawer(prod)}
+            onClick={() => handleOpenDrawer(prod)}
             title={t("common.edit")}
           >
             {prod.images && prod.images.length > 0 ? (
@@ -123,16 +123,23 @@ export const ProductsPage = () => {
     {
       header: t("products.table.name"),
       cell: (prod: Product) => {
-        const catName = prod.categoryName || categories.find((c: any) => c.id === prod.categoryId)?.name || t("products.messages.unknownCategory");
-        const subCatName = prod.subCategoryName || allSubCategories.find((sc: any) => sc.id === prod.subCategoryId)?.name;
-        
+        // Autocorrect if prod.categoryId is actually a sub-category ID
+        const matchedSubCat = allSubCategories.find((sc: any) => sc.id === prod.categoryId);
+        let trueCategoryId = prod.categoryId;
+        let displayCatName = prod.categoryName || categories.find((c: any) => c.id === trueCategoryId)?.name || t("products.messages.unknownCategory");
+
+        if (matchedSubCat) {
+          trueCategoryId = matchedSubCat.categoryId;
+          displayCatName = categories.find((c: any) => c.id === trueCategoryId)?.name || displayCatName;
+        }
+
         return (
           <div className="flex flex-col max-w-[250px]">
             <span className="font-bold text-foreground truncate" title={prod.name}>
               {prod.name}
             </span>
-            <span className="text-caption text-muted-foreground truncate" title={subCatName ? `${catName} > ${subCatName}` : catName}>
-              {subCatName ? `${catName} > ${subCatName}` : catName}
+            <span className="text-caption text-muted-foreground truncate" title={displayCatName}>
+              {displayCatName}
             </span>
             {prod.description && (
               <span className="text-description text-muted-foreground/80 truncate mt-1" title={prod.description}>
@@ -186,7 +193,7 @@ export const ProductsPage = () => {
       cell: (prod: Product) => (
         <div className="flex justify-end">
           <button
-            onClick={() => openDrawer(prod)}
+            onClick={() => handleOpenDrawer(prod)}
             className="flex items-center gap-2 px-3 py-1.5 text-description font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
           >
             <Edit2 size={16} />
@@ -197,6 +204,22 @@ export const ProductsPage = () => {
     },
   ];
 
+  const handleOpenDrawer = (prod?: Product) => {
+    if (prod) {
+      let correctedProd = { ...prod };
+      const matchedSubCat = allSubCategories.find((sc: any) => sc.id === prod.categoryId);
+      if (matchedSubCat) {
+        correctedProd.categoryId = matchedSubCat.categoryId;
+        correctedProd.categoryName = categories.find((c: any) => c.id === matchedSubCat.categoryId)?.name || "";
+        correctedProd.subCategoryId = matchedSubCat.id;
+        correctedProd.subCategoryName = matchedSubCat.name;
+      }
+      openDrawer(correctedProd);
+    } else {
+      openDrawer();
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500 pb-12">
       <PageHeader
@@ -204,7 +227,7 @@ export const ProductsPage = () => {
         description={t("products.header.subtitle")}
         actionLabel={t("products.header.addProduct")}
         actionIcon={<Plus size={18} />}
-        onAction={() => openDrawer()}
+        onAction={() => handleOpenDrawer()}
       />
 
       <FilterBar>
